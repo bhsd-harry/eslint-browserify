@@ -1,6 +1,6 @@
 {
 	"name": "@bhsd/eslint-browserify",
-	"version": "8.57.1",
+	"version": "8.57.1-beta.0",
 	"description": "ESLint in browser",
 	"keywords": [
 		"eslint",

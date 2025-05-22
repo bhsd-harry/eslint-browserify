@@ -62,6 +62,7 @@ const plugin = {
 						...namedCaptureGroup2,
 					].join('|')}|(?:${[
 						'rules',
+						'prelude-ls/lib',
 						...fromEntries,
 					].join('|')})/index)\.c?js|package\.json)$`,
 				),
@@ -107,6 +108,12 @@ const plugin = {
 							'',
 						);
 						break;
+					case 'lib':
+						contents = contents.replace(
+							/^prelude\.(?!reject|any|all|isItNaN)\w+ = \w+\.\w+;$/gmu,
+							'',
+						);
+						break;
 					case 'linter':
 						contents = contents.replace(
 							/^([ \t]+)(?:_verifyWith(?:\w*ConfigArray\w*|Processor)|define\w+)\(.+?^\1\}$/gmsu,
@@ -118,8 +125,11 @@ const plugin = {
 						break;
 					case 'List':
 						contents = contents.replace(
-							/^(\w+) = .+?^\}\)?;$/gmsu,
-							(p0, p1) => ['reject', 'any', 'all'].includes(p1) ? p0 : '',
+							/^(?!reject|any|all)(\w+) = .+?^\}\)?;$/gmsu,
+							'',
+						).replace(
+							/^[ \t]+(?!reject|any|all)(\w+): \1,?$/gmu,
+							'',
 						);
 						break;
 					case 'no-magic-numbers':

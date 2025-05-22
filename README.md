@@ -2,6 +2,7 @@
 
 [![npm version](https://badge.fury.io/js/@bhsd%2Feslint-browserify.svg)](https://www.npmjs.com/package/@bhsd/eslint-browserify)
 [![License](https://img.shields.io/badge/License-MIT-brightgreen.svg)](LICENSE)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/f8d073568955481f9aa7acbc9484c8a6)](https://app.codacy.com/gh/bhsd-harry/eslint-browserify/dashboard)
 
 # API
 
@@ -20,7 +21,7 @@ The `Linter` instance does the actual evaluation of the JavaScript code. It pars
 The most important method on `Linter` is `verify()`, which initiates linting of the given text. This method accepts three arguments:
 
 - `code` - the source code to lint (a string).
-- `config` - a [Configuration object](https://eslint.org/docs/v8.x/use/configure/) or an array of configuration objects.
+- `config` - a [configuration object](https://eslint.org/docs/v8.x/use/configure/) or an array of configuration objects.
 
 You can call `verify()` like this:
 
@@ -68,6 +69,7 @@ The information available for each linting message is:
 - `endColumn` - the end column of the range on which the error occurred (this property is omitted if it's not range).
 - `endLine` - the end line of the range on which the error occurred (this property is omitted if it's not range).
 - `fix` - an object describing the fix for the problem (this property is omitted if no fix is available).
+* `suggestions` - an array of objects describing possible lint fixes for editors to programmatically enable.
 
 ### Linter#verifyAndFix()
 
@@ -95,6 +97,6 @@ Output object from this method:
 
 The information available is:
 
-- `fixed` - True, if the code was fixed.
-- `output` - Fixed code text (might be the same as input if no fixes were applied).
-- `messages` - Collection of all messages for the given code (It has the same information as explained above under `verify` block).
+- `fixed` - true, if the code was fixed.
+- `output` - fixed code text (might be the same as input if no fixes were applied).
+- `messages` - collection of all messages for the given code (It has the same information as explained above under [`verify`](#linterverify) block).
