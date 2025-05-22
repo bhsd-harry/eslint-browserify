@@ -2,3 +2,4 @@
 /node_modules/
 /bundle/eslint*
 /package-lock.json
+/.eslintcache

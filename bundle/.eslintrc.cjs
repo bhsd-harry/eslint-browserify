@@ -14,6 +14,7 @@ module.exports = {
 		define: 'readonly',
 		global: 'readonly',
 		globalThis: 'readonly',
+		module: 'readonly',
 		process: 'readonly',
 		require: 'readonly',
 		window: 'readonly',
@@ -27,9 +28,25 @@ module.exports = {
 	},
 	overrides: [
 		{
-			files: ['eslint.js'],
-			globals: {
-				module: 'readonly',
+			files: ['eslint-es7*.js'],
+			extends: [
+				'plugin:es-x/no-new-in-es2017',
+				'plugin:es-x/no-new-in-es2018',
+				'plugin:es-x/no-new-in-es2019',
+				'plugin:es-x/no-new-in-es2020',
+			],
+			rules: {
+				'es-x/no-array-prototype-flat': 0,
+				'es-x/no-bigint': 0,
+				'es-x/no-global-this': 0,
+				'es-x/no-object-entries': 0,
+				'es-x/no-object-fromentries': 0,
+				'es-x/no-object-getownpropertydescriptors': 0,
+				'es-x/no-object-values': 0,
+				'es-x/no-regexp-unicode-property-escapes': 0,
+				'es-x/no-string-prototype-padstart-padend': 0,
+				'es-x/no-string-prototype-trimstart-trimend': 0,
+				'es-x/no-symbol-prototype-description': 0,
 			},
 		},
 	],
