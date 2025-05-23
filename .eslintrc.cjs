@@ -7,7 +7,7 @@ module.exports = {
 	overrides: [
 		...config.overrides,
 		{
-			files: ['index-es7.js'],
+			files: ['index-*.js'],
 			env: {
 				worker: true,
 			},

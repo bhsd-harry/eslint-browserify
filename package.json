@@ -1,6 +1,6 @@
 {
 	"name": "@bhsd/eslint-browserify",
-	"version": "8.57.1-beta.0",
+	"version": "8.57.1-beta.1",
 	"description": "ESLint in browser",
 	"keywords": [
 		"eslint",
@@ -15,11 +15,9 @@
 	"license": "MIT",
 	"author": "Bhsd",
 	"files": [
-		"bundle/eslint.min.js",
-		"bundle/eslint.min.js.map",
-		"bundle/eslint-es7.min.js",
-		"bundle/eslint-es7.min.js.map",
-		"bundle/eslint.js.LEGAL.txt"
+		"bundle/*.min.js",
+		"bundle/*.LEGAL.txt",
+		"!bundle/.eslintrc.cjs"
 	],
 	"browser": "bundle/eslint.min.js",
 	"repository": {
@@ -27,10 +25,10 @@
 		"url": "git+https://github.com/bhsd-harry/eslint-browserify.git"
 	},
 	"scripts": {
-		"lint": "eslint --cache --ignore-pattern bundle/eslint.js --ignore-pattern bundle/eslint-es7.js . && eslint --no-inline-config bundle/eslint.js bundle/eslint-es7.js",
+		"lint": "eslint --cache --ignore-pattern bundle/eslint.js --ignore-pattern bundle/eslint-es8.js . && eslint --no-inline-config bundle/eslint.js bundle/eslint-es8.js",
 		"build": "npm run bundle && npm run minify",
 		"bundle": "node build.js",
-		"minify": "esbuild index.js --charset=utf8 --bundle --minify --sourcemap --target=es2019 --outfile=bundle/eslint.min.js && esbuild index-es7.js --charset=utf8 --bundle --minify --sourcemap --target=es2016 --outfile=bundle/eslint-es7.min.js"
+		"minify": "esbuild index.js --charset=utf8 --bundle --minify --sourcemap --target=es2019 --outfile=bundle/eslint.min.js && esbuild index-es8.js --charset=utf8 --bundle --minify --sourcemap --target=es2017 --outfile=bundle/eslint-es8.min.js"
 	},
 	"devDependencies": {
 		"@bhsd/common": "^0.10.2",

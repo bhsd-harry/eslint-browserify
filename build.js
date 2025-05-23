@@ -249,8 +249,8 @@ const config = {
 	namedCaptureGroup2.push('no-nonoctal-decimal-escape');
 	await esbuild.build({
 		...config,
-		target: 'es2016',
-		outfile: 'bundle/eslint-es7.js',
+		target: 'es2017',
+		outfile: 'bundle/eslint-es8.js',
 		legalComments: 'none',
 		plugins: [plugin],
 		banner: {
