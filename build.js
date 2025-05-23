@@ -45,7 +45,6 @@ const plugin = {
 			{
 				// eslint-disable-next-line require-unicode-regexp
 				filter: new RegExp(
-					// eslint-disable-next-line regexp/no-useless-non-capturing-group
 					String.raw`/(?:(?:${[
 						'linter',
 						'eslintrc-universal',
@@ -76,9 +75,8 @@ const plugin = {
 				switch (base) {
 					case 'ast':
 						contents = contents.replace(
-							// eslint-disable-next-line @stylistic/max-len
-							/^([ \t]+)function (isExpression|isStatement|isIterationStatement|isSourceElement|isProblematicIfStatement)\(.+?^\1\}$/gmsu,
-							'$1function $2() {}',
+							/^([ \t]+)(function (?!trailingStatement)\w+)\(.+?^\1\}$/gmsu,
+							'$1$2() {}',
 						);
 						break;
 					case 'eslintrc-universal':
@@ -203,7 +201,7 @@ const plugin = {
 };
 
 const config = {
-	entryPoints: ['./node_modules/eslint/lib/linter/linter.js'],
+	entryPoints: [path.join(require.resolve('eslint'), '..', 'linter', 'linter.js')],
 	charset: 'utf8',
 	bundle: true,
 	format: 'cjs',
@@ -213,7 +211,8 @@ const config = {
 		ajv: './shim/ajv.js',
 		assert: './shim/assert.js',
 		debug: './shim/debug.js',
-		'eslint-visitor-keys': './node_modules/eslint/node_modules/eslint-visitor-keys/dist/eslint-visitor-keys.cjs',
+		// eslint-disable-next-line n/no-extraneous-require
+		'eslint-visitor-keys': require.resolve('eslint-visitor-keys'),
 		path: './shim/path.js',
 		util: './shim/util.js',
 	},

@@ -1,6 +1,6 @@
 {
 	"name": "@bhsd/eslint-browserify",
-	"version": "8.57.1-beta.1",
+	"version": "8.57.1",
 	"description": "ESLint in browser",
 	"keywords": [
 		"eslint",
@@ -31,7 +31,7 @@
 		"minify": "esbuild index.js --charset=utf8 --bundle --minify --sourcemap --target=es2019 --outfile=bundle/eslint.min.js && esbuild index-es8.js --charset=utf8 --bundle --minify --sourcemap --target=es2017 --outfile=bundle/eslint-es8.min.js"
 	},
 	"devDependencies": {
-		"@bhsd/common": "^0.10.2",
+		"@bhsd/common": "^0.11.0",
 		"@stylistic/eslint-plugin": "^3.1.0",
 		"@stylistic/stylelint-plugin": "^3.1.2",
 		"@types/mocha": "^10.0.10",
@@ -52,7 +52,7 @@
 		"eslint-plugin-unicorn": "^56.0.1",
 		"http-server": "^14.1.1",
 		"mocha": "^11.1.0",
-		"stylelint": "^16.19.1",
+		"stylelint": "^16.20.0",
 		"typescript": "^5.8.2",
 		"wikiparser-node": "^1.20.3"
 	}
