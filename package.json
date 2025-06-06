@@ -25,13 +25,14 @@
 		"url": "git+https://github.com/bhsd-harry/eslint-browserify.git"
 	},
 	"scripts": {
-		"lint": "eslint --cache --ignore-pattern bundle/eslint.js --ignore-pattern bundle/eslint-es8.js . && eslint --no-inline-config bundle/eslint.js bundle/eslint-es8.js",
+		"lint:ts": "tsc && eslint --cache --ignore-pattern bundle/eslint.js --ignore-pattern bundle/eslint-es8.js . && eslint --no-inline-config bundle/eslint.js bundle/eslint-es8.js",
+		"lint": "npm run lint:ts",
 		"build": "npm run bundle && npm run minify",
 		"bundle": "node build.js",
-		"minify": "esbuild index.js --charset=utf8 --bundle --minify --sourcemap --target=es2019 --outfile=bundle/eslint.min.js && esbuild index-es8.js --charset=utf8 --bundle --minify --sourcemap --target=es2017 --outfile=bundle/eslint-es8.min.js"
+		"minify": "esbuild index.ts --charset=utf8 --bundle --minify --sourcemap --target=es2019 --outfile=bundle/eslint.min.js && esbuild index-es8.ts --charset=utf8 --bundle --minify --sourcemap --target=es2017 --outfile=bundle/eslint-es8.min.js"
 	},
 	"devDependencies": {
-		"@bhsd/common": "^0.11.0",
+		"@bhsd/common": "^0.12.0",
 		"@stylistic/eslint-plugin": "^3.1.0",
 		"@types/node": "^22.13.1",
 		"@typescript-eslint/eslint-plugin": "^8.29.0",

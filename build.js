@@ -18,16 +18,16 @@ const shim = [
 		'rule-validator',
 		'timing',
 	],
-	fromEntries = [],
-	dotAll = [],
-	trimEnd = [],
-	flat = [],
-	flatMap = [],
-	namedCaptureGroup = [],
-	namedCaptureGroup2 = [],
+	/** @type {string[]} */ fromEntries = [],
+	/** @type {string[]} */ dotAll = [],
+	/** @type {string[]} */ trimEnd = [],
+	/** @type {string[]} */ flat = [],
+	/** @type {string[]} */ flatMap = [],
+	/** @type {string[]} */ namedCaptureGroup = [],
+	/** @type {string[]} */ namedCaptureGroup2 = [],
 	shimSet = new Set(shim);
 
-const plugin = {
+const /** @type {esbuild.Plugin} */ plugin = {
 	name: 'alias',
 	setup(build) {
 		build.onResolve(
@@ -200,7 +200,7 @@ const plugin = {
 	},
 };
 
-const config = {
+const /** @type {esbuild.BuildOptions} */ config = {
 	entryPoints: [path.join(require.resolve('eslint'), '..', 'linter', 'linter.js')],
 	charset: 'utf8',
 	bundle: true,
@@ -219,13 +219,14 @@ const config = {
 };
 
 (async () => {
-	await esbuild.build({
+	let /** @type {esbuild.BuildOptions} */ options = {
 		...config,
 		target: 'es2019',
 		outfile: 'bundle/eslint.js',
 		legalComments: 'external',
 		plugins: [plugin],
-	});
+	};
+	await esbuild.build(options);
 	if (shimSet.size > 0) {
 		console.error(
 			`The following shims were not used in the bundle: ${[...shimSet].join(', ')}`,
@@ -246,7 +247,7 @@ const config = {
 	flatMap.push('apply-disable-directives', 'max-lines');
 	namedCaptureGroup.push('config-comment-parser');
 	namedCaptureGroup2.push('no-nonoctal-decimal-escape');
-	await esbuild.build({
+	options = {
 		...config,
 		target: 'es2017',
 		outfile: 'bundle/eslint-es8.js',
@@ -262,5 +263,6 @@ const fromEntries = Object.fromEntries || (iterable => {
 	return obj;
 });`,
 		},
-	});
+	};
+	await esbuild.build(options);
 })();

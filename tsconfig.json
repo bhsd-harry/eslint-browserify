@@ -1,0 +1,22 @@
+{
+	"include": [
+		"*.ts"
+	],
+	"compilerOptions": {
+		"target": "es2019",
+		"module": "commonjs",
+		"noEmit": true,
+		"alwaysStrict": true,
+		"exactOptionalPropertyTypes": true,
+		"noImplicitAny": true,
+		"noImplicitOverride": true,
+		"noImplicitThis": true,
+		"noPropertyAccessFromIndexSignature": true,
+		"noUncheckedIndexedAccess": true,
+		"strictBindCallApply": true,
+		"strictFunctionTypes": true,
+		"strictNullChecks": true,
+		"useUnknownInCatchVariables": true,
+		"skipLibCheck": true
+	}
+}
