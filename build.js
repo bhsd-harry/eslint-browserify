@@ -4,8 +4,6 @@ const path = require('path'),
 	fs = require('fs'),
 	esbuild = require('esbuild');
 
-const reduce = '.reduce((acc, cur) => acc.concat(cur), [])';
-
 const shim = [
 		'GraphemerIterator',
 		'Func',
@@ -25,7 +23,9 @@ const shim = [
 	/** @type {string[]} */ flatMap = [],
 	/** @type {string[]} */ namedCaptureGroup = [],
 	/** @type {string[]} */ namedCaptureGroup2 = [],
-	shimSet = new Set(shim);
+	shimSet = new Set(shim),
+	reduce = '.reduce((acc, cur) => acc.concat(cur), [])';
+let copy = true;
 
 const /** @type {esbuild.Plugin} */ plugin = {
 	name: 'alias',
@@ -33,11 +33,18 @@ const /** @type {esbuild.Plugin} */ plugin = {
 		build.onResolve(
 			// eslint-disable-next-line require-unicode-regexp
 			{filter: new RegExp(String.raw`/(?:${shim.join('|')})(?:\.js)?$`)},
-			({path: p}) => {
-				const {name, ext} = path.parse(p);
+			({path: p, resolveDir}) => {
+				const {name, ext} = path.parse(p),
+					file = name + (ext || '.js');
 				shimSet.delete(name);
+				if (copy) {
+					fs.copyFileSync(
+						require.resolve(path.join(resolveDir, p)),
+						path.resolve('build', file),
+					);
+				}
 				return {
-					path: path.resolve('shim', name + (ext || '.js')),
+					path: path.resolve('shim', file),
 				};
 			},
 		);
@@ -222,11 +229,11 @@ const /** @type {esbuild.BuildOptions} */ config = {
 	let /** @type {esbuild.BuildOptions} */ options = {
 		...config,
 		target: 'es2019',
-		outfile: 'bundle/eslint.js',
-		legalComments: 'external',
+		outfile: 'build/eslint.js',
 		plugins: [plugin],
 	};
 	await esbuild.build(options);
+	copy = false;
 	if (shimSet.size > 0) {
 		console.error(
 			`The following shims were not used in the bundle: ${[...shimSet].join(', ')}`,
@@ -250,8 +257,7 @@ const /** @type {esbuild.BuildOptions} */ config = {
 	options = {
 		...config,
 		target: 'es2017',
-		outfile: 'bundle/eslint-es8.js',
-		legalComments: 'none',
+		outfile: 'build/eslint-es8.js',
 		plugins: [plugin],
 		banner: {
 			js: `const flattenMap = (arr, fn) => arr.map(fn)${reduce};
