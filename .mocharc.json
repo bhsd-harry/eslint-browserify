@@ -1,5 +1,4 @@
 {
 	"reporter": "progress",
-	"require": "bundle/eslint.min.js",
 	"spec": "test/tests/*.js"
 }

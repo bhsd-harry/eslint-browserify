@@ -69,6 +69,7 @@ class RuleTester {
 				it(`invalid: ${code}`, () => {
 					const results = linter.verify(code, config);
 					if (Array.isArray(errors)) {
+						// eslint-disable-next-line n/no-unsupported-features/node-builtins
 						assert.partialDeepStrictEqual(results, errors.map(reduce), printConfig);
 					} else {
 						assert.strictEqual(results.length > 0, Boolean(errors), printConfig);
