@@ -1,4 +1,3 @@
-/* eslint-env mocha */
 /* eslint-disable jsdoc/require-jsdoc */
 /* global eslint */
 'use strict';

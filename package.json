@@ -25,7 +25,7 @@
 		"url": "git+https://github.com/bhsd-harry/eslint-browserify.git"
 	},
 	"scripts": {
-		"lint:ts": "tsc && eslint --cache . && eslint --no-ignore --no-inline-config build/eslint*.js",
+		"lint:ts": "tsc && eslint --cache . && eslint --no-ignore --no-inline-config --no-config-lookup -c eslint.build.mjs build/eslint*.js",
 		"lint": "npm run lint:ts",
 		"build": "npm run bundle && npm run minify",
 		"bundle": "node build.js",
@@ -36,7 +36,7 @@
 		"clean": "find test/tests/ -type f -name '*.js' | xargs gsed -i 's|\"../../../lib/rule-tester/flat-rule-tester\"|\"../flat-rule-tester\"| ; s|rule = require(.*)|rule = __filename| ; s|parser: require(.*)|parser: require(\"../parser\")|g ; s|arser = require(.*)|arser = require(\"../parser\")|g ; s|\"../../_utils\"|\"../utils\"| ; s|../../fixtures/parsers/.*\\.js|../parser|'; eslint test/tests/*.js"
 	},
 	"devDependencies": {
-		"@bhsd/code-standard": "^1.2.0",
+		"@bhsd/code-standard": "^1.3.0",
 		"@stylistic/eslint-plugin": "^3.1.0",
 		"@types/mocha": "^10.0.10",
 		"@types/node": "^24.9.2",
