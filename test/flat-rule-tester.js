@@ -47,7 +47,7 @@ class RuleTester {
 		return languageOptions?.parser || languageOptions?.parserOptions || this.config.parserOptions?.skip;
 	}
 
-	run(rule, _, {valid, invalid}) { // eslint-disable-line class-methods-use-this
+	run(rule, _, {valid, invalid}) {
 		if (this.config.plugins) {
 			describe.skip(rule, () => {
 				for (const {code} of invalid) {
