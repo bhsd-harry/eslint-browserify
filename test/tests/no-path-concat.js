@@ -9,7 +9,7 @@
 //------------------------------------------------------------------------------
 
 const rule = __filename,
-    RuleTester = require("../flat-rule-tester");
+	RuleTester = require("../rule-tester");
 
 //------------------------------------------------------------------------------
 // Tests
@@ -18,42 +18,45 @@ const rule = __filename,
 const ruleTester = new RuleTester();
 
 ruleTester.run("no-path-concat", rule, {
+	valid: [
+		'var fullPath = dirname + "foo.js";',
+		'var fullPath = __dirname == "foo.js";',
+		"if (fullPath === __dirname) {}",
+		"if (__dirname === fullPath) {}",
+	],
 
-    valid: [
-        "var fullPath = dirname + \"foo.js\";",
-        "var fullPath = __dirname == \"foo.js\";",
-        "if (fullPath === __dirname) {}",
-        "if (__dirname === fullPath) {}"
-    ],
-
-    invalid: [
-        {
-            code: "var fullPath = __dirname + \"/foo.js\";",
-            errors: [{
-                messageId: "usePathFunctions",
-                type: "BinaryExpression"
-            }]
-        },
-        {
-            code: "var fullPath = __filename + \"/foo.js\";",
-            errors: [{
-                messageId: "usePathFunctions",
-                type: "BinaryExpression"
-            }]
-        },
-        {
-            code: "var fullPath = \"/foo.js\" + __filename;",
-            errors: [{
-                messageId: "usePathFunctions",
-                type: "BinaryExpression"
-            }]
-        },
-        {
-            code: "var fullPath = \"/foo.js\" + __dirname;",
-            errors: [{
-                messageId: "usePathFunctions",
-                type: "BinaryExpression"
-            }]
-        }
-    ]
+	invalid: [
+		{
+			code: 'var fullPath = __dirname + "/foo.js";',
+			errors: [
+				{
+					messageId: "usePathFunctions",
+				},
+			],
+		},
+		{
+			code: 'var fullPath = __filename + "/foo.js";',
+			errors: [
+				{
+					messageId: "usePathFunctions",
+				},
+			],
+		},
+		{
+			code: 'var fullPath = "/foo.js" + __filename;',
+			errors: [
+				{
+					messageId: "usePathFunctions",
+				},
+			],
+		},
+		{
+			code: 'var fullPath = "/foo.js" + __dirname;',
+			errors: [
+				{
+					messageId: "usePathFunctions",
+				},
+			],
+		},
+	],
 });

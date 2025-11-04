@@ -10,7 +10,7 @@
 //------------------------------------------------------------------------------
 
 const rule = __filename,
-    RuleTester = require("../flat-rule-tester");
+	RuleTester = require("../rule-tester");
 
 //------------------------------------------------------------------------------
 // Tests
@@ -19,24 +19,31 @@ const rule = __filename,
 const ruleTester = new RuleTester();
 
 ruleTester.run("no-nested-ternary", rule, {
-    valid: [
-        "foo ? doBar() : doBaz();",
-        "var foo = bar === baz ? qux : quxx;"
-    ],
-    invalid: [
-        {
-            code: "foo ? bar : baz === qux ? quxx : foobar;",
-            errors: [{
-                messageId: "noNestedTernary",
-                type: "ConditionalExpression"
-            }]
-        },
-        {
-            code: "foo ? baz === qux ? quxx : foobar : bar;",
-            errors: [{
-                messageId: "noNestedTernary",
-                type: "ConditionalExpression"
-            }]
-        }
-    ]
+	valid: ["foo ? doBar() : doBaz();", "var foo = bar === baz ? qux : quxx;"],
+	invalid: [
+		{
+			code: "foo ? bar : baz === qux ? quxx : foobar;",
+			errors: [
+				{
+					messageId: "noNestedTernary",
+					line: 1,
+					column: 1,
+					endLine: 1,
+					endColumn: 40,
+				},
+			],
+		},
+		{
+			code: "foo ? baz === qux ? quxx : foobar : bar;",
+			errors: [
+				{
+					messageId: "noNestedTernary",
+					line: 1,
+					column: 1,
+					endLine: 1,
+					endColumn: 40,
+				},
+			],
+		},
+	],
 });

@@ -1,11 +1,11 @@
 {
 	"include": [
-		"*.ts"
+		"src/*.ts"
 	],
 	"compilerOptions": {
 		"target": "es2019",
 		"module": "commonjs",
-		"noEmit": true,
+		"outDir": "./dist",
 		"alwaysStrict": true,
 		"exactOptionalPropertyTypes": true,
 		"noImplicitAny": true,

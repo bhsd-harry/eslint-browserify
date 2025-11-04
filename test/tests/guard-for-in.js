@@ -10,30 +10,38 @@
 //------------------------------------------------------------------------------
 
 const rule = __filename,
-    RuleTester = require("../flat-rule-tester");
+	RuleTester = require("../rule-tester");
 
 //------------------------------------------------------------------------------
 // Tests
 //------------------------------------------------------------------------------
 
 const ruleTester = new RuleTester();
-const error = { messageId: "wrap", type: "ForInStatement" };
+const error = {
+	messageId: "wrap",
+};
 
 ruleTester.run("guard-for-in", rule, {
-    valid: [
-        "for (var x in o);",
-        "for (var x in o) {}",
-        "for (var x in o) if (x) f();",
-        "for (var x in o) { if (x) { f(); } }",
-        "for (var x in o) { if (x) continue; f(); }",
-        "for (var x in o) { if (x) { continue; } f(); }"
-    ],
-    invalid: [
-        { code: "for (var x in o) { if (x) { f(); continue; } g(); }", errors: [error] },
-        { code: "for (var x in o) { if (x) { continue; f(); } g(); }", errors: [error] },
-        { code: "for (var x in o) { if (x) { f(); } g(); }", errors: [error] },
-        { code: "for (var x in o) { if (x) f(); g(); }", errors: [error] },
-        { code: "for (var x in o) { foo() }", errors: [error] },
-        { code: "for (var x in o) foo();", errors: [error] }
-    ]
+	valid: [
+		"for (var x in o);",
+		"for (var x in o) {}",
+		"for (var x in o) if (x) f();",
+		"for (var x in o) { if (x) { f(); } }",
+		"for (var x in o) { if (x) continue; f(); }",
+		"for (var x in o) { if (x) { continue; } f(); }",
+	],
+	invalid: [
+		{
+			code: "for (var x in o) { if (x) { f(); continue; } g(); }",
+			errors: [error],
+		},
+		{
+			code: "for (var x in o) { if (x) { continue; f(); } g(); }",
+			errors: [error],
+		},
+		{ code: "for (var x in o) { if (x) { f(); } g(); }", errors: [error] },
+		{ code: "for (var x in o) { if (x) f(); g(); }", errors: [error] },
+		{ code: "for (var x in o) { foo() }", errors: [error] },
+		{ code: "for (var x in o) foo();", errors: [error] },
+	],
 });

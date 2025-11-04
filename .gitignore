@@ -3,3 +3,4 @@
 /bundle/.gitignore
 /.eslintcache
 /build
+/dist

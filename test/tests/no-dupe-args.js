@@ -10,35 +10,153 @@
 //------------------------------------------------------------------------------
 
 const rule = __filename,
-    RuleTester = require("../flat-rule-tester");
+	RuleTester = require("../rule-tester");
 
 //------------------------------------------------------------------------------
 // Tests
 //------------------------------------------------------------------------------
 
 const ruleTester = new RuleTester({
-    languageOptions: {
-        ecmaVersion: 5,
-        sourceType: "script"
-    }
+	languageOptions: {
+		ecmaVersion: 5,
+		sourceType: "script",
+	},
 });
 
 ruleTester.run("no-dupe-args", rule, {
-    valid: [
-        "function a(a, b, c){}",
-        "var a = function(a, b, c){}",
-        { code: "function a({a, b}, {c, d}){}", languageOptions: { ecmaVersion: 6 } },
-        { code: "function a([ , a]) {}", languageOptions: { ecmaVersion: 6 } },
-        { code: "function foo([[a, b], [c, d]]) {}", languageOptions: { ecmaVersion: 6 } }
-    ],
-    invalid: [
-        { code: "function a(a, b, b) {}", errors: [{ messageId: "unexpected", data: { name: "b" } }] },
-        { code: "function a(a, a, a) {}", errors: [{ messageId: "unexpected", data: { name: "a" } }] },
-        { code: "function a(a, b, a) {}", errors: [{ messageId: "unexpected", data: { name: "a" } }] },
-        { code: "function a(a, b, a, b) {}", errors: [{ messageId: "unexpected", data: { name: "a" } }, { messageId: "unexpected", data: { name: "b" } }] },
-        { code: "var a = function(a, b, b) {}", errors: [{ messageId: "unexpected", data: { name: "b" } }] },
-        { code: "var a = function(a, a, a) {}", errors: [{ messageId: "unexpected", data: { name: "a" } }] },
-        { code: "var a = function(a, b, a) {}", errors: [{ messageId: "unexpected", data: { name: "a" } }] },
-        { code: "var a = function(a, b, a, b) {}", errors: [{ messageId: "unexpected", data: { name: "a" } }, { messageId: "unexpected", data: { name: "b" } }] }
-    ]
+	valid: [
+		"function a(a, b, c){}",
+		"var a = function(a, b, c){}",
+		{
+			code: "function a({a, b}, {c, d}){}",
+			languageOptions: { ecmaVersion: 6 },
+		},
+		{ code: "function a([ , a]) {}", languageOptions: { ecmaVersion: 6 } },
+		{
+			code: "function foo([[a, b], [c, d]]) {}",
+			languageOptions: { ecmaVersion: 6 },
+		},
+	],
+	invalid: [
+		{
+			code: "function a(a, b, b) {}",
+			errors: [
+				{
+					messageId: "unexpected",
+					data: { name: "b" },
+					line: 1,
+					column: 11,
+					endLine: 1,
+					endColumn: 20,
+				},
+			],
+		},
+		{
+			code: "function a(a, a, a) {}",
+			errors: [
+				{
+					messageId: "unexpected",
+					data: { name: "a" },
+					line: 1,
+					column: 11,
+					endLine: 1,
+					endColumn: 20,
+				},
+			],
+		},
+		{
+			code: "function a(a, b, a) {}",
+			errors: [
+				{
+					messageId: "unexpected",
+					data: { name: "a" },
+					line: 1,
+					column: 11,
+					endLine: 1,
+					endColumn: 20,
+				},
+			],
+		},
+		{
+			code: "function a(a, b, a, b) {}",
+			errors: [
+				{
+					messageId: "unexpected",
+					data: { name: "a" },
+					line: 1,
+					column: 11,
+					endLine: 1,
+					endColumn: 23,
+				},
+				{
+					messageId: "unexpected",
+					data: { name: "b" },
+					line: 1,
+					column: 11,
+					endLine: 1,
+					endColumn: 23,
+				},
+			],
+		},
+		{
+			code: "var a = function(a, b, b) {}",
+			errors: [
+				{
+					messageId: "unexpected",
+					data: { name: "b" },
+					line: 1,
+					column: 17,
+					endLine: 1,
+					endColumn: 26,
+				},
+			],
+		},
+		{
+			code: "var a = function(a, a, a) {}",
+			errors: [
+				{
+					messageId: "unexpected",
+					data: { name: "a" },
+					line: 1,
+					column: 17,
+					endLine: 1,
+					endColumn: 26,
+				},
+			],
+		},
+		{
+			code: "var a = function(a, b, a) {}",
+			errors: [
+				{
+					messageId: "unexpected",
+					data: { name: "a" },
+					line: 1,
+					column: 17,
+					endLine: 1,
+					endColumn: 26,
+				},
+			],
+		},
+		{
+			code: "var a = function(a, b, a, b) {}",
+			errors: [
+				{
+					messageId: "unexpected",
+					data: { name: "a" },
+					line: 1,
+					column: 17,
+					endLine: 1,
+					endColumn: 29,
+				},
+				{
+					messageId: "unexpected",
+					data: { name: "b" },
+					line: 1,
+					column: 17,
+					endLine: 1,
+					endColumn: 29,
+				},
+			],
+		},
+	],
 });

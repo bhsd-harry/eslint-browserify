@@ -10,24 +10,29 @@
 //------------------------------------------------------------------------------
 
 const rule = __filename,
-    RuleTester = require("../flat-rule-tester");
+	RuleTester = require("../rule-tester");
 
 //------------------------------------------------------------------------------
 // Tests
 //------------------------------------------------------------------------------
 
 const ruleTester = new RuleTester({
-    languageOptions: {
-        ecmaVersion: 5,
-        sourceType: "script"
-    }
+	languageOptions: {
+		ecmaVersion: 5,
+		sourceType: "script",
+	},
 });
 
 ruleTester.run("no-with", rule, {
-    valid: [
-        "foo.bar()"
-    ],
-    invalid: [
-        { code: "with(foo) { bar() }", errors: [{ messageId: "unexpectedWith", type: "WithStatement" }] }
-    ]
+	valid: ["foo.bar()"],
+	invalid: [
+		{
+			code: "with(foo) { bar() }",
+			errors: [
+				{
+					messageId: "unexpectedWith",
+				},
+			],
+		},
+	],
 });

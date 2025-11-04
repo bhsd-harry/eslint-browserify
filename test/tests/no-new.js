@@ -10,7 +10,7 @@
 //------------------------------------------------------------------------------
 
 const rule = __filename,
-    RuleTester = require("../flat-rule-tester");
+	RuleTester = require("../rule-tester");
 
 //------------------------------------------------------------------------------
 // Tests
@@ -19,17 +19,18 @@ const rule = __filename,
 const ruleTester = new RuleTester();
 
 ruleTester.run("no-new", rule, {
-    valid: [
-        "var a = new Date()",
-        "var a; if (a === new Date()) { a = false; }"
-    ],
-    invalid: [
-        {
-            code: "new Date()",
-            errors: [{
-                messageId: "noNewStatement",
-                type: "ExpressionStatement"
-            }]
-        }
-    ]
+	valid: [
+		"var a = new Date()",
+		"var a; if (a === new Date()) { a = false; }",
+	],
+	invalid: [
+		{
+			code: "new Date()",
+			errors: [
+				{
+					messageId: "noNewStatement",
+				},
+			],
+		},
+	],
 });

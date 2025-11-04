@@ -9,7 +9,7 @@
 //------------------------------------------------------------------------------
 
 const rule = __filename,
-    RuleTester = require("../flat-rule-tester");
+	RuleTester = require("../rule-tester");
 
 //------------------------------------------------------------------------------
 // Tests
@@ -18,34 +18,32 @@ const rule = __filename,
 const ruleTester = new RuleTester();
 
 ruleTester.run("no-process-exit", rule, {
+	valid: ["Process.exit()", "var exit = process.exit;", "f(process.exit)"],
 
-    valid: [
-        "Process.exit()",
-        "var exit = process.exit;",
-        "f(process.exit)"
-    ],
-
-    invalid: [
-        {
-            code: "process.exit(0);",
-            errors: [{
-                messageId: "noProcessExit",
-                type: "CallExpression"
-            }]
-        },
-        {
-            code: "process.exit(1);",
-            errors: [{
-                messageId: "noProcessExit",
-                type: "CallExpression"
-            }]
-        },
-        {
-            code: "f(process.exit(1));",
-            errors: [{
-                messageId: "noProcessExit",
-                type: "CallExpression"
-            }]
-        }
-    ]
+	invalid: [
+		{
+			code: "process.exit(0);",
+			errors: [
+				{
+					messageId: "noProcessExit",
+				},
+			],
+		},
+		{
+			code: "process.exit(1);",
+			errors: [
+				{
+					messageId: "noProcessExit",
+				},
+			],
+		},
+		{
+			code: "f(process.exit(1));",
+			errors: [
+				{
+					messageId: "noProcessExit",
+				},
+			],
+		},
+	],
 });

@@ -1,5 +1,3 @@
 'use strict';
 
-module.exports = {
-	enabled: false,
-};
+module.exports.enabled = false;

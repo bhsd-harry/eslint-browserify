@@ -10,7 +10,7 @@
 //------------------------------------------------------------------------------
 
 const rule = __filename,
-    RuleTester = require("../flat-rule-tester");
+	RuleTester = require("../rule-tester");
 
 //------------------------------------------------------------------------------
 // Tests
@@ -19,16 +19,16 @@ const rule = __filename,
 const ruleTester = new RuleTester();
 
 ruleTester.run("no-new-object", rule, {
-    valid: [
-        "var myObject = {};",
-        "var myObject = new CustomObject();",
-        "var foo = new foo.Object()",
-        `var Object = function Object() {};
+	valid: [
+		"var myObject = {};",
+		"var myObject = new CustomObject();",
+		"var foo = new foo.Object()",
+		`var Object = function Object() {};
             new Object();`,
-        `var x = something ? MyClass : Object;
+		`var x = something ? MyClass : Object;
         var y = new x();`,
-        {
-            code: `
+		{
+			code: `
         class Object {
             constructor(){
 
@@ -36,34 +36,41 @@ ruleTester.run("no-new-object", rule, {
         }
         new Object();
         `,
-            languageOptions: { ecmaVersion: 6 }
-        },
-        {
-            code: `
+			languageOptions: { ecmaVersion: 6 },
+		},
+		{
+			code: `
         import { Object } from './'
         new Object();
         `,
-            languageOptions: { ecmaVersion: 6, sourceType: "module" }
-        }
-    ],
-    invalid: [
-        {
-            code: "var foo = new Object()",
-            errors: [
-                {
-                    messageId: "preferLiteral",
-                    type: "NewExpression"
-                }
-            ]
-        },
-        {
-            code: "new Object();",
-            errors: [{ messageId: "preferLiteral", type: "NewExpression" }]
-        },
-        {
-            code: "const a = new Object()",
-            languageOptions: { ecmaVersion: 6 },
-            errors: [{ messageId: "preferLiteral", type: "NewExpression" }]
-        }
-    ]
+			languageOptions: { ecmaVersion: 6, sourceType: "module" },
+		},
+	],
+	invalid: [
+		{
+			code: "var foo = new Object()",
+			errors: [
+				{
+					messageId: "preferLiteral",
+				},
+			],
+		},
+		{
+			code: "new Object();",
+			errors: [
+				{
+					messageId: "preferLiteral",
+				},
+			],
+		},
+		{
+			code: "const a = new Object()",
+			languageOptions: { ecmaVersion: 6 },
+			errors: [
+				{
+					messageId: "preferLiteral",
+				},
+			],
+		},
+	],
 });

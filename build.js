@@ -5,27 +5,55 @@ const path = require('path'),
 	esbuild = require('esbuild');
 
 const shim = [
-		'GraphemerIterator',
 		'Func',
 		'Num',
 		'Obj',
 		'Str',
+		'config',
 		'flat-config-array',
-		'flat-config-helpers',
 		'flat-config-schema',
-		'rule-validator',
+		'option-utils',
+		'processor-service',
+		'stats',
 		'timing',
+		'validate-language-options',
+		'warning-service',
 	],
 	/** @type {string[]} */ fromEntries = [],
 	/** @type {string[]} */ dotAll = [],
-	/** @type {string[]} */ trimEnd = [],
 	/** @type {string[]} */ flat = [],
 	/** @type {string[]} */ flatMap = [],
 	/** @type {string[]} */ namedCaptureGroup = [],
-	/** @type {string[]} */ namedCaptureGroup2 = [],
+	at = [
+		'apply-disable-directives',
+		'ast-utils',
+		'code-path',
+		'eslint-scope',
+		'espree',
+		'file-report',
+		'fork-context',
+		'source-code',
+	],
+	objectHasOwn = [
+		'eslint-scope',
+		'eslintrc-universal',
+		'espree',
+		'file-report',
+		'linter',
+		'source-code-fixer',
+	],
 	shimSet = new Set(shim),
-	reduce = '.reduce((acc, cur) => acc.concat(cur), [])';
+	reduce = '.reduce((acc, cur) => acc.concat(cur), [])',
+	resolvePath = path.join('build', 'resolve'),
+	loadPath = path.join('build', 'load');
 let copy = true;
+
+if (!fs.existsSync(resolvePath)) {
+	fs.mkdirSync(resolvePath, {recursive: true});
+}
+if (!fs.existsSync(loadPath)) {
+	fs.mkdirSync(loadPath, {recursive: true});
+}
 
 const /** @type {esbuild.Plugin} */ plugin = {
 	name: 'alias',
@@ -40,7 +68,7 @@ const /** @type {esbuild.Plugin} */ plugin = {
 				if (copy) {
 					fs.copyFileSync(
 						require.resolve(path.join(resolveDir, p)),
-						path.resolve('build', file),
+						path.resolve(resolvePath, file),
 					);
 				}
 				return {
@@ -53,32 +81,47 @@ const /** @type {esbuild.Plugin} */ plugin = {
 				// eslint-disable-next-line require-unicode-regexp
 				filter: new RegExp(
 					String.raw`/(?:(?:${[
-						'linter',
-						'eslintrc-universal',
-						'no-magic-numbers',
-						'estraverse',
-						'Graphemer',
 						'ast',
+						'eslintrc-universal',
+						'espree',
+						'estraverse',
+						'linter',
 						'List',
+						'no-magic-numbers',
 						...dotAll,
-						...trimEnd,
 						...flat,
 						...flatMap,
 						...namedCaptureGroup,
-						...namedCaptureGroup2,
+						...at,
+						...objectHasOwn,
 					].join('|')}|(?:${[
-						'rules',
+						'cjs',
 						'prelude-ls/lib',
+						'rules',
 						...fromEntries,
-					].join('|')})/index)\.c?js|package\.json)$`,
+					].join('|')})/index)\.c?js|package\.json|rules/[\w-]+\.js)$`,
 				),
 			},
 			({path: p}) => {
 				let contents = fs.readFileSync(p, 'utf8'),
-					base = path.basename(p);
-				base = base === 'index.js'
-					? path.basename(p.slice(0, p.lastIndexOf('/')))
-					: base.slice(0, base.lastIndexOf('.'));
+					isRule = false;
+				if (/\/rules\/[\w-]+\.js$/u.test(p)) {
+					contents = contents.replace(
+						/^([ \t]+)schema: (?:\{(?:$.+?^\1|[^\n]*)\}|\[(?:$.+?^\1|[^\n]*)\]),?$/msu,
+						'',
+					).replace(
+						/\b([\w.]+)\.at\(-([12])\)/gu,
+						'$1[$1.length - $2]',
+					).replaceAll(
+						'Object.hasOwn(',
+						'Object.prototype.hasOwnProperty.call(',
+					);
+					isRule = true;
+				}
+				const basename = path.basename(p),
+					base = /^index\.c?js$/u.test(basename)
+						? path.basename(p.slice(0, p.lastIndexOf('/')))
+						: basename.slice(0, basename.lastIndexOf('.'));
 				switch (base) {
 					case 'ast':
 						contents = contents.replace(
@@ -86,17 +129,29 @@ const /** @type {esbuild.Plugin} */ plugin = {
 							'$1$2() {}',
 						);
 						break;
+					case 'cjs':
+						contents = contents.replace(
+							/^(class TextSourceCodeBase \{)$.+?^\}$/msu,
+							'$1}',
+						);
+						break;
 					case 'eslintrc-universal':
 						contents = contents.replace(
-							/^([ \t]+)(\w+Schema)\(.+?^\1\}$/gmsu,
-							'$1$2() {}',
+							/^([ \t]+)(\w+Schema\().+?^\1\}$/gmsu,
+							'$2) {}',
 						).replace(
 							/^var ajvOrig = .+?^\};$/msu,
 							'var ajvOrig = () => {};',
 						).replace(
-							/^const \w+(?:Schema|Properties) = \{$.+?^\};$/gmsu,
+							/^const \w+(?:Schema|Properties) = .+?^\}\)?;$/gmsu,
 							'',
+						).replace(
+							/^(function (?:normalizePackageName|getShorthandName|getNamespaceFromTerm)\().+?^\}$/gmsu,
+							'$1) {}',
 						);
+						break;
+					case 'espree':
+						contents = contents.replace('useJsx ? this.jsx : ', '');
 						break;
 					case 'estraverse':
 						contents = contents.replace(
@@ -104,12 +159,6 @@ const /** @type {esbuild.Plugin} */ plugin = {
 							'$1$2() {}',
 						).replace(
 							/^([ \t]+)\w+\.prototype\.\w+ = .+?^\1\};$/gmsu,
-							'',
-						);
-						break;
-					case 'Graphemer':
-						contents = contents.replace(
-							/^([ \t]+)(?:iterate|split)Graphemes\(.+?^\1\}$/gmsu,
 							'',
 						);
 						break;
@@ -121,19 +170,13 @@ const /** @type {esbuild.Plugin} */ plugin = {
 						break;
 					case 'linter':
 						contents = contents.replace(
-							/^([ \t]+)(?:_verifyWith(?:\w*ConfigArray\w*|Processor)|define\w+)\(.+?^\1\}$/gmsu,
+							/^([ \t]+)(?:(?:_verifyWith(?:\w*ConfigArray\w*|Processor)|#flatVerifyWithoutProcessors)\(|if \((?:configType !== "eslintrc"|typeof configToUse\.extractConfig === "function"|options\.preprocess \|\| options\.postprocess|(?:options\.)?stats)\) \{$).+?^\1\}$/gmsu,
 							'',
-						).replace(
-							/^([ \t]+)if \(config\) \{$.+?^\1\}$/msu,
-							'',
-						);
+						).replace('configType = "flat"', 'configType = "eslintrc"');
 						break;
 					case 'List':
 						contents = contents.replace(
-							/^(?!reject|any|all)(\w+) = .+?^\}\)?;$/gmsu,
-							'',
-						).replace(
-							/^[ \t]+(?!reject|any|all)(\w+): \1,?$/gmu,
+							/^(?:[ \t]+(?!reject|any|all)(\w+): \1,?|(?!reject|any|all)(\w+) = .+?^\}\)?;)$/gmsu,
 							'',
 						);
 						break;
@@ -142,16 +185,16 @@ const /** @type {esbuild.Plugin} */ plugin = {
 							'BigInt(',
 							'(typeof BigInt === "function" ? BigInt : Number)(',
 						);
+						isRule = false;
 						break;
 					case 'package':
 						contents = `{version: "${JSON.parse(contents).version}"}`;
 						break;
 					case 'rules':
 						contents = contents.replace(
-							/"valid-jsdoc": .+$/mu,
+							/"(?:valid-jsdoc|jsx-quotes)": .+$/mu,
 							'',
 						);
-						break;
 					// no default
 				}
 				if (fromEntries.includes(base)) {
@@ -159,14 +202,9 @@ const /** @type {esbuild.Plugin} */ plugin = {
 						'Object.fromEntries',
 						'fromEntries',
 					);
+					isRule = false;
 				}
 				if (namedCaptureGroup.includes(base)) {
-					contents = contents.replace(
-						String.raw`.replace(/^(?<quote>['"]?)(?<ruleId>.*)\k<quote>$/us, "$<ruleId>")`,
-						String.raw`.replace(/^(['"]?)(.*)\1$/us, "$2")`,
-					);
-				}
-				if (namedCaptureGroup2.includes(base)) {
 					contents = contents.replace(
 						String.raw`regex = /(?:[^\\]|(?<previousEscape>\\.))*?(?<decimalEscape>\\[89])/suy;`,
 						String.raw`regex = /(?:[^\\]|(\\.))*?(\\[89])/suy;`,
@@ -174,6 +212,7 @@ const /** @type {esbuild.Plugin} */ plugin = {
 						'const { previousEscape, decimalEscape } = match.groups;',
 						'const [, previousEscape, decimalEscape] = match;',
 					);
+					isRule = false;
 				}
 				if (dotAll.includes(base)) {
 					contents = contents.replace(
@@ -182,23 +221,38 @@ const /** @type {esbuild.Plugin} */ plugin = {
 							p1.replace(/(?<!(?<!\\)\\)\./gu, String.raw`[\s\S]`)
 						}/${p2.replaceAll('s', '')}`,
 					);
-				}
-				if (trimEnd.includes(base)) {
-					contents = contents.replaceAll(
-						'.trimEnd()',
-						String.raw`.replace(/\s+$/u, '')`,
-					);
+					isRule = false;
 				}
 				if (flat.includes(base)) {
 					contents = contents.replaceAll(
 						'.flat()',
 						reduce,
 					);
+					isRule = false;
 				}
 				if (flatMap.includes(base)) {
 					contents = contents.replace(
-						/\b(\w+)\.flatMap\(/gu,
+						/\b([\w.]+\s*)\.flatMap\(/gu,
 						'flattenMap($1, ',
+					);
+					isRule = false;
+				}
+				if (at.includes(base)) {
+					contents = contents.replace(
+						/\b([\w.]+)\.at\(-1\)/gu,
+						'$1[$1.length - 1]',
+					);
+				}
+				if (objectHasOwn.includes(base)) {
+					contents = contents.replaceAll(
+						'Object.hasOwn(',
+						'Object.prototype.hasOwnProperty.call(',
+					);
+				}
+				if (!copy && !isRule) {
+					fs.copyFileSync(
+						p,
+						path.resolve(loadPath, (/^index\.c?js$/u.test(basename) ? `${base}-` : '') + basename),
 					);
 				}
 				return {contents};
@@ -216,12 +270,11 @@ const /** @type {esbuild.BuildOptions} */ config = {
 	alias: {
 		'acorn-jsx': './shim/acorn-jsx.js',
 		ajv: './shim/ajv.js',
-		assert: './shim/assert.js',
 		debug: './shim/debug.js',
 		// eslint-disable-next-line n/no-extraneous-require
 		'eslint-visitor-keys': require.resolve('eslint-visitor-keys'),
-		path: './shim/path.js',
-		util: './shim/util.js',
+		'node:path': './shim/path.js',
+		'node:util': './shim/util.js',
 	},
 };
 
@@ -243,17 +296,16 @@ const /** @type {esbuild.BuildOptions} */ config = {
 	shim.push('is-combining-character');
 	fromEntries.push('regexpp');
 	dotAll.push(
-		'config-comment-parser',
 		'ast-utils',
+		'cjs',
+		'no-misleading-character-class',
 		'no-nonoctal-decimal-escape',
 		'no-octal-escape',
 		'linter',
 	);
-	trimEnd.push('apply-disable-directives');
-	flat.push('node-event-generator');
-	flatMap.push('apply-disable-directives', 'max-lines');
-	namedCaptureGroup.push('config-comment-parser');
-	namedCaptureGroup2.push('no-nonoctal-decimal-escape');
+	flat.push('esquery', 'no-useless-backreference');
+	flatMap.push('apply-disable-directives', 'max-lines', 'no-useless-assignment');
+	namedCaptureGroup.push('no-nonoctal-decimal-escape');
 	options = {
 		...config,
 		target: 'es2017',

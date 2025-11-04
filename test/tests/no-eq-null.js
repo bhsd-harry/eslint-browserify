@@ -10,7 +10,7 @@
 //------------------------------------------------------------------------------
 
 const rule = __filename,
-    RuleTester = require("../flat-rule-tester");
+	RuleTester = require("../rule-tester");
 
 //------------------------------------------------------------------------------
 // Tests
@@ -19,13 +19,31 @@ const rule = __filename,
 const ruleTester = new RuleTester();
 
 ruleTester.run("no-eq-null", rule, {
-    valid: [
-        "if (x === null) { }",
-        "if (null === f()) { }"
-    ],
-    invalid: [
-        { code: "if (x == null) { }", errors: [{ messageId: "unexpected", type: "BinaryExpression" }] },
-        { code: "if (x != null) { }", errors: [{ messageId: "unexpected", type: "BinaryExpression" }] },
-        { code: "do {} while (null == x)", errors: [{ messageId: "unexpected", type: "BinaryExpression" }] }
-    ]
+	valid: ["if (x === null) { }", "if (null === f()) { }"],
+	invalid: [
+		{
+			code: "if (x == null) { }",
+			errors: [
+				{
+					messageId: "unexpected",
+				},
+			],
+		},
+		{
+			code: "if (x != null) { }",
+			errors: [
+				{
+					messageId: "unexpected",
+				},
+			],
+		},
+		{
+			code: "do {} while (null == x)",
+			errors: [
+				{
+					messageId: "unexpected",
+				},
+			],
+		},
+	],
 });

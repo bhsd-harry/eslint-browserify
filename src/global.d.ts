@@ -1,3 +1,3 @@
-declare module './build/*' {
+declare module '../build/*' {
 	export {Linter} from 'eslint';
 }

@@ -9,7 +9,7 @@
 //------------------------------------------------------------------------------
 
 const rule = __filename,
-    RuleTester = require("../flat-rule-tester");
+	RuleTester = require("../rule-tester");
 
 //------------------------------------------------------------------------------
 // Tests
@@ -18,35 +18,37 @@ const rule = __filename,
 const ruleTester = new RuleTester();
 
 ruleTester.run("no-process-env", rule, {
+	valid: [
+		"Process.env",
+		"process[env]",
+		"process.nextTick",
+		"process.execArgv",
+	],
 
-    valid: [
-        "Process.env",
-        "process[env]",
-        "process.nextTick",
-        "process.execArgv"
-    ],
-
-    invalid: [
-        {
-            code: "process.env",
-            errors: [{
-                messageId: "unexpectedProcessEnv",
-                type: "MemberExpression"
-            }]
-        },
-        {
-            code: "process.env.ENV",
-            errors: [{
-                messageId: "unexpectedProcessEnv",
-                type: "MemberExpression"
-            }]
-        },
-        {
-            code: "f(process.env)",
-            errors: [{
-                messageId: "unexpectedProcessEnv",
-                type: "MemberExpression"
-            }]
-        }
-    ]
+	invalid: [
+		{
+			code: "process.env",
+			errors: [
+				{
+					messageId: "unexpectedProcessEnv",
+				},
+			],
+		},
+		{
+			code: "process.env.ENV",
+			errors: [
+				{
+					messageId: "unexpectedProcessEnv",
+				},
+			],
+		},
+		{
+			code: "f(process.env)",
+			errors: [
+				{
+					messageId: "unexpectedProcessEnv",
+				},
+			],
+		},
+	],
 });

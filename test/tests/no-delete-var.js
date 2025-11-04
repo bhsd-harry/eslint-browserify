@@ -10,24 +10,29 @@
 //------------------------------------------------------------------------------
 
 const rule = __filename,
-    RuleTester = require("../flat-rule-tester");
+	RuleTester = require("../rule-tester");
 
 //------------------------------------------------------------------------------
 // Tests
 //------------------------------------------------------------------------------
 
 const ruleTester = new RuleTester({
-    languageOptions: {
-        ecmaVersion: 5,
-        sourceType: "script"
-    }
+	languageOptions: {
+		ecmaVersion: 5,
+		sourceType: "script",
+	},
 });
 
 ruleTester.run("no-delete-var", rule, {
-    valid: [
-        "delete x.prop;"
-    ],
-    invalid: [
-        { code: "delete x", errors: [{ messageId: "unexpected", type: "UnaryExpression" }] }
-    ]
+	valid: ["delete x.prop;"],
+	invalid: [
+		{
+			code: "delete x",
+			errors: [
+				{
+					messageId: "unexpected",
+				},
+			],
+		},
+	],
 });

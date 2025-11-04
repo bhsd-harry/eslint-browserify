@@ -10,7 +10,7 @@
 //------------------------------------------------------------------------------
 
 const rule = __filename,
-    RuleTester = require("../flat-rule-tester");
+	RuleTester = require("../rule-tester");
 
 //------------------------------------------------------------------------------
 // Tests
@@ -19,33 +19,146 @@ const rule = __filename,
 const ruleTester = new RuleTester();
 
 ruleTester.run("no-bitwise", rule, {
-    valid: [
-        "a + b",
-        "!a",
-        "a && b",
-        "a || b",
-        "a += b",
-        { code: "a &&= b", languageOptions: { ecmaVersion: 2021 } },
-        { code: "a ||= b", languageOptions: { ecmaVersion: 2021 } },
-        { code: "a ??= b", languageOptions: { ecmaVersion: 2021 } },
-        { code: "~[1, 2, 3].indexOf(1)", options: [{ allow: ["~"] }] },
-        { code: "~1<<2 === -8", options: [{ allow: ["~", "<<"] }] },
-        { code: "a|0", options: [{ int32Hint: true }] },
-        { code: "a|0", options: [{ allow: ["|"], int32Hint: false }] }
-    ],
-    invalid: [
-        { code: "a ^ b", errors: [{ messageId: "unexpected", data: { operator: "^" }, type: "BinaryExpression" }] },
-        { code: "a | b", errors: [{ messageId: "unexpected", data: { operator: "|" }, type: "BinaryExpression" }] },
-        { code: "a & b", errors: [{ messageId: "unexpected", data: { operator: "&" }, type: "BinaryExpression" }] },
-        { code: "a << b", errors: [{ messageId: "unexpected", data: { operator: "<<" }, type: "BinaryExpression" }] },
-        { code: "a >> b", errors: [{ messageId: "unexpected", data: { operator: ">>" }, type: "BinaryExpression" }] },
-        { code: "a >>> b", errors: [{ messageId: "unexpected", data: { operator: ">>>" }, type: "BinaryExpression" }] },
-        { code: "~a", errors: [{ messageId: "unexpected", data: { operator: "~" }, type: "UnaryExpression" }] },
-        { code: "a ^= b", errors: [{ messageId: "unexpected", data: { operator: "^=" }, type: "AssignmentExpression" }] },
-        { code: "a |= b", errors: [{ messageId: "unexpected", data: { operator: "|=" }, type: "AssignmentExpression" }] },
-        { code: "a &= b", errors: [{ messageId: "unexpected", data: { operator: "&=" }, type: "AssignmentExpression" }] },
-        { code: "a <<= b", errors: [{ messageId: "unexpected", data: { operator: "<<=" }, type: "AssignmentExpression" }] },
-        { code: "a >>= b", errors: [{ messageId: "unexpected", data: { operator: ">>=" }, type: "AssignmentExpression" }] },
-        { code: "a >>>= b", errors: [{ messageId: "unexpected", data: { operator: ">>>=" }, type: "AssignmentExpression" }] }
-    ]
+	valid: [
+		"a + b",
+		"!a",
+		"a && b",
+		"a || b",
+		"a += b",
+		{ code: "a &&= b", languageOptions: { ecmaVersion: 2021 } },
+		{ code: "a ||= b", languageOptions: { ecmaVersion: 2021 } },
+		{ code: "a ??= b", languageOptions: { ecmaVersion: 2021 } },
+		{ code: "~[1, 2, 3].indexOf(1)", options: [{ allow: ["~"] }] },
+		{ code: "~1<<2 === -8", options: [{ allow: ["~", "<<"] }] },
+		{ code: "a|0", options: [{ int32Hint: true }] },
+		{ code: "a|0", options: [{ allow: ["|"], int32Hint: false }] },
+	],
+	invalid: [
+		{
+			code: "a ^ b",
+			errors: [
+				{
+					messageId: "unexpected",
+					data: { operator: "^" },
+				},
+			],
+		},
+		{
+			code: "a | b",
+			errors: [
+				{
+					messageId: "unexpected",
+					data: { operator: "|" },
+				},
+			],
+		},
+		{
+			code: "a & b",
+			errors: [
+				{
+					messageId: "unexpected",
+					data: { operator: "&" },
+				},
+			],
+		},
+		{
+			code: "a << b",
+			errors: [
+				{
+					messageId: "unexpected",
+					data: { operator: "<<" },
+				},
+			],
+		},
+		{
+			code: "a >> b",
+			errors: [
+				{
+					messageId: "unexpected",
+					data: { operator: ">>" },
+				},
+			],
+		},
+		{
+			code: "a >>> b",
+			errors: [
+				{
+					messageId: "unexpected",
+					data: { operator: ">>>" },
+				},
+			],
+		},
+		{
+			code: "a|0",
+			errors: [
+				{
+					messageId: "unexpected",
+					data: { operator: "|" },
+				},
+			],
+		},
+		{
+			code: "~a",
+			errors: [
+				{
+					messageId: "unexpected",
+					data: { operator: "~" },
+				},
+			],
+		},
+		{
+			code: "a ^= b",
+			errors: [
+				{
+					messageId: "unexpected",
+					data: { operator: "^=" },
+				},
+			],
+		},
+		{
+			code: "a |= b",
+			errors: [
+				{
+					messageId: "unexpected",
+					data: { operator: "|=" },
+				},
+			],
+		},
+		{
+			code: "a &= b",
+			errors: [
+				{
+					messageId: "unexpected",
+					data: { operator: "&=" },
+				},
+			],
+		},
+		{
+			code: "a <<= b",
+			errors: [
+				{
+					messageId: "unexpected",
+					data: { operator: "<<=" },
+				},
+			],
+		},
+		{
+			code: "a >>= b",
+			errors: [
+				{
+					messageId: "unexpected",
+					data: { operator: ">>=" },
+				},
+			],
+		},
+		{
+			code: "a >>>= b",
+			errors: [
+				{
+					messageId: "unexpected",
+					data: { operator: ">>>=" },
+				},
+			],
+		},
+	],
 });
