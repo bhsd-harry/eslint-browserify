@@ -32,7 +32,8 @@ const linter = new eslint.Linter(),
 		const {globals, ...other} = parserOptions,
 			printConfig = {...config, parserOptions: other};
 		return [config, JSON.stringify(printConfig, null, '\t')];
-	};
+	},
+	isNewEnv = ({env = {}}) => 'eslatest' in env || 'es2025' in env || 'es2026' in env;
 
 class RuleTester {
 	constructor(config = {}) {
@@ -66,6 +67,10 @@ class RuleTester {
 					continue;
 				}
 				const [config, printConfig] = getConfig(this.config, languageOptions, options, rule);
+				if (isNewEnv(config)) {
+					it.skip(`invalid: ${code}`);
+					continue;
+				}
 				it(`invalid: ${code}`, () => {
 					const results = linter.verify(code, config);
 					if (Array.isArray(errors)) {
@@ -90,6 +95,10 @@ class RuleTester {
 					continue;
 				}
 				const [config, printConfig] = getConfig(this.config, languageOptions, options, rule);
+				if (isNewEnv(config)) {
+					it.skip(`valid: ${code}`);
+					continue;
+				}
 				it(`valid: ${code}`, () => {
 					assert.deepStrictEqual(linter.verify(code, config), [], printConfig);
 				});

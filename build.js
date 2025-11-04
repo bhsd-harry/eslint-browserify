@@ -19,34 +19,9 @@ const shim = [
 		'validate-language-options',
 		'warning-service',
 	],
-	/** @type {string[]} */ fromEntries = [],
-	/** @type {string[]} */ dotAll = [],
-	/** @type {string[]} */ flat = [],
-	/** @type {string[]} */ flatMap = [],
-	/** @type {string[]} */ namedCaptureGroup = [],
-	at = [
-		'apply-disable-directives',
-		'ast-utils',
-		'code-path',
-		'eslint-scope',
-		'espree',
-		'file-report',
-		'fork-context',
-		'source-code',
-	],
-	objectHasOwn = [
-		'eslint-scope',
-		'eslintrc-universal',
-		'espree',
-		'file-report',
-		'linter',
-		'source-code-fixer',
-	],
 	shimSet = new Set(shim),
-	reduce = '.reduce((acc, cur) => acc.concat(cur), [])',
 	resolvePath = path.join('build', 'resolve'),
 	loadPath = path.join('build', 'load');
-let copy = true;
 
 if (!fs.existsSync(resolvePath)) {
 	fs.mkdirSync(resolvePath, {recursive: true});
@@ -65,12 +40,7 @@ const /** @type {esbuild.Plugin} */ plugin = {
 				const {name, ext} = path.parse(p),
 					file = name + (ext || '.js');
 				shimSet.delete(name);
-				if (copy) {
-					fs.copyFileSync(
-						require.resolve(path.join(resolveDir, p)),
-						path.resolve(resolvePath, file),
-					);
-				}
+				fs.copyFileSync(require.resolve(path.join(resolveDir, p)), path.resolve(resolvePath, file));
 				return {
 					path: path.resolve('shim', file),
 				};
@@ -88,17 +58,10 @@ const /** @type {esbuild.Plugin} */ plugin = {
 						'linter',
 						'List',
 						'no-magic-numbers',
-						...dotAll,
-						...flat,
-						...flatMap,
-						...namedCaptureGroup,
-						...at,
-						...objectHasOwn,
 					].join('|')}|(?:${[
 						'cjs',
 						'prelude-ls/lib',
 						'rules',
-						...fromEntries,
 					].join('|')})/index)\.c?js|package\.json|rules/[\w-]+\.js)$`,
 				),
 			},
@@ -126,13 +89,13 @@ const /** @type {esbuild.Plugin} */ plugin = {
 					case 'ast':
 						contents = contents.replace(
 							/^([ \t]+)(function (?!trailingStatement)\w+)\(.+?^\1\}$/gmsu,
-							'$1$2() {}',
+							'$2() {}',
 						);
 						break;
 					case 'cjs':
 						contents = contents.replace(
-							/^(class TextSourceCodeBase \{)$.+?^\}$/msu,
-							'$1}',
+							/(?<=^class TextSourceCodeBase \{)$.+?^\}$/msu,
+							'}',
 						);
 						break;
 					case 'eslintrc-universal':
@@ -146,8 +109,8 @@ const /** @type {esbuild.Plugin} */ plugin = {
 							/^const \w+(?:Schema|Properties) = .+?^\}\)?;$/gmsu,
 							'',
 						).replace(
-							/^(function (?:normalizePackageName|getShorthandName|getNamespaceFromTerm)\().+?^\}$/gmsu,
-							'$1) {}',
+							/(?<=^function (?:normalizePackageName|getShorthandName|getNamespaceFromTerm)\().+?^\}$/gmsu,
+							') {}',
 						);
 						break;
 					case 'espree':
@@ -156,7 +119,7 @@ const /** @type {esbuild.Plugin} */ plugin = {
 					case 'estraverse':
 						contents = contents.replace(
 							/^([ \t]+)(function \w+)\(.+?^\1\}$/gmsu,
-							'$1$2() {}',
+							'$2() {}',
 						).replace(
 							/^([ \t]+)\w+\.prototype\.\w+ = .+?^\1\};$/gmsu,
 							'',
@@ -197,59 +160,7 @@ const /** @type {esbuild.Plugin} */ plugin = {
 						);
 					// no default
 				}
-				if (fromEntries.includes(base)) {
-					contents = contents.replaceAll(
-						'Object.fromEntries',
-						'fromEntries',
-					);
-					isRule = false;
-				}
-				if (namedCaptureGroup.includes(base)) {
-					contents = contents.replace(
-						String.raw`regex = /(?:[^\\]|(?<previousEscape>\\.))*?(?<decimalEscape>\\[89])/suy;`,
-						String.raw`regex = /(?:[^\\]|(\\.))*?(\\[89])/suy;`,
-					).replace(
-						'const { previousEscape, decimalEscape } = match.groups;',
-						'const [, previousEscape, decimalEscape] = match;',
-					);
-					isRule = false;
-				}
-				if (dotAll.includes(base)) {
-					contents = contents.replace(
-						/(?<!\\)\/((?:[^/]|\\\/)+)\/([dgimuy]*s[dgimuy]*)\b/gu,
-						(_, p1, p2) => String.raw`/${
-							p1.replace(/(?<!(?<!\\)\\)\./gu, String.raw`[\s\S]`)
-						}/${p2.replaceAll('s', '')}`,
-					);
-					isRule = false;
-				}
-				if (flat.includes(base)) {
-					contents = contents.replaceAll(
-						'.flat()',
-						reduce,
-					);
-					isRule = false;
-				}
-				if (flatMap.includes(base)) {
-					contents = contents.replace(
-						/\b([\w.]+\s*)\.flatMap\(/gu,
-						'flattenMap($1, ',
-					);
-					isRule = false;
-				}
-				if (at.includes(base)) {
-					contents = contents.replace(
-						/\b([\w.]+)\.at\(-1\)/gu,
-						'$1[$1.length - 1]',
-					);
-				}
-				if (objectHasOwn.includes(base)) {
-					contents = contents.replaceAll(
-						'Object.hasOwn(',
-						'Object.prototype.hasOwnProperty.call(',
-					);
-				}
-				if (!copy && !isRule) {
+				if (!isRule) {
 					fs.copyFileSync(
 						p,
 						path.resolve(loadPath, (/^index\.c?js$/u.test(basename) ? `${base}-` : '') + basename),
@@ -279,48 +190,15 @@ const /** @type {esbuild.BuildOptions} */ config = {
 };
 
 (async () => {
-	let /** @type {esbuild.BuildOptions} */ options = {
+	await esbuild.build({
 		...config,
 		target: 'es2019',
 		outfile: 'build/eslint.js',
 		plugins: [plugin],
-	};
-	await esbuild.build(options);
-	copy = false;
+	});
 	if (shimSet.size > 0) {
 		console.error(
 			`The following shims were not used in the bundle: ${[...shimSet].join(', ')}`,
 		);
 	}
-
-	shim.push('is-combining-character');
-	fromEntries.push('regexpp');
-	dotAll.push(
-		'ast-utils',
-		'cjs',
-		'no-misleading-character-class',
-		'no-nonoctal-decimal-escape',
-		'no-octal-escape',
-		'linter',
-	);
-	flat.push('esquery', 'no-useless-backreference');
-	flatMap.push('apply-disable-directives', 'max-lines', 'no-useless-assignment');
-	namedCaptureGroup.push('no-nonoctal-decimal-escape');
-	options = {
-		...config,
-		target: 'es2017',
-		outfile: 'build/eslint-es8.js',
-		plugins: [plugin],
-		banner: {
-			js: `const flattenMap = (arr, fn) => arr.map(fn)${reduce};
-const fromEntries = Object.fromEntries || (iterable => {
-	const obj = {};
-	for (const [key, value] of iterable) {
-		obj[key] = value;
-	}
-	return obj;
-});`,
-		},
-	};
-	await esbuild.build(options);
 })();

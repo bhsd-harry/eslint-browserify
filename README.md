@@ -4,7 +4,7 @@
 [![License](https://img.shields.io/badge/License-MIT-brightgreen.svg)](LICENSE)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/f8d073568955481f9aa7acbc9484c8a6)](https://app.codacy.com/gh/bhsd-harry/eslint-browserify/dashboard)
 
-# API
+## API
 
 The `eslint` global variable has a `Linter` constructor.
 
@@ -69,7 +69,7 @@ The information available for each linting message is:
 - `endColumn` - the end column of the range on which the error occurred (this property is omitted if it's not range).
 - `endLine` - the end line of the range on which the error occurred (this property is omitted if it's not range).
 - `fix` - an object describing the fix for the problem (this property is omitted if no fix is available).
-* `suggestions` - an array of objects describing possible lint fixes for editors to programmatically enable.
+- `suggestions` - an array of objects describing possible lint fixes for editors to programmatically enable.
 
 ### Linter#verifyAndFix()
 
