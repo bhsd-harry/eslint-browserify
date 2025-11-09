@@ -2,6 +2,5 @@
 /bundle/eslint*
 /bundle/.gitignore
 /.eslintcache
-/.markdownlint.json
 /build
 /dist

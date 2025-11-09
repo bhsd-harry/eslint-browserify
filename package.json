@@ -25,7 +25,8 @@
 	},
 	"scripts": {
 		"lint:ts": "tsc --noEmit && eslint --cache --report-unused-disable-directives-severity 0 . && eslint --no-ignore --no-inline-config --no-config-lookup -c eslint.build.mjs build/eslint.js",
-		"lint": "npm run lint:ts",
+		"lint:md": "markdownlint-cli2 '**/*.md'",
+		"lint": "npm run lint:ts && npm run lint:md",
 		"build": "tsc && npm run bundle && npm run minify",
 		"bundle": "node build.js",
 		"minify": "esbuild src/index.ts --charset=utf8 --bundle --minify --sourcemap --target=es2019 --outfile=bundle/eslint.min.js --legal-comments=external",
@@ -53,6 +54,7 @@
 		"eslint-scope": "^8.4.0",
 		"globals": "^16.5.0",
 		"lodash.merge": "^4.6.2",
+		"markdownlint-cli2": "^0.18.1",
 		"mocha": "^11.7.4",
 		"typescript": "^5.9.3"
 	},
