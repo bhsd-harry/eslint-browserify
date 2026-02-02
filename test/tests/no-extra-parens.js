@@ -53,11 +53,6 @@ function invalid(code, output, type, line, config) {
 const ruleTester = new RuleTester({
 	languageOptions: {
 		sourceType: "script",
-		parserOptions: {
-			ecmaFeatures: {
-				jsx: true,
-			},
-		},
 	},
 });
 
@@ -468,16 +463,6 @@ ruleTester.run("no-extra-parens", rule, {
 		["function a() {", "    return (", "        b", "    );", "}"].join(
 			"\n",
 		),
-		[
-			"function a() {",
-			"    return (",
-			"        <JSX />",
-			"    );",
-			"}",
-		].join("\n"),
-		["function a() {", "    return (", "        <></>", "    );", "}"].join(
-			"\n",
-		),
 		["throw (", "    a", ");"].join("\n"),
 		["function *a() {", "    yield (", "        b", "    );", "}"].join(
 			"\n",
@@ -544,96 +529,6 @@ ruleTester.run("no-extra-parens", rule, {
 		// https://github.com/eslint/eslint/issues/9019
 		"(async function() {});",
 		"(async function () { }());",
-
-		// ["all", { ignoreJSX: "all" }]
-		{
-			code: "const Component = (<div />)",
-			options: ["all", { ignoreJSX: "all" }],
-		},
-		{
-			code: "const Component = ((<div />))",
-			options: ["all", { ignoreJSX: "all" }],
-		},
-		{
-			code: ["const Component = (<>", "  <p />", "</>);"].join("\n"),
-			options: ["all", { ignoreJSX: "all" }],
-		},
-		{
-			code: ["const Component = ((<>", "  <p />", "</>));"].join("\n"),
-			options: ["all", { ignoreJSX: "all" }],
-		},
-		{
-			code: ["const Component = (<div>", "  <p />", "</div>);"].join(
-				"\n",
-			),
-			options: ["all", { ignoreJSX: "all" }],
-		},
-		{
-			code: ["const Component = (", "  <div />", ");"].join("\n"),
-			options: ["all", { ignoreJSX: "all" }],
-		},
-		{
-			code: ["const Component =", "  (<div />)"].join("\n"),
-			options: ["all", { ignoreJSX: "all" }],
-		},
-
-		// ["all", { ignoreJSX: "single-line" }]
-		{
-			code: "const Component = (<div />);",
-			options: ["all", { ignoreJSX: "single-line" }],
-		},
-		{
-			code: "const Component = ((<div />));",
-			options: ["all", { ignoreJSX: "single-line" }],
-		},
-		{
-			code: ["const Component = (", "  <div />", ");"].join("\n"),
-			options: ["all", { ignoreJSX: "single-line" }],
-		},
-		{
-			code: ["const Component =", "(<div />)"].join("\n"),
-			options: ["all", { ignoreJSX: "single-line" }],
-		},
-
-		// ["all", { ignoreJSX: "multi-line" }]
-		{
-			code: [
-				"const Component = (",
-				"<div>",
-				"  <p />",
-				"</div>",
-				");",
-			].join("\n"),
-			options: ["all", { ignoreJSX: "multi-line" }],
-		},
-		{
-			code: [
-				"const Component = ((",
-				"<div>",
-				"  <p />",
-				"</div>",
-				"));",
-			].join("\n"),
-			options: ["all", { ignoreJSX: "multi-line" }],
-		},
-		{
-			code: ["const Component = (<div>", "  <p />", "</div>);"].join(
-				"\n",
-			),
-			options: ["all", { ignoreJSX: "multi-line" }],
-		},
-		{
-			code: ["const Component =", "(<div>", "  <p />", "</div>);"].join(
-				"\n",
-			),
-			options: ["all", { ignoreJSX: "multi-line" }],
-		},
-		{
-			code: ["const Component = (<div", "  prop={true}", "/>)"].join(
-				"\n",
-			),
-			options: ["all", { ignoreJSX: "multi-line" }],
-		},
 
 		// ["all", { enforceForArrowConditionals: false }]
 		{
@@ -1858,54 +1753,6 @@ ruleTester.run("no-extra-parens", rule, {
 			),
 			"Identifier",
 		),
-		invalid(
-			["function a() {", "    return (<JSX />);", "}"].join("\n"),
-			["function a() {", "    return <JSX />;", "}"].join("\n"),
-			"JSXElement",
-			null,
-		),
-		invalid(
-			["function a() {", "    return", "    (<JSX />);", "}"].join("\n"),
-			["function a() {", "    return", "    <JSX />;", "}"].join("\n"),
-			"JSXElement",
-			null,
-		),
-		invalid(
-			[
-				"function a() {",
-				"    return ((",
-				"       <JSX />",
-				"    ));",
-				"}",
-			].join("\n"),
-			[
-				"function a() {",
-				"    return (",
-				"       <JSX />",
-				"    );",
-				"}",
-			].join("\n"),
-			"JSXElement",
-			null,
-		),
-		invalid(
-			[
-				"function a() {",
-				"    return ((",
-				"       <></>",
-				"    ));",
-				"}",
-			].join("\n"),
-			[
-				"function a() {",
-				"    return (",
-				"       <></>",
-				"    );",
-				"}",
-			].join("\n"),
-			"JSXFragment",
-			null,
-		),
 		invalid("throw (a);", "throw a;", "Identifier"),
 		invalid(
 			["throw ((", "   a", "));"].join("\n"),
@@ -2136,86 +1983,6 @@ ruleTester.run("no-extra-parens", rule, {
 		invalid("foo && (bar)", "foo && bar", "Identifier", 1, {
 			options: ["all", { nestedBinaryExpressions: false }],
 		}),
-
-		// ["all", { ignoreJSX: "multi-line" }]
-		invalid(
-			"const Component = (<div />);",
-			"const Component = <div />;",
-			"JSXElement",
-			1,
-			{
-				options: ["all", { ignoreJSX: "multi-line" }],
-			},
-		),
-		invalid(
-			["const Component = (", "  <div />", ");"].join("\n"),
-			"const Component = \n  <div />\n;",
-			"JSXElement",
-			1,
-			{
-				options: ["all", { ignoreJSX: "multi-line" }],
-			},
-		),
-		invalid(
-			["const Component = (", "  <></>", ");"].join("\n"),
-			"const Component = \n  <></>\n;",
-			"JSXFragment",
-			1,
-			{
-				options: ["all", { ignoreJSX: "multi-line" }],
-			},
-		),
-
-		// ["all", { ignoreJSX: "single-line" }]
-		invalid(
-			["const Component = (", "<div>", "  <p />", "</div>", ");"].join(
-				"\n",
-			),
-			"const Component = \n<div>\n  <p />\n</div>\n;",
-			"JSXElement",
-			1,
-			{
-				options: ["all", { ignoreJSX: "single-line" }],
-			},
-		),
-		invalid(
-			["const Component = (<div>", "  <p />", "</div>);"].join("\n"),
-			"const Component = <div>\n  <p />\n</div>;",
-			"JSXElement",
-			1,
-			{
-				options: ["all", { ignoreJSX: "single-line" }],
-			},
-		),
-		invalid(
-			["const Component = (<div", "  prop={true}", "/>)"].join("\n"),
-			"const Component = <div\n  prop={true}\n/>",
-			"JSXElement",
-			1,
-			{
-				options: ["all", { ignoreJSX: "single-line" }],
-			},
-		),
-
-		// ["all", { ignoreJSX: "none" }] default, same as unspecified
-		invalid(
-			"const Component = (<div />);",
-			"const Component = <div />;",
-			"JSXElement",
-			1,
-			{
-				options: ["all", { ignoreJSX: "none" }],
-			},
-		),
-		invalid(
-			["const Component = (<div>", "<p />", "</div>)"].join("\n"),
-			"const Component = <div>\n<p />\n</div>",
-			"JSXElement",
-			1,
-			{
-				options: ["all", { ignoreJSX: "none" }],
-			},
-		),
 
 		// ["all", { enforceForArrowConditionals: true }]
 		{

@@ -23,8 +23,14 @@ const linter = new eslint.Linter(),
 		const config = merge(merge({}, cfg), {...getOption(languageOptions), rules: {[rule]: [2, ...options]}}),
 			{parserOptions = {}} = config;
 		if (parserOptions.ecmaVersion) {
+			if (parserOptions.ecmaVersion > 5 && parserOptions.ecmaVersion < 2000) {
+				parserOptions.ecmaVersion += 2009;
+			}
 			config.env ??= {};
 			config.env[`es${parserOptions.ecmaVersion}`] = true;
+			if (parserOptions.ecmaVersion >= 2015) {
+				config.globals = {...config.globals, Intl: 'readonly'};
+			}
 		}
 		if (parserOptions.sourceType === 'commonjs') {
 			config.env.commonjs = true;
@@ -32,8 +38,7 @@ const linter = new eslint.Linter(),
 		const {globals, ...other} = parserOptions,
 			printConfig = {...config, parserOptions: other};
 		return [config, JSON.stringify(printConfig, null, '\t')];
-	},
-	isNewEnv = ({env = {}}) => 'eslatest' in env || 'es2025' in env || 'es2026' in env;
+	};
 
 class RuleTester {
 	constructor(config = {}) {
@@ -49,7 +54,7 @@ class RuleTester {
 	}
 
 	run(rule, _, {valid, invalid}) {
-		if (this.config.plugins || this.config.parserOptions.parser) {
+		if (this.config.parserOptions.parser) {
 			describe.skip(rule, () => {
 				for (const {code} of invalid) {
 					it.skip(`invalid: ${code}`);
@@ -67,14 +72,9 @@ class RuleTester {
 					continue;
 				}
 				const [config, printConfig] = getConfig(this.config, languageOptions, options, rule);
-				if (isNewEnv(config)) {
-					it.skip(`invalid: ${code}`);
-					continue;
-				}
 				it(`invalid: ${code}`, () => {
 					const results = linter.verify(code, config);
 					if (Array.isArray(errors)) {
-						// eslint-disable-next-line n/no-unsupported-features/node-builtins
 						assert.partialDeepStrictEqual(results, errors.map(reduce), printConfig);
 					} else {
 						assert.strictEqual(results.length > 0, Boolean(errors), printConfig);
@@ -95,10 +95,6 @@ class RuleTester {
 					continue;
 				}
 				const [config, printConfig] = getConfig(this.config, languageOptions, options, rule);
-				if (isNewEnv(config)) {
-					it.skip(`valid: ${code}`);
-					continue;
-				}
 				it(`valid: ${code}`, () => {
 					assert.deepStrictEqual(linter.verify(code, config), [], printConfig);
 				});

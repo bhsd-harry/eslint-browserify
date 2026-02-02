@@ -1,6 +1,6 @@
 {
 	"name": "@bhsd/eslint-browserify",
-	"version": "9.0.0",
+	"version": "9.39.2",
 	"description": "ESLint in browser",
 	"keywords": [
 		"eslint",
@@ -18,47 +18,63 @@
 		"bundle/*.min.js",
 		"bundle/*.LEGAL.txt"
 	],
+	"main": "./bundle/eslint.min.js",
 	"browser": "bundle/eslint.min.js",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/bhsd-harry/eslint-browserify.git"
 	},
 	"scripts": {
-		"lint:ts": "tsc --noEmit && eslint --cache --report-unused-disable-directives-severity 0 . && eslint --no-ignore --no-inline-config --no-config-lookup -c eslint.build.mjs build/eslint.js",
+		"lint:ts": "tsc && eslint --cache --report-unused-disable-directives-severity 0 . && eslint --no-ignore --no-inline-config --no-config-lookup -c eslint.build.mjs build/eslint.js",
+		"lint:bundle": "eslint --no-ignore --no-config-lookup --report-unused-disable-directives-severity 0 --rule 'no-unused-vars: [2, {args: \"none\"}]' build/eslint.js",
 		"lint:md": "markdownlint-cli2 '**/*.md'",
 		"lint": "npm run lint:ts && npm run lint:md",
-		"build": "tsc && npm run bundle && npm run minify",
+		"build": "npm run bundle && npm run minify",
 		"bundle": "node build.js",
-		"minify": "esbuild src/index.ts --charset=utf8 --bundle --minify --sourcemap --target=es2019 --outfile=bundle/eslint.min.js --legal-comments=external",
-		"test:bundle": "mocha --require dist/index.js",
-		"test": "mocha --require bundle/eslint.min.js",
-		"clean": "find test/tests/ -type f -name '*.js' | xargs gsed -i 's|\"../../../lib/rule-tester/rule-tester\"|\"../rule-tester\"| ; s|rule = require(.*)|rule = __filename| ; s|parser: require(.*)|parser: require(\"../parser\")|g ; s|arser = require(.*)|arser = require(\"../parser\")|g ; s|\"../../_utils\"|\"../utils\"| ; s|../../fixtures/parsers/.*\\.js|../parser|'; eslint --report-unused-disable-directives-severity 0 test/tests/*.js"
+		"minify": "esbuild build/eslint.js --charset=utf8 --bundle --minify --sourcemap --target=es2019 --outfile=bundle/eslint.min.js --legal-comments=external",
+		"coverage": "c8 mocha --require bundle/eslint.min.js && node test/coverage.js",
+		"test": "mocha --require build/eslint.js",
+		"clean": "find test/tests/ -type f -name '*.js' | xargs gsed -i 's|\"../../../lib/rule-tester/rule-tester\"|\"../rule-tester\"| ; s|rule = require(.*)|rule = __filename| ; s|parser: require(.*)|parser: require(\"../parser\")|g ; s|arser = require(.*)|arser = require(\"../parser\")|g ; s|\"../../_utils\"|\"../utils\"| ; s|../../fixtures/parsers/.*\\.js|../parser| ; s|rule-to-test/||g'; eslint --report-unused-disable-directives-severity 0 test/tests/*.js"
+	},
+	"c8": {
+		"reporter": [
+			"json",
+			"text"
+		],
+		"include": [
+			"bundle/eslint.min.js"
+		]
 	},
 	"devDependencies": {
-		"@bhsd/code-standard": "^1.3.1",
-		"@stylistic/eslint-plugin": "^5.5.0",
+		"@bhsd/code-standard": "^2.0.0",
+		"@eslint/eslintrc": "^3.3.3",
+		"@stylistic/eslint-plugin": "^5.7.1",
 		"@types/mocha": "^10.0.10",
-		"@types/node": "^24.9.2",
-		"@typescript-eslint/eslint-plugin": "^8.46.2",
-		"@typescript-eslint/parser": "^8.46.2",
-		"esbuild": "^0.25.11",
-		"eslint": "^9.38.0",
-		"eslint-plugin-es-x": "^9.1.2",
+		"@types/node": "^24.10.9",
+		"@typescript-eslint/eslint-plugin": "^8.54.0",
+		"@typescript-eslint/parser": "^8.54.0",
+		"c8": "^10.1.3",
+		"esbuild": "^0.27.2",
+		"eslint": "^9.39.2",
+		"eslint-plugin-es-x": "^9.3.0",
 		"eslint-plugin-eslint-comments": "^3.2.0",
-		"eslint-plugin-jsdoc": "^61.1.11",
+		"eslint-plugin-jsdoc": "^62.5.0",
 		"eslint-plugin-jsonc": "^2.21.0",
-		"eslint-plugin-n": "^17.23.1",
+		"eslint-plugin-n": "^17.23.2",
 		"eslint-plugin-promise": "^7.2.1",
-		"eslint-plugin-regexp": "^2.10.0",
+		"eslint-plugin-regexp": "^3.0.0",
 		"eslint-plugin-unicorn": "^62.0.0",
 		"eslint-scope": "^8.4.0",
-		"globals": "^16.5.0",
+		"eslint-visitor-keys": "^4.2.1",
+		"espree": "^10.4.0",
+		"esprima": "^4.0.1",
+		"globals": "^17.2.0",
 		"lodash.merge": "^4.6.2",
-		"markdownlint-cli2": "^0.18.1",
-		"mocha": "^11.7.4",
+		"markdownlint-cli2": "^0.20.0",
+		"mocha": "^11.7.5",
 		"typescript": "^5.9.3"
 	},
 	"engines": {
-		"node": ">=20.19.5"
+		"node": "^24.11.0"
 	}
 }

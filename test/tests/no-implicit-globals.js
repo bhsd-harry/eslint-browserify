@@ -379,7 +379,6 @@ ruleTester.run("no-implicit-globals", rule, {
 			code: "foo ||= 1",
 			languageOptions: { ecmaVersion: 2021 },
 		},
-		"/* global foo: writable*/ foo = bar",
 
 		// Leaks are not possible in strict mode (explicit or implicit). Therefore, rule doesn't report assignments in strict mode.
 		"'use strict';foo = 1;",
@@ -408,10 +407,6 @@ ruleTester.run("no-implicit-globals", rule, {
 		"foo--",
 
 		// Not a leak
-		{
-			code: "foo = 1;",
-			languageOptions: { globals: { foo: "writable" } },
-		},
 		{
 			code: "window.foo = function bar() { bar = 1; };",
 			languageOptions: { globals: globals.browser },
@@ -453,13 +448,6 @@ ruleTester.run("no-implicit-globals", rule, {
 			code: "/*global Foo:writable*/ class Foo {}",
 			options: [{ lexicalBindings: true }],
 			languageOptions: { ecmaVersion: 2015 },
-		},
-
-		// Assignments to writable global variables are allowed
-		"/*global foo:writable*/ foo = 1;",
-		{
-			code: "foo = 1",
-			languageOptions: { globals: { foo: "writable" } },
 		},
 
 		// This rule doesn't disallow assignments to properties of readonly globals

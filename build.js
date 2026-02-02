@@ -9,7 +9,10 @@ const shim = [
 		'Num',
 		'Obj',
 		'Str',
+		'ast',
 		'config',
+		'debug-helpers',
+		'flags',
 		'flat-config-array',
 		'flat-config-schema',
 		'option-utils',
@@ -18,6 +21,24 @@ const shim = [
 		'timing',
 		'validate-language-options',
 		'warning-service',
+	],
+	at = [
+		'apply-disable-directives',
+		'ast-utils',
+		'code-path',
+		'eslint-scope',
+		'espree',
+		'file-report',
+		'fork-context',
+		'source-code',
+	],
+	hasOwn = [
+		'eslintrc-universal',
+		'eslint-scope',
+		'espree',
+		'file-report',
+		'linter',
+		'source-code-fixer',
 	],
 	shimSet = new Set(shim),
 	resolvePath = path.join('build', 'resolve'),
@@ -29,6 +50,21 @@ if (!fs.existsSync(resolvePath)) {
 if (!fs.existsSync(loadPath)) {
 	fs.mkdirSync(loadPath, {recursive: true});
 }
+
+const polyfillAt = s => s.replace(/\.at\((-\d+)\)/gu, '.slice($1)[0]'),
+	polyfillObjectHasOwn = s => s.replaceAll('Object.hasOwn(', 'Object.prototype.hasOwnProperty.call(');
+
+const stringify = obj => {
+	if (typeof obj === 'boolean') {
+		return JSON.stringify(obj);
+	}
+	let str = '{\n';
+	for (const [key, value] of Object.entries(obj)) {
+		str += `\t${/^[a-z_$][\w$]*$/iu.test(key) ? key : JSON.stringify(key)}: ${stringify(value)},\n`;
+	}
+	str += '}';
+	return str;
+};
 
 const /** @type {esbuild.Plugin} */ plugin = {
 	name: 'alias',
@@ -51,78 +87,211 @@ const /** @type {esbuild.Plugin} */ plugin = {
 				// eslint-disable-next-line require-unicode-regexp
 				filter: new RegExp(
 					String.raw`/(?:(?:${[
-						'ast',
-						'eslintrc-universal',
-						'espree',
+						'code',
+						'eslint-visitor-keys',
 						'estraverse',
-						'linter',
+						'keyword',
 						'List',
 						'no-magic-numbers',
+						'severity',
+						...at,
+						...hasOwn.filter(s => !at.includes(s)),
 					].join('|')}|(?:${[
 						'cjs',
+						'eslint-utils',
+						'js',
 						'prelude-ls/lib',
+						'regexpp',
 						'rules',
-					].join('|')})/index)\.c?js|package\.json|rules/[\w-]+\.js)$`,
+						'token-store',
+					].join('|')})/index)\.c?js|(?:package|globals)\.json|rules/[\w-]+\.js)$`,
 				),
 			},
 			({path: p}) => {
-				let contents = fs.readFileSync(p, 'utf8'),
-					isRule = false;
-				if (/\/rules\/[\w-]+\.js$/u.test(p)) {
-					contents = contents.replace(
+				const isRule = /\/rules\/[\w-]+\.js$/u.test(p);
+				let contents = fs.readFileSync(p, 'utf8');
+				if (isRule) {
+					contents = polyfillAt(polyfillObjectHasOwn(contents)).replace(
 						/^([ \t]+)schema: (?:\{(?:$.+?^\1|[^\n]*)\}|\[(?:$.+?^\1|[^\n]*)\]),?$/msu,
 						'',
 					).replace(
-						/\b([\w.]+)\.at\(-([12])\)/gu,
-						'$1[$1.length - $2]',
-					).replaceAll(
-						'Object.hasOwn(',
-						'Object.prototype.hasOwnProperty.call(',
+						/^([ \t]+)(deprecated|docs): \{.+?^\1\},?$/gmsu,
+						'',
+					).replace(
+						'BigInt(',
+						'(typeof BigInt === "function" ? BigInt : Number)(',
 					);
-					isRule = true;
 				}
 				const basename = path.basename(p),
 					base = /^index\.c?js$/u.test(basename)
 						? path.basename(p.slice(0, p.lastIndexOf('/')))
 						: basename.slice(0, basename.lastIndexOf('.'));
 				switch (base) {
-					case 'ast':
-						contents = contents.replace(
-							/^([ \t]+)(function (?!trailingStatement)\w+)\(.+?^\1\}$/gmsu,
-							'$2() {}',
-						);
-						break;
 					case 'cjs':
 						contents = contents.replace(
-							/(?<=^class TextSourceCodeBase \{)$.+?^\}$/msu,
-							'}',
+							/^exports\.(?:Directive|TextSourceCodeBase) = .+$/gmu,
+							'',
 						);
 						break;
-					case 'eslintrc-universal':
+					case 'code':
 						contents = contents.replace(
-							/^([ \t]+)(\w+Schema\().+?^\1\}$/gmsu,
-							'$2) {}',
-						).replace(
-							/^var ajvOrig = .+?^\};$/msu,
-							'var ajvOrig = () => {};',
-						).replace(
-							/^const \w+(?:Schema|Properties) = .+?^\}\)?;$/gmsu,
-							'',
-						).replace(
-							/(?<=^function (?:normalizePackageName|getShorthandName|getNamespaceFromTerm)\().+?^\}$/gmsu,
+							/(?<=^([ \t]+)function is(?!Identifier)\w+\().+?\1\}$/gmsu,
 							') {}',
 						);
 						break;
+					case 'eslint-scope':
+						contents = contents.replace(
+							/^([ \t]+)(?:JSX\w+|resolve)\(.+?^\1\}$/gmsu,
+							'',
+						).replace(
+							/^exports\.(?!analyze|Variable)\w+ = .+$/gmu,
+							'',
+						);
+						break;
+					case 'eslintrc-universal':
+						contents = contents
+							.replace(
+								/(?<=^([ \t]+)\w+Schema\().+?^\1\}$/gmsu,
+								') {}',
+							).replace(
+								/^([ \t]+)(?:validate(?:ConfigArray|Processor|Globals|Rules|Environment)?|formatErrors)\(.+?^\1\}$/gmsu,
+								'',
+							)
+							.replace(
+								/^var ajvOrig = .+?^\};$/msu,
+								'var ajvOrig = () => {};',
+							)
+							.replace(
+								/^const \w+(?:Schema|Properties) = .+?^\}\)?;$/gmsu,
+								'',
+							)
+							.replace(
+								/(?<=^var naming = \{).+?(?=^\};$)/msu,
+								'',
+							)
+							.replace(
+								/(?<=^var ConfigOps = \{).+?(?=^\};$)/msu,
+								'normalizeConfigGlobal',
+							);
+						break;
+					case 'eslint-utils':
+						contents = contents.replace(
+							/(?<=^function (?:getFunction(?:NameWithKind|HeadLocation)|hasSideEffect)\().+?^\}$/gmsu,
+							') {}',
+						).replace(
+							/(?<=^class PatternMatcher \{)$.+?^\}$/msu,
+							'}',
+						).replace(
+							/^const (?:(?:visitor|typeConversionBinaryOps) = [\s\S]+?^\)|typeConversionUnaryOps = .+);$/gmu,
+							'',
+						).replace(
+							/^([ \t]+)\*(?:iterate(?:Cjs|Esm|Property)|_iterateImport)References.+?^\1\}$/gmsu,
+							'',
+						);
+						break;
+					case 'eslint-visitor-keys':
+						contents = contents.replace(
+							'exports.unionWith = unionWith;',
+							'',
+						);
+						break;
 					case 'espree':
-						contents = contents.replace('useJsx ? this.jsx : ', '');
+						contents = contents.replace(
+							/(?<=^([ \t]+)get\().+?^\1\}$/msu,
+							') { return this.regular; }',
+						);
 						break;
 					case 'estraverse':
 						contents = contents.replace(
-							/^([ \t]+)(function \w+)\(.+?^\1\}$/gmsu,
-							'$2() {}',
-						).replace(
-							/^([ \t]+)\w+\.prototype\.\w+ = .+?^\1\};$/gmsu,
+							/^[ \t]+exports\.(?!Syntax|VisitorKeys)\w+ = .+$/gmu,
 							'',
+						).replace(
+							/^(?:\(function clone\(exports\) \{|\}\(exports\)\);)$/gmu,
+							'',
+						).replace(
+							/^([ \t]+)\w+\.prototype(?:\.\w+|\['\w+'\]) = .+?^\1\};$/gmsu,
+							'',
+						);
+						break;
+					case 'globals': {
+						const {
+							es5,
+							es2015,
+							browser,
+							node,
+							'shared-node-browser': shared,
+							worker,
+							serviceworker,
+							commonjs,
+							amd,
+							mocha,
+							jasmine,
+							jest,
+							phantomjs,
+							jquery,
+							qunit,
+							prototypejs,
+							shelljs,
+							meteor,
+							mongo,
+							protractor,
+							applescript,
+							nashorn,
+							atomtest,
+							embertest,
+							webextensions,
+							greasemonkey,
+						} = JSON.parse(contents);
+						contents = `module.exports = ${stringify(
+							{
+								es5,
+								es2015,
+								browser,
+								worker,
+								node,
+								commonjs,
+								amd,
+								mocha,
+								jasmine,
+								jest,
+								qunit,
+								phantomjs,
+								nashorn,
+								jquery,
+								shelljs,
+								prototypejs,
+								meteor,
+								mongo,
+								applescript,
+								serviceworker,
+								atomtest,
+								embertest,
+								protractor,
+								'shared-node-browser': shared,
+								webextensions,
+								greasemonkey,
+							},
+							null,
+							'\t',
+						)}`;
+						break;
+					}
+					case 'indent':
+						contents = contents.replace(
+							/^([ \t]+)(?:JSX\w+|"JSX\w+\[\w+\]")\(.+?^\1\},$/gmsu,
+							'',
+						);
+						break;
+					case 'js':
+						contents = contents.replace(
+							/^([ \t]+)normalizeLanguageOptions\(.+?^\1\},$/msu,
+							'',
+						);
+						break;
+					case 'keyword':
+						contents = contents.replace(
+							/(?<=^([ \t]+)function isStrictModeReservedWordES6\().+?^\1\}$/gmsu,
+							') {}',
 						);
 						break;
 					case 'lib':
@@ -132,10 +301,27 @@ const /** @type {esbuild.Plugin} */ plugin = {
 						);
 						break;
 					case 'linter':
-						contents = contents.replace(
-							/^([ \t]+)(?:(?:_verifyWith(?:\w*ConfigArray\w*|Processor)|#flatVerifyWithoutProcessors)\(|if \((?:configType !== "eslintrc"|typeof configToUse\.extractConfig === "function"|options\.preprocess \|\| options\.postprocess|(?:options\.)?stats)\) \{$).+?^\1\}$/gmsu,
-							'',
-						).replace('configType = "flat"', 'configType = "eslintrc"');
+						contents = contents
+							.replace(
+								/^([ \t]+)(?:_verifyWith(?!outProcessors)|#flatVerifyWithoutProcessors).+?^\1\}$/gmsu,
+								'',
+							)
+							.replace(
+								/^([ \t]+)if \((?:configType !== "eslintrc"|typeof configToUse\.extractConfig === "function"|options\.preprocess \|\| options\.postprocess|(?:options\.)?stats)\) \{$.+?^\1\}$/gmsu,
+								'',
+							)
+							.replace(
+								'configType = "flat"',
+								'configType = "eslintrc"',
+							)
+							.replace(
+								/^([ \t]+)flags\.forEach\(.+?^\1\}\);$/msu,
+								'',
+							)
+							.replace(
+								/(?<=^function assertEslintrcConfig\().+?^\}$/msu,
+								') {}',
+							);
 						break;
 					case 'List':
 						contents = contents.replace(
@@ -143,22 +329,60 @@ const /** @type {esbuild.Plugin} */ plugin = {
 							'',
 						);
 						break;
-					case 'no-magic-numbers':
+					case 'no-empty-function':
 						contents = contents.replace(
-							'BigInt(',
-							'(typeof BigInt === "function" ? BigInt : Number)(',
+							/^const ALLOW_OPTIONS = .+?^\]\);$/msu,
+							'',
 						);
-						isRule = false;
 						break;
 					case 'package':
-						contents = `{version: "${JSON.parse(contents).version}"}`;
+						contents = `module.exports = {version: "${JSON.parse(contents).version}"};`;
+						break;
+					case 'preserve-caught-error':
+						contents = contents.replace(
+							/^([ \t]+)if \(errorType === "AggregateError"\) \{.+?^\1\}$/msu,
+							'',
+						);
+						break;
+					case 'regexpp':
+						contents = contents.replace(
+							/^exports\.(?!RegExp(?:Parser|Validator)|visitRegExpAST)\w+ = .+$/gmu,
+							'',
+						).replace(
+							/^([ \t]+)(?:(?:parse|validate)Literal|eatRegExpBody)\(.+?^\1\}$/gmsu,
+							'',
+						);
 						break;
 					case 'rules':
 						contents = contents.replace(
-							/"(?:valid-jsdoc|jsx-quotes)": .+$/mu,
+							/"jsx-quotes": .+$/mu,
+							'',
+						);
+						break;
+					case 'severity':
+						contents = contents.replace(
+							/^[ \t]+normalizeSeverityToNumber,$/mu,
+							'',
+						);
+						break;
+					case 'source-code':
+						contents = contents.replace(
+							/^([ \t]+)(?:apply(?:LanguageOptions|InlineConfig)|getDisableDirectives|markVariableAsUsed|finalize)\(.+?^\1\}$/gmsu,
+							'',
+						);
+						break;
+					case 'token-store':
+						contents = contents.replace(
+							/^([ \t]+)get(?:Token(?:ByRangeStart|sBefore|OrComment\w+)|(?:FirstTokens|LastTokens?)Between)\(.+?^\1\}$/gmsu,
 							'',
 						);
 					// no default
+				}
+				if (at.includes(base)) {
+					contents = polyfillAt(contents);
+				}
+				if (hasOwn.includes(base)) {
+					contents = polyfillObjectHasOwn(contents);
 				}
 				if (!isRule) {
 					fs.copyFileSync(
@@ -173,16 +397,18 @@ const /** @type {esbuild.Plugin} */ plugin = {
 };
 
 const /** @type {esbuild.BuildOptions} */ config = {
-	entryPoints: [path.join(require.resolve('eslint'), '..', 'linter', 'linter.js')],
+	entryPoints: ['src/index.ts'],
+	outfile: 'build/eslint.js',
 	charset: 'utf8',
+	target: 'es2019',
 	bundle: true,
 	format: 'cjs',
 	logLevel: 'info',
+	plugins: [plugin],
 	alias: {
 		'acorn-jsx': './shim/acorn-jsx.js',
 		ajv: './shim/ajv.js',
 		debug: './shim/debug.js',
-		// eslint-disable-next-line n/no-extraneous-require
 		'eslint-visitor-keys': require.resolve('eslint-visitor-keys'),
 		'node:path': './shim/path.js',
 		'node:util': './shim/util.js',
@@ -190,12 +416,7 @@ const /** @type {esbuild.BuildOptions} */ config = {
 };
 
 (async () => {
-	await esbuild.build({
-		...config,
-		target: 'es2019',
-		outfile: 'build/eslint.js',
-		plugins: [plugin],
-	});
+	await esbuild.build(config);
 	if (shimSet.size > 0) {
 		console.error(
 			`The following shims were not used in the bundle: ${[...shimSet].join(', ')}`,

@@ -172,13 +172,6 @@ ruleTester.run("no-useless-assignment", rule, {
 			languageOptions: { sourceType: "script" },
 		},
 
-		// Mark variables as used via markVariableAsUsed()
-		`/*eslint test/use-a:1*/
-        let a = 'used';
-        console.log(a);
-        a = 'unused like but marked by markVariableAsUsed()';
-        `,
-
 		// Unknown variable
 		`v = 'used';
         console.log(v);

@@ -19,6 +19,7 @@ export default [
 			'es-x/no-iterator-prototype-drop': 0,
 			'es-x/no-iterator-prototype-take': 0,
 			'es-x/no-object-hasown': 0,
+			'es-x/no-regexp-lookbehind-assertions': 0,
 			'es-x/no-string-prototype-at': 0,
 		},
 	},

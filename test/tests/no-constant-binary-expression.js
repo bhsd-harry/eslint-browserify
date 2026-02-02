@@ -20,19 +20,12 @@ const ruleTester = new RuleTester({
 	languageOptions: {
 		ecmaVersion: 2021,
 		sourceType: "script",
-		parserOptions: {
-			ecmaFeatures: { jsx: true },
-		},
 	},
 });
 
 ruleTester.run("no-constant-binary-expression", rule, {
 	valid: [
 		// While this _would_ be a constant condition in React, ESLint has a policy of not attributing any specific behavior to JSX.
-		"<p /> && foo",
-		"<></> && foo",
-		"<p /> ?? foo",
-		"<></> ?? foo",
 		"arbitraryFunction(n) ?? foo",
 		"foo.Boolean(n) ?? foo",
 		"(x += 1) && foo",

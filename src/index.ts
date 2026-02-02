@@ -1,5 +1,7 @@
-import {Linter} from '../build/eslint.js'; // eslint-disable-line n/no-missing-import
+import {Linter} from 'eslint/universal';
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const {Legacy}: typeof import('@eslint/eslintrc/universal') = require('@eslint/eslintrc/universal');
 
 Object.assign(globalThis, {
-	eslint: {Linter},
+	eslint: {Linter, environments: Legacy.environments},
 });

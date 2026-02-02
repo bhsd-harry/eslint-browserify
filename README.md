@@ -71,7 +71,7 @@ The information available for each linting message is:
 - `fix` - an object describing the fix for the problem (this property is omitted if no fix is available).
 - `suggestions` - an array of objects describing possible lint fixes for editors to programmatically enable.
 
-### Linter#verifyAndFix()
+### Linter#verifyAndFix
 
 This method is similar to verify except that it also runs autofixing logic, similar to the `--fix` flag on the command line. The result object will contain the autofixed code, along with any remaining linting messages for the code that were not autofixed.
 

@@ -64,7 +64,7 @@ ruleTester.run("no-fallthrough", rule, {
 		"switch (foo) { case 0: try {} finally { break; } default: b(); }",
 		"switch (foo) { case 0: try { throw 0; } catch (err) { break; } default: b(); }",
 		"switch (foo) { case 0: do { throw 0; } while(a); default: b(); }",
-		"switch (foo) { case 0: a(); \n// eslint-disable-next-line rule-to-test/no-fallthrough\n case 1: }",
+		"switch (foo) { case 0: a(); \n// eslint-disable-next-line no-fallthrough\n case 1: }",
 		`
             switch (foo) {
                 case 0:
@@ -80,7 +80,7 @@ ruleTester.run("no-fallthrough", rule, {
                 case 0:
                     a();
                     break;
-                    // eslint-disable-next-line rule-to-test/no-fallthrough
+                    // eslint-disable-next-line no-fallthrough
                     /* falls through */
                 case 1:
                     b();

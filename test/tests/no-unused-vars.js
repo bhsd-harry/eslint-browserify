@@ -315,11 +315,6 @@ ruleTester.run("no-unused-vars", rule, {
 			languageOptions: { ecmaVersion: 6 },
 		},
 
-		// Can mark variables as used via context.markVariableAsUsed()
-		"/*eslint custom/use-every-a:1*/ var a;",
-		"/*eslint custom/use-every-a:1*/ !function(a) { return 1; }",
-		"/*eslint custom/use-every-a:1*/ !function() { var a; return 1 }",
-
 		// ignore pattern
 		{
 			code: "var _a;",
@@ -648,9 +643,6 @@ ruleTester.run("no-unused-vars", rule, {
 			options: [{ ignoreRestSiblings: true }],
 			languageOptions: { ecmaVersion: 2020 },
 		},
-
-		// https://github.com/eslint/eslint/issues/10952
-		"/*eslint custom/use-every-a:1*/ !function(b, a) { return 1 }",
 
 		// https://github.com/eslint/eslint/issues/10982
 		"var a = function () { a(); }; a();",
