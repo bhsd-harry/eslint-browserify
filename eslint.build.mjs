@@ -23,4 +23,14 @@ export default [
 			'es-x/no-string-prototype-at': 0,
 		},
 	},
+	{
+		files: ['build/*.js'],
+		rules: {
+			'es-x/no-class-instance-fields': 0,
+			'es-x/no-class-private-fields': 0,
+			'es-x/no-class-private-methods': 0,
+			'es-x/no-class-static-fields': 0,
+			'es-x/no-logical-assignment-operators': 0,
+		},
+	},
 ];

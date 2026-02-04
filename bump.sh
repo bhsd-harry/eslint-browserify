@@ -2,7 +2,7 @@
 npm run build && npm run lint && npm test
 if [[ $? -eq 0 ]]
 then
-	sed -i '' -E "s/\"version\": \".+\"/\"version\": \"$1\"/" package.json
+	gsed -i -E "s/\"version\": \".+\"/\"version\": \"$1\"/" package.json
 	git add -A
 	git commit -m "$1"
 	git push

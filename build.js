@@ -66,6 +66,8 @@ const stringify = obj => {
 	return str;
 };
 
+let min = false;
+
 const /** @type {esbuild.Plugin} */ plugin = {
 	name: 'alias',
 	setup(build) {
@@ -75,8 +77,10 @@ const /** @type {esbuild.Plugin} */ plugin = {
 			({path: p, resolveDir}) => {
 				const {name, ext} = path.parse(p),
 					file = name + (ext || '.js');
-				shimSet.delete(name);
-				fs.copyFileSync(require.resolve(path.join(resolveDir, p)), path.resolve(resolvePath, file));
+				if (min) {
+					shimSet.delete(name);
+					fs.copyFileSync(require.resolve(path.join(resolveDir, p)), path.resolve(resolvePath, file));
+				}
 				return {
 					path: path.resolve('shim', file),
 				};
@@ -108,7 +112,7 @@ const /** @type {esbuild.Plugin} */ plugin = {
 				),
 			},
 			({path: p}) => {
-				const isRule = /\/rules\/[\w-]+\.js$/u.test(p);
+				let isRule = /\/rules\/[\w-]+\.js$/u.test(p);
 				let contents = fs.readFileSync(p, 'utf8');
 				if (isRule) {
 					contents = polyfillAt(polyfillObjectHasOwn(contents)).replace(
@@ -121,6 +125,7 @@ const /** @type {esbuild.Plugin} */ plugin = {
 						'BigInt(',
 						'(typeof BigInt === "function" ? BigInt : Number)(',
 					);
+					isRule = false;
 				}
 				const basename = path.basename(p),
 					base = /^index\.c?js$/u.test(basename)
@@ -137,6 +142,9 @@ const /** @type {esbuild.Plugin} */ plugin = {
 						contents = contents.replace(
 							/(?<=^([ \t]+)function is(?!Identifier)\w+\().+?\1\}$/gmsu,
 							') {}',
+						).replace(
+							/^([ \t]+)NON_ASCII_WHITESPACES = \[.+?^\1\];$/msu,
+							'',
 						);
 						break;
 					case 'eslint-scope':
@@ -376,7 +384,9 @@ const /** @type {esbuild.Plugin} */ plugin = {
 							/^([ \t]+)get(?:Token(?:ByRangeStart|sBefore|OrComment\w+)|(?:FirstTokens|LastTokens?)Between)\(.+?^\1\}$/gmsu,
 							'',
 						);
-					// no default
+						break;
+					default:
+						isRule = true;
 				}
 				if (at.includes(base)) {
 					contents = polyfillAt(contents);
@@ -384,7 +394,7 @@ const /** @type {esbuild.Plugin} */ plugin = {
 				if (hasOwn.includes(base)) {
 					contents = polyfillObjectHasOwn(contents);
 				}
-				if (!isRule) {
+				if (min && !isRule) {
 					fs.copyFileSync(
 						p,
 						path.resolve(loadPath, (/^index\.c?js$/u.test(basename) ? `${base}-` : '') + basename),
@@ -400,7 +410,6 @@ const /** @type {esbuild.BuildOptions} */ config = {
 	entryPoints: ['src/index.ts'],
 	outfile: 'build/eslint.js',
 	charset: 'utf8',
-	target: 'es2019',
 	bundle: true,
 	format: 'cjs',
 	logLevel: 'info',
@@ -417,6 +426,16 @@ const /** @type {esbuild.BuildOptions} */ config = {
 
 (async () => {
 	await esbuild.build(config);
+	min = true;
+	await esbuild.build({
+		...config,
+		minify: true,
+		sourcemap: true,
+		target: 'es2019',
+		format: 'iife',
+		outfile: 'bundle/eslint.min.js',
+		legalComments: 'external',
+	});
 	if (shimSet.size > 0) {
 		console.error(
 			`The following shims were not used in the bundle: ${[...shimSet].join(', ')}`,
