@@ -418,6 +418,7 @@ const /** @type {esbuild.BuildOptions} */ config = {
 		'acorn-jsx': './shim/acorn-jsx.js',
 		ajv: './shim/ajv.js',
 		debug: './shim/debug.js',
+		// eslint-disable-next-line n/no-extraneous-require
 		'eslint-visitor-keys': require.resolve('eslint-visitor-keys'),
 		'node:path': './shim/path.js',
 		'node:util': './shim/util.js',

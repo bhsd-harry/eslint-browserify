@@ -42,6 +42,7 @@ export default extend(
 			'@stylistic/operator-linebreak': 0,
 			'@stylistic/quotes': 0,
 			'@stylistic/spaced-comment': 0,
+			'n/no-extraneous-require': 0,
 			'n/no-mixed-requires': 0,
 			'unicorn/consistent-function-scoping': 0,
 			'unicorn/explicit-length-check': 0,
