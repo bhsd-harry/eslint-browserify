@@ -22,24 +22,6 @@ const shim = [
 		'validate-language-options',
 		'warning-service',
 	],
-	at = [
-		'apply-disable-directives',
-		'ast-utils',
-		'code-path',
-		'eslint-scope',
-		'espree',
-		'file-report',
-		'fork-context',
-		'source-code',
-	],
-	hasOwn = [
-		'eslintrc-universal',
-		'eslint-scope',
-		'espree',
-		'file-report',
-		'linter',
-		'source-code-fixer',
-	],
 	shimSet = new Set(shim),
 	resolvePath = path.join('build', 'resolve'),
 	loadPath = path.join('build', 'load');
@@ -50,9 +32,6 @@ if (!fs.existsSync(resolvePath)) {
 if (!fs.existsSync(loadPath)) {
 	fs.mkdirSync(loadPath, {recursive: true});
 }
-
-const polyfillAt = s => s.replace(/\.at\((-\d+)\)/gu, '.slice($1)[0]'),
-	polyfillObjectHasOwn = s => s.replaceAll('Object.hasOwn(', 'Object.prototype.hasOwnProperty.call(');
 
 const stringify = obj => {
 	if (typeof obj === 'boolean') {
@@ -92,14 +71,17 @@ const /** @type {esbuild.Plugin} */ plugin = {
 				filter: new RegExp(
 					String.raw`/(?:(?:${[
 						'code',
+						'eslint-scope',
 						'eslint-visitor-keys',
+						'eslintrc-universal',
+						'espree',
 						'estraverse',
 						'keyword',
+						'linter',
 						'List',
 						'no-magic-numbers',
 						'severity',
-						...at,
-						...hasOwn.filter(s => !at.includes(s)),
+						'source-code',
 					].join('|')}|(?:${[
 						'cjs',
 						'eslint-utils',
@@ -115,7 +97,7 @@ const /** @type {esbuild.Plugin} */ plugin = {
 				let isRule = /\/rules\/[\w-]+\.js$/u.test(p);
 				let contents = fs.readFileSync(p, 'utf8');
 				if (isRule) {
-					contents = polyfillAt(polyfillObjectHasOwn(contents)).replace(
+					contents = contents.replace(
 						/^([ \t]+)schema: (?:\{(?:$.+?^\1|[^\n]*)\}|\[(?:$.+?^\1|[^\n]*)\]),?$/msu,
 						'',
 					).replace(
@@ -387,12 +369,6 @@ const /** @type {esbuild.Plugin} */ plugin = {
 						break;
 					default:
 						isRule = true;
-				}
-				if (at.includes(base)) {
-					contents = polyfillAt(contents);
-				}
-				if (hasOwn.includes(base)) {
-					contents = polyfillObjectHasOwn(contents);
 				}
 				if (min && !isRule) {
 					fs.copyFileSync(
