@@ -54,6 +54,11 @@ export default extend(
 			'unicorn/prefer-string-raw': 0,
 			'regexp/no-super-linear-move': 0,
 		},
+		settings: {
+			node: {
+				version: '>=24.0.0',
+			},
+		},
 	},
 	{
 		files: ['shim/*.js'],

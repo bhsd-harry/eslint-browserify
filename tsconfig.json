@@ -3,6 +3,9 @@
 		"src/*.ts"
 	],
 	"compilerOptions": {
+		"types": [
+			"node"
+		],
 		"target": "es2019",
 		"module": "commonjs",
 		"noEmit": true,

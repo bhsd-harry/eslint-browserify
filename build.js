@@ -2,6 +2,7 @@
 
 const path = require('path'),
 	fs = require('fs'),
+	{spawnSync} = require('child_process'),
 	esbuild = require('esbuild');
 
 const shim = [
@@ -38,8 +39,8 @@ const stringify = obj => {
 		return JSON.stringify(obj);
 	}
 	let str = '{\n';
-	for (const [key, value] of Object.entries(obj)) {
-		str += `\t${/^[a-z_$][\w$]*$/iu.test(key) ? key : JSON.stringify(key)}: ${stringify(value)},\n`;
+	for (const key in obj) {
+		str += `\t${/^[a-z_$][\w$]*$/iu.test(key) ? key : JSON.stringify(key)}: ${stringify(obj[key])},\n`;
 	}
 	str += '}';
 	return str;
@@ -101,8 +102,18 @@ const /** @type {esbuild.Plugin} */ plugin = {
 						/^([ \t]+)schema: (?:\{(?:$.+?^\1|[^\n]*)\}|\[(?:$.+?^\1|[^\n]*)\]),?$/msu,
 						'',
 					).replace(
-						/^([ \t]+)(deprecated|docs): \{.+?^\1\},?$/gmsu,
+						/^([ \t]+)deprecated: \{.+?^\1\},?$/gmsu,
 						'',
+					).replace(
+						/^([ \t]+)docs: (\{.+?^\1\}),?$/gmsu,
+						(_, __, docs) => {
+							const {stdout} = spawnSync(
+								process.execPath,
+								['--permission', '-e', `const obj = ${docs}; console.log(obj.recommended ? 1 : '');`],
+								{encoding: 'utf8'},
+							);
+							return stdout.trim() ? 'docs: {recommended: true},' : '';
+						},
 					).replace(
 						'BigInt(',
 						'(typeof BigInt === "function" ? BigInt : Number)(',
