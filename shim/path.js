@@ -1,1 +1,1 @@
-module.exports.sep = '/';
+exports.sep = '/';

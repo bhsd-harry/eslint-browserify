@@ -7,7 +7,7 @@
 			"node"
 		],
 		"target": "es2019",
-		"module": "commonjs",
+		"module": "nodenext",
 		"noEmit": true,
 		"alwaysStrict": true,
 		"exactOptionalPropertyTypes": true,

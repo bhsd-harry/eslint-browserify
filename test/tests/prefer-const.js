@@ -18,23 +18,6 @@ const rule = __filename,
 //------------------------------------------------------------------------------
 
 const ruleTester = new RuleTester({
-	plugins: {
-		custom: {
-			rules: {
-				"use-x": {
-					create(context) {
-						const sourceCode = context.sourceCode;
-
-						return {
-							VariableDeclaration(node) {
-								sourceCode.markVariableAsUsed("x", node);
-							},
-						};
-					},
-				},
-			},
-		},
-	},
 	languageOptions: { ecmaVersion: 6, sourceType: "script" },
 });
 
@@ -227,33 +210,11 @@ ruleTester.run("prefer-const", rule, {
 		},
 		{
 			code: "class C { static { let a, b; if (foo) { ({ a, b } = foo); } } }",
-			output: null,
 			languageOptions: { ecmaVersion: 2022 },
-			errors: [
-				{
-					messageId: "useConst",
-					data: { name: "a" },
-				},
-				{
-					messageId: "useConst",
-					data: { name: "b" },
-				},
-			],
 		},
 		{
 			code: "class C { static { let a, b; if (foo) ({ a, b } = foo); } }",
-			output: null,
 			languageOptions: { ecmaVersion: 2022 },
-			errors: [
-				{
-					messageId: "useConst",
-					data: { name: "a" },
-				},
-				{
-					messageId: "useConst",
-					data: { name: "b" },
-				},
-			],
 		},
 		{
 			code: "class C { static { a; } } let a = 1; ",

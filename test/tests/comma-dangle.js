@@ -37,42 +37,6 @@ function parser(name) {
 //------------------------------------------------------------------------------
 
 const ruleTester = new RuleTester({
-	plugins: {
-		custom: {
-			rules: {
-				"add-named-import": {
-					meta: {
-						fixable: "code",
-					},
-					create(context) {
-						return {
-							ImportDeclaration(node) {
-								const sourceCode = context.sourceCode;
-								const closingBrace = sourceCode.getLastToken(
-									node,
-									token => token.value === "}",
-								);
-								const addComma =
-									sourceCode.getTokenBefore(closingBrace)
-										.value !== ",";
-
-								context.report({
-									message: "Add I18nManager.",
-									node,
-									fix(fixer) {
-										return fixer.insertTextBefore(
-											closingBrace,
-											`${addComma ? "," : ""}I18nManager`,
-										);
-									},
-								});
-							},
-						};
-					},
-				},
-			},
-		},
-	},
 	languageOptions: {
 		ecmaVersion: 5,
 		sourceType: "script",

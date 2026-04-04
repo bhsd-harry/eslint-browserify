@@ -77,7 +77,7 @@ function extractPatterns(patterns, type) {
 			applyCondition(thisPattern);
 
 			if (type === "valid") {
-				thisPattern.errors = [];
+				thisPattern.errors = void 0;
 			} else {
 				thisPattern.code += " /* should error */";
 			}
@@ -481,13 +481,13 @@ const patterns = [
 	},
 
 	// Array methods.
-	{
-		code: "Array.from([], function() { console.log(this); z(x => console.log(x, this)); });",
+	...["from", "fromAsync"].map(methodName => ({
+		code: `Array.${methodName}([], function() { console.log(this); z(x => console.log(x, this)); });`,
 		languageOptions: { ecmaVersion: 6 },
 		errors,
 		valid: [NORMAL],
 		invalid: [USE_STRICT, IMPLIED_STRICT, MODULES],
-	},
+	})),
 	...[
 		"every",
 		"filter",
@@ -506,12 +506,12 @@ const patterns = [
 		valid: [NORMAL],
 		invalid: [USE_STRICT, IMPLIED_STRICT, MODULES],
 	})),
-	{
-		code: "Array.from([], function() { console.log(this); z(x => console.log(x, this)); }, obj);",
+	...["from", "fromAsync"].map(methodName => ({
+		code: `Array.${methodName}([], function() { console.log(this); z(x => console.log(x, this)); }, obj);`,
 		languageOptions: { ecmaVersion: 6 },
 		valid: [NORMAL, USE_STRICT, IMPLIED_STRICT, MODULES],
 		invalid: [],
-	},
+	})),
 	...[
 		"every",
 		"filter",
@@ -879,7 +879,7 @@ ruleTester.run("no-invalid-this", rule, {
 
 const ruleTesterTypeScript = new RuleTester({
 	languageOptions: {
-		parser: require("../parser"),
+		parser: require("@typescript-eslint/parser"),
 	},
 });
 
@@ -1114,6 +1114,17 @@ ruleTesterTypeScript.run("no-invalid-this", rule, {
 
 		`
     Array.from(
+      [],
+      function () {
+        console.log(this);
+        z(x => console.log(x, this));
+      },
+      obj,
+    );
+        `,
+
+		`
+    Array.fromAsync(
       [],
       function () {
         console.log(this);
@@ -1598,6 +1609,15 @@ ruleTesterTypeScript.run("no-invalid-this", rule, {
 		{
 			code: `
     Array.from([], function () {
+      console.log(this);
+      z(x => console.log(x, this));
+    });
+          `,
+			errors,
+		},
+		{
+			code: `
+    Array.fromAsync([], function () {
       console.log(this);
       z(x => console.log(x, this));
     });

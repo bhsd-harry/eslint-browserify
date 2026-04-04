@@ -442,7 +442,7 @@ ruleTester.run("no-dupe-class-members", rule, {
 
 const ruleTesterTypeScript = new RuleTester({
 	languageOptions: {
-		parser: require("../parser"),
+		parser: require("@typescript-eslint/parser"),
 	},
 });
 

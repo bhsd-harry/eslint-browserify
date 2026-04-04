@@ -435,7 +435,7 @@ ruleTester.run("class-methods-use-this", rule, {
 
 const ruleTesterTypeScript = new RuleTester({
 	languageOptions: {
-		parser: require("../parser"),
+		parser: require("@typescript-eslint/parser"),
 	},
 });
 

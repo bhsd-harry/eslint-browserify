@@ -4053,7 +4053,7 @@ ruleTester.run("indent", rule, {
                 }
             `,
 			languageOptions: {
-				parser: require("../parser"),
+				parser: require(parser("unknown-nodes/interface")),
 			},
 		},
 		{
@@ -4068,7 +4068,7 @@ ruleTester.run("indent", rule, {
                 }
             `,
 			languageOptions: {
-				parser: require("../parser"),
+				parser: require(parser("unknown-nodes/namespace-valid")),
 			},
 		},
 		{
@@ -4087,7 +4087,7 @@ ruleTester.run("indent", rule, {
                 }
             `,
 			languageOptions: {
-				parser: require("../parser"),
+				parser: require(parser("unknown-nodes/abstract-class-valid")),
 			},
 		},
 		{
@@ -9895,7 +9895,7 @@ ruleTester.run("indent", rule, {
                 }
             `,
 			languageOptions: {
-				parser: require("../parser"),
+				parser: require(parser("unknown-nodes/namespace-invalid")),
 			},
 			errors: expectedErrors([
 				[3, 8, 4],
@@ -9932,7 +9932,7 @@ ruleTester.run("indent", rule, {
                 }
             `,
 			languageOptions: {
-				parser: require("../parser"),
+				parser: require(parser("unknown-nodes/abstract-class-invalid")),
 			},
 			errors: expectedErrors([
 				[4, 12, 8],

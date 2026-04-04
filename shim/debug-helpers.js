@@ -1,12 +1,4 @@
-module.exports = {
-	enabled: false,
-	dump() {
-		//
-	},
-	dumpState() {
-		//
-	},
-	dumpDot() {
-		//
-	},
-};
+exports.enabled = false;
+exports.dump = () => {};
+exports.dumpState = () => {};
+exports.dumpDot = () => {};

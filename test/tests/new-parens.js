@@ -39,7 +39,7 @@ ruleTester.run("new-parens", rule, {
 		{
 			code: "new Storage<RootState>('state');",
 			languageOptions: {
-				parser: require("../parser"),
+				parser: require(parser("typescript-parsers/new-parens")),
 			},
 		},
 

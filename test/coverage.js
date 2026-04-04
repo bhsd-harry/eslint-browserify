@@ -24,7 +24,7 @@ for (let i = 0; i < uncoveredLines.length;) {
 	for (; uncoveredLines[i + j] === start + j; j++) {
 		//
 	}
-	if (j > 10) {
+	if (j > 20) {
 		uncoveredLineSummary.push({start, end: start + j - 1});
 	}
 	i += j;

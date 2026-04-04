@@ -215,7 +215,7 @@ ruleTester.run("no-duplicate-imports", rule, {
 
 const ruleTesterTypeScript = new RuleTester({
 	languageOptions: {
-		parser: require("../parser"),
+		parser: require("@typescript-eslint/parser"),
 	},
 });
 

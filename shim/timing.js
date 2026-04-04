@@ -1,1 +1,1 @@
-module.exports.enabled = false;
+exports.enabled = false;

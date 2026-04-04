@@ -99,7 +99,7 @@ ruleTester.run("space-infix-ops", rule, {
 			code: "type Foo<T> = T;",
 			languageOptions: {
 				ecmaVersion: 6,
-				parser: require("../parser"),
+				parser: require(parser("typescript-parsers/type-alias")),
 			},
 		},
 

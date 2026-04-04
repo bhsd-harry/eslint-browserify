@@ -64,7 +64,7 @@ ruleTester.run("object-curly-newline", rule, {
 				parser: require(
 					resolvePath(
 						__dirname,
-						"../../fixtures/parsers/object-curly-newline/flow-stub-parser-multiline",
+						"../parser",
 					),
 				),
 			},
@@ -81,7 +81,7 @@ ruleTester.run("object-curly-newline", rule, {
 				parser: require(
 					resolvePath(
 						__dirname,
-						"../../fixtures/parsers/object-curly-newline/flow-stub-parser-multiline-type-literal",
+						"../parser",
 					),
 				),
 			},
@@ -119,7 +119,7 @@ ruleTester.run("object-curly-newline", rule, {
 				parser: require(
 					resolvePath(
 						__dirname,
-						"../../fixtures/parsers/object-curly-newline/flow-stub-parser-singleline",
+						"../parser",
 					),
 				),
 			},
@@ -131,7 +131,7 @@ ruleTester.run("object-curly-newline", rule, {
 				parser: require(
 					resolvePath(
 						__dirname,
-						"../../fixtures/parsers/object-curly-newline/flow-stub-parser-singleline-type-literal",
+						"../parser",
 					),
 				),
 			},
@@ -533,7 +533,7 @@ ruleTester.run("object-curly-newline", rule, {
 				parser: require(
 					resolvePath(
 						__dirname,
-						"../../fixtures/parsers/object-curly-newline/flow-stub-parser-singleline",
+						"../parser",
 					),
 				),
 			},
@@ -562,7 +562,7 @@ ruleTester.run("object-curly-newline", rule, {
 				parser: require(
 					resolvePath(
 						__dirname,
-						"../../fixtures/parsers/object-curly-newline/flow-stub-parser-singleline-type-literal",
+						"../parser",
 					),
 				),
 			},
@@ -688,7 +688,7 @@ ruleTester.run("object-curly-newline", rule, {
 				parser: require(
 					resolvePath(
 						__dirname,
-						"../../fixtures/parsers/object-curly-newline/flow-stub-parser-multiline",
+						"../parser",
 					),
 				),
 			},
@@ -721,7 +721,7 @@ ruleTester.run("object-curly-newline", rule, {
 				parser: require(
 					resolvePath(
 						__dirname,
-						"../../fixtures/parsers/object-curly-newline/flow-stub-parser-multiline-type-literal",
+						"../parser",
 					),
 				),
 			},

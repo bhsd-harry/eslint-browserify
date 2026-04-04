@@ -556,7 +556,7 @@ ruleTester.run("object-curly-spacing", rule, {
 				parser: require(
 					resolvePath(
 						__dirname,
-						"../../fixtures/parsers/object-curly-spacing/flow-stub-parser-never-valid",
+						"../parser",
 					),
 				),
 			},
@@ -1697,7 +1697,7 @@ ruleTester.run("object-curly-spacing", rule, {
 				parser: require(
 					resolvePath(
 						__dirname,
-						"../../fixtures/parsers/object-curly-spacing/flow-stub-parser-never-invalid",
+						"../parser",
 					),
 				),
 			},

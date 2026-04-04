@@ -21,31 +21,6 @@ const ruleTester = new RuleTester({
 		ecmaVersion: 5,
 		sourceType: "script",
 	},
-	plugins: {
-		custom: {
-			rules: {
-				"use-every-a": {
-					create(context) {
-						const sourceCode = context.sourceCode;
-
-						/**
-						 * Mark a variable as used
-						 * @param {ASTNode} node The node representing the scope to search
-						 * @returns {void}
-						 * @private
-						 */
-						function useA(node) {
-							sourceCode.markVariableAsUsed("a", node);
-						}
-						return {
-							VariableDeclaration: useA,
-							ReturnStatement: useA,
-						};
-					},
-				},
-			},
-		},
-	},
 });
 
 /**
@@ -762,6 +737,58 @@ ruleTester.run("no-unused-vars", rule, {
 			languageOptions: {
 				sourceType: "module",
 				ecmaVersion: 2026,
+			},
+		},
+		{
+			code: "const MyComponent = () => <div />; <MyComponent />;",
+			languageOptions: {
+				ecmaVersion: 6,
+				parserOptions: { ecmaFeatures: { jsx: true } },
+			},
+		},
+		{
+			code: "function Header() { return <header />; } <Header />;",
+			languageOptions: {
+				parserOptions: { ecmaFeatures: { jsx: true } },
+			},
+		},
+		{
+			code: "import { Card } from './card.jsx'; <Card />",
+			languageOptions: {
+				ecmaVersion: 6,
+				sourceType: "module",
+				parserOptions: { ecmaFeatures: { jsx: true } },
+			},
+		},
+		{
+			code: "const components = { Button: () => <button /> }; <components.Button />;",
+			languageOptions: {
+				ecmaVersion: 2020,
+				parserOptions: { ecmaFeatures: { jsx: true } },
+			},
+		},
+		{
+			code: "import * as Icons from './icons'; <Icons.Close />;",
+			languageOptions: {
+				ecmaVersion: 6,
+				sourceType: "module",
+				parserOptions: { ecmaFeatures: { jsx: true } },
+			},
+		},
+		{
+			code: "import React from 'react'; <React.Fragment></React.Fragment>;",
+			languageOptions: {
+				ecmaVersion: 6,
+				sourceType: "module",
+				parserOptions: { ecmaFeatures: { jsx: true } },
+			},
+		},
+		{
+			code: "import { Card, Button } from './components.jsx'; export const Component = () => <Card><Button /></Card>;",
+			languageOptions: {
+				ecmaVersion: 6,
+				sourceType: "module",
+				parserOptions: { ecmaFeatures: { jsx: true } },
 			},
 		},
 	],
@@ -4633,6 +4660,98 @@ try {
 					{
 						output: "",
 						messageId: "removeVar",
+					},
+				]),
+			],
+		},
+		{
+			code: "const UnusedComponent = () => <div />;",
+			languageOptions: {
+				ecmaVersion: 6,
+				sourceType: "module",
+				parserOptions: { ecmaFeatures: { jsx: true } },
+			},
+			errors: [
+				assignedError("UnusedComponent", [
+					{
+						output: "",
+						messageId: "removeVar",
+						data: { varName: "UnusedComponent" },
+					},
+				]),
+			],
+		},
+		{
+			code: "import { Card } from './card.jsx'; <MyCard />;",
+			languageOptions: {
+				ecmaVersion: 6,
+				sourceType: "module",
+				parserOptions: { ecmaFeatures: { jsx: true } },
+			},
+			errors: [
+				definedError("Card", [
+					{
+						output: " <MyCard />;",
+						messageId: "removeVar",
+						data: { varName: "Card" },
+					},
+				]),
+			],
+		},
+		{
+			code: "import { Card, Button } from './components.jsx'; <Card />;",
+			languageOptions: {
+				ecmaVersion: 6,
+				sourceType: "module",
+				parserOptions: { ecmaFeatures: { jsx: true } },
+			},
+			errors: [
+				definedError("Button", [
+					{
+						output: "import { Card } from './components.jsx'; <Card />;",
+						messageId: "removeVar",
+						data: { varName: "Button" },
+					},
+				]),
+			],
+		},
+		{
+			code: "import Card from './Card'; const Button = () => <button />;",
+			languageOptions: {
+				ecmaVersion: 6,
+				sourceType: "module",
+				parserOptions: { ecmaFeatures: { jsx: true } },
+			},
+			errors: [
+				definedError("Card", [
+					{
+						output: "import './Card'; const Button = () => <button />;",
+						messageId: "removeVar",
+						data: { varName: "Card" },
+					},
+				]),
+				assignedError("Button", [
+					{
+						output: "import Card from './Card'; ",
+						messageId: "removeVar",
+						data: { varName: "Button" },
+					},
+				]),
+			],
+		},
+		{
+			code: "import { Card as MyCard } from './card.jsx'; <Card />;",
+			languageOptions: {
+				ecmaVersion: 6,
+				sourceType: "module",
+				parserOptions: { ecmaFeatures: { jsx: true } },
+			},
+			errors: [
+				definedError("MyCard", [
+					{
+						output: " <Card />;",
+						messageId: "removeVar",
+						data: { varName: "MyCard" },
 					},
 				]),
 			],

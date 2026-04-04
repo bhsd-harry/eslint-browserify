@@ -476,7 +476,7 @@ ruleTester.run("func-style", rule, {
 
 const ruleTesterTypeScript = new RuleTester({
 	languageOptions: {
-		parser: require("../parser"),
+		parser: require("@typescript-eslint/parser"),
 	},
 });
 

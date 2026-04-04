@@ -1,9 +1,5 @@
-module.exports.WarningService = class {
+exports.WarningService = class {
 	emitCircularFixesWarning() {
-		//
-	}
-
-	emitInactiveFlagWarning() {
 		//
 	}
 };
