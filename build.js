@@ -118,10 +118,6 @@ const /** @type {esbuild.Plugin} */ plugin = {
 								);
 								return stdout.trim() ? 'docs: {recommended: true},' : '';
 							},
-						)
-						.replace(
-							'BigInt(',
-							'(typeof BigInt === "function" ? BigInt : Number)(',
 						);
 					isRule = false;
 				}
@@ -140,15 +136,10 @@ const /** @type {esbuild.Plugin} */ plugin = {
 				}
 				switch (base) {
 					case 'code':
-						contents = contents
-							.replace(
-								/^[ \t]+(is(?!Identifier)\w+): \1,$/gmu,
-								'',
-							)
-							.replace(
-								/^([ \t]+)(?:function is(?!Identifier)\w+\(.+?\1\}|NON_ASCII_WHITESPACES = .+?\1\];)$/gmsu,
-								'',
-							);
+						contents = contents.replace(
+							/^([ \t]+)(?:function is(?!Identifier)\w+\([\s\S]+?\1\}|NON_ASCII_WHITESPACES = [\s\S]+?\1\];)$|^[ \t]+(is(?!Identifier)\w+): \2,$/gmu,
+							'',
+						);
 						break;
 					case 'config':
 						contents = contents
@@ -164,11 +155,7 @@ const /** @type {esbuild.Plugin} */ plugin = {
 					case 'config-array':
 						contents = contents
 							.replace(
-								/(?<=^function shouldIgnorePath\().+?^\}$/msu,
-								') { return false; }',
-							)
-							.replace(
-								/(?<=^([ \t]+)isDirectoryIgnored\().+?^\1\}$/msu,
+								/(?<=^([ \t]+)isDirectoryIgnored\().+?^\1\}$|(?<=^function shouldIgnorePath\().+?^\}$/gmsu,
 								') { return false; }',
 							)
 							.replace(
@@ -177,15 +164,10 @@ const /** @type {esbuild.Plugin} */ plugin = {
 							);
 						break;
 					case 'eslint-scope':
-						contents = contents
-							.replace(
-								/^exports\.(?!analyze )\w+ = .+$/gmu,
-								'',
-							)
-							.replace(
-								/^([ \t]+)JSX\w+\(.+?^\1\}$/gmsu,
-								'',
-							);
+						contents = contents.replace(
+							/^exports\.(?!analyze )\w+ = .+$|^([ \t]+)JSX\w+\([\s\S]+?^\1\}$/gmu,
+							'',
+						);
 						break;
 					case 'eslint-utils':
 						contents = contents
@@ -198,11 +180,7 @@ const /** @type {esbuild.Plugin} */ plugin = {
 								') {}',
 							)
 							.replace(
-								/^const (?:(?:visitor|typeConversionBinaryOps) = [\s\S]+?^\)|typeConversionUnaryOps = .+);$/gmu,
-								'',
-							)
-							.replace(
-								/^([ \t]+)\*(?:iterate(?:Cjs|Esm|Property)|_iterateImport)References\b.+?^\1\}$/gmsu,
+								/^([ \t]+)\*(?:iterate(?:Cjs|Esm|Property)|_iterateImport)References\b[\s\S]+?^\1\}$|^const (?:(?:visitor|typeConversionBinaryOps) = [\s\S]+?^\)|typeConversionUnaryOps = .+);$/gmu,
 								'',
 							);
 						break;
@@ -213,23 +191,10 @@ const /** @type {esbuild.Plugin} */ plugin = {
 						);
 						break;
 					case 'estraverse':
-						contents = contents
-							.replace(
-								/^[ \t]+exports\.(?!Syntax |VisitorKeys )\w+ = .+$/gmu,
-								'',
-							)
-							.replace(
-								/^([ \t]+)function \w+\(.+?^\1\}$/gmsu,
-								'',
-							)
-							.replace(
-								/^(?:\(function clone\(exports\) \{|\}\(exports\)\);)$/gmu,
-								'',
-							)
-							.replace(
-								/^([ \t]+)\w+\.prototype(?:\.\w+|\['\w+'\]) = .+?^\1\};$/gmsu,
-								'',
-							);
+						contents = contents.replace(
+							/^([ \t]+)function \w+\([\s\S]+?^\1\}$|^([ \t]+)\w+\.prototype(?:\.\w+|\['\w+'\]) = [\s\S]+?^\2\};$|^[ \t]+exports\.(?!Syntax |VisitorKeys )\w+ = .+$|^(?:\(function clone\(exports\) \{|\}\(exports\)\);)$/gmu,
+							'',
+						);
 						break;
 					case 'flat-config-array':
 						contents = contents.replace(
@@ -332,17 +297,10 @@ const /** @type {esbuild.Plugin} */ plugin = {
 					case 'linter':
 						contents = contents
 							.replace(
-								/^([ \t]+)(?:hasFlag|_verifyWithFlatConfigArrayAndProcessor)\(.+?^\1\}$/gmsu,
+								/^([ \t]+)(?:(?:hasFlag|_verifyWithFlatConfigArrayAndProcessor)\(|if \((?:config\.processor|firstCall|(?:options\.)?stats)\b).+?^\1\}$|^([ \t]+)flags\.forEach\(.+?^\2\}\);$/gmsu,
 								'',
 							)
 							.replace(
-								/^([ \t]+)if \((?:config\.processor|firstCall|(?:options\.)?stats)\b.+?^\1\}$/gmsu,
-								'',
-							)
-							.replace(
-								/^([ \t]+)flags\.forEach\(.+?^\1\}\);$/msu,
-								'',
-							).replace(
 								'< MAX_AUTOFIX_PASSES',
 								'< (globalThis.eslint?.MAX_AUTOFIX_PASSES || MAX_AUTOFIX_PASSES)',
 							);
@@ -381,15 +339,10 @@ const /** @type {esbuild.Plugin} */ plugin = {
 						);
 						break;
 					case 'regexpp':
-						contents = contents
-							.replace(
-								/^exports\.(?!RegExp(?:Parser|Validator)|visitRegExpAST)\w+ = .+$/gmu,
-								'',
-							)
-							.replace(
-								/^([ \t]+)(?:(?:parse|validate)Literal|eatRegExpBody)\(.+?^\1\}$/gmsu,
-								'',
-							);
+						contents = contents.replace(
+							/^exports\.(?!RegExp(?:Parser|Validator)|visitRegExpAST)\w+ = .+$|^([ \t]+)(?:(?:parse|validate)Literal|eatRegExpBody)\([\s\S]+?^\1\}$/gmu,
+							'',
+						);
 						break;
 					case 'rules':
 						contents = contents.replace(

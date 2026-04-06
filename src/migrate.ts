@@ -12,7 +12,7 @@ const createExtends = (configExtends: Linter.LegacyConfig['extends']): Linter.Co
 	) {
 		return [];
 	}
-	const recommendedRules: Linter.Config['rules'] = {};
+	const recommendedRules: Linter.RulesRecord = {};
 	for (const [rule, {meta}] of builtinRules) {
 		if (meta?.docs?.recommended) {
 			recommendedRules[rule] = 2;
