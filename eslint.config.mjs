@@ -1,4 +1,4 @@
-import {node, extend} from '@bhsd/code-standard';
+import {node, extend, browser} from '@bhsd/code-standard';
 import globals from 'globals';
 
 export default extend(
@@ -9,6 +9,10 @@ export default extend(
 			'coverage/',
 			'fixtures/',
 		],
+	},
+	{
+		files: ['src/**/*.ts'],
+		...browser,
 	},
 	{
 		files: ['test/**/*.js'],
@@ -58,6 +62,12 @@ export default extend(
 			node: {
 				version: '>=24.0.0',
 			},
+		},
+	},
+	{
+		files: ['test/migrate/**/*.js'],
+		rules: {
+			strict: 0,
 		},
 	},
 	{

@@ -1,0 +1,11 @@
+{
+	"root": true,
+	"plugins": [
+		"import",
+		"n"
+	],
+	"extends": [
+		"plugin:import/errors",
+		"plugin:n/recommended"
+	]
+}

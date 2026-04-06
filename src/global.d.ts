@@ -1,5 +1,13 @@
+declare interface Environment {
+	globals: Record<string, boolean>;
+	parserOptions?: {
+		ecmaVersion?: number;
+		ecmaFeatures?: Record<string, boolean>;
+	};
+}
+
 declare module '@eslint/eslintrc/universal' {
-	export const Legacy: {environments: Map<string, unknown>};
+	export const Legacy: {environments: Map<string, Environment>};
 }
 
 declare module '../bundle/*' {

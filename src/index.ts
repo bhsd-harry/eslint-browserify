@@ -1,5 +1,5 @@
 import {Linter} from 'eslint/universal';
-import {environments, migrateConfig} from '@bhsd/eslint-util';
+import {environments, migrateConfig} from './migrate';
 
 export const eslint = {
 	environments,
