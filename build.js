@@ -78,7 +78,6 @@ const /** @type {esbuild.Plugin} */ plugin = {
 						'no-magic-numbers',
 						'posix',
 						'severity',
-						'source-code',
 						'unsupported-api',
 					].join('|')}|(?:${[
 						'config-array/dist/cjs',
@@ -347,12 +346,6 @@ const /** @type {esbuild.Plugin} */ plugin = {
 					case 'rules':
 						contents = contents.replace(
 							/"jsx-quotes": .+$/mu,
-							'',
-						);
-						break;
-					case 'source-code':
-						contents = contents.replace(
-							/^([ \t]+)markVariableAsUsed\(.+?^\1\}$/gmsu,
 							'',
 						);
 						break;

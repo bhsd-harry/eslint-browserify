@@ -13,11 +13,11 @@ const linter = new eslint.Linter(),
 		} else if (parser.meta) {
 			throw new Error(`Unknown parser: ${parser.meta.name}`);
 		}
-		return true;
+		return typeof parser.parse !== 'function';
 	},
 	shouldSkip = ({languageOptions: {parser, parserOptions}}) => parserOptions?.ecmaFeatures?.jsx
 		|| isUnknownParser(parser),
-	getConfig = ({languageOptions = {}, ...cfg}, extraLanguageOptions, options, rule) => {
+	getConfig = ({languageOptions = {}, plugins, ...cfg}, extraLanguageOptions, options, rule) => {
 		for (let i = options.length - 1; i >= 0; i--) {
 			if (typeof options[i] === 'object' && JSON.stringify(options[i]) === '{}') {
 				options.splice(i, 1);
@@ -27,6 +27,7 @@ const linter = new eslint.Linter(),
 			config = {
 				...structuredClone(cfg),
 				languageOptions: {...structuredClone(other), parser},
+				plugins,
 				rules: {[rule]: [2, ...options]},
 			};
 		if (extraLanguageOptions) {
@@ -43,8 +44,6 @@ class RuleTester {
 		config.linterOptions.reportUnusedDisableDirectives = 0;
 		if (config.languageOptions.parserOptions?.ecmaFeatures?.jsx) {
 			throw new Error('JSX tests are not supported');
-		} else if (config.plugins) {
-			throw new Error('Plugin tests are not supported');
 		}
 		this.config = config;
 	}

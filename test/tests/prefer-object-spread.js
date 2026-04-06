@@ -920,7 +920,7 @@ ruleTester.run("prefer-object-spread", rule, {
 			code: "const obj = Object.assign<{}, Record<string, string[]>>({}, getObject());",
 			output: "const obj = { ...getObject()};",
 			languageOptions: {
-				parser: require("../parser"),
+				parser: require("../../fixtures/parsers/typescript-parsers/object-assign-with-generic/object-assign-with-generic-1"),
 			},
 			errors: [
 				{
@@ -934,7 +934,7 @@ ruleTester.run("prefer-object-spread", rule, {
 			code: "Object.assign<{}, A>({}, foo);",
 			output: "({ ...foo});",
 			languageOptions: {
-				parser: require("../parser"),
+				parser: require("../../fixtures/parsers/typescript-parsers/object-assign-with-generic/object-assign-with-generic-2"),
 			},
 			errors: [
 				{

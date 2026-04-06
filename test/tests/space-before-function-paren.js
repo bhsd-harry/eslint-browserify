@@ -10,7 +10,7 @@
 
 const rule = __filename;
 const RuleTester = require("../rule-tester");
-const baseParser = require("../parser");
+const baseParser = require("../../fixtures/fixture-parser");
 
 //------------------------------------------------------------------------------
 // Tests

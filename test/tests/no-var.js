@@ -363,7 +363,7 @@ ruleTester.run("no-var", rule, {
 			languageOptions: {
 				ecmaVersion: 6,
 				sourceType: "module",
-				parser: require("../parser"),
+				parser: require("../../fixtures/parsers/typescript-parsers/declare-var"),
 			},
 			errors: [{ messageId: "unexpectedVar" }],
 		},

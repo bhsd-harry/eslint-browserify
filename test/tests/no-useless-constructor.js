@@ -43,7 +43,7 @@ ruleTester.run("no-useless-constructor", rule, {
 		{
 			code: "declare class A { constructor(options: any); }",
 			languageOptions: {
-				parser: require("../parser"),
+				parser: require("../../fixtures/parsers/typescript-parsers/declare-class"),
 			},
 		},
 	],

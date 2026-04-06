@@ -88,13 +88,17 @@ const createLanguageOptions = (config: Linter.LegacyConfig): Linter.LanguageOpti
 	return Object.keys(properties).length === 0 ? undefined : properties;
 };
 
-const migrateConfigObject = (config: Linter.LegacyConfig): Linter.Config[] => {
+const migrateConfigObject = (config: Linter.LegacyConfig, base?: boolean): Linter.Config[] => {
 	const configArrayElements: Linter.Config[] = [];
 	if (config.extends) {
 		configArrayElements.push(...createExtends(config.extends));
 	}
 	const properties: Linter.Config = {};
-	const linterOptions = createLinterOptions(config);
+	let linterOptions = createLinterOptions(config);
+	if (base) {
+		linterOptions ??= {};
+		linterOptions.reportUnusedDisableDirectives ??= false;
+	}
 	if (linterOptions) {
 		properties.linterOptions = linterOptions;
 	}
@@ -118,7 +122,7 @@ export const migrateConfig = (config: Linter.LegacyConfig | Linter.Config[] = []
 	if (Array.isArray(config)) {
 		return config;
 	}
-	const configArrayElements = migrateConfigObject(config);
+	const configArrayElements = migrateConfigObject(config, true);
 	if (config.overrides) {
 		for (const override of config.overrides) {
 			configArrayElements.push(...migrateConfigObject(override));

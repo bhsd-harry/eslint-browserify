@@ -11,7 +11,7 @@
 
 const rule = __filename,
 	RuleTester = require("../rule-tester"),
-	fixtureParser = require("../parser");
+	fixtureParser = require("../../fixtures/fixture-parser");
 
 //------------------------------------------------------------------------------
 // Tests

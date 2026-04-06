@@ -68,6 +68,9 @@
 		}
 	},
 	{
+		"linterOptions": {
+			"reportUnusedDisableDirectives": false
+		},
 		"languageOptions": {
 			"globals": {
 				"ArrayBuffer": false,

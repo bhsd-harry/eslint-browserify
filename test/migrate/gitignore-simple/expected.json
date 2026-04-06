@@ -1,5 +1,8 @@
 [
 	{
+		"linterOptions": {
+			"reportUnusedDisableDirectives": false
+		},
 		"rules": {
 			"no-console": "off"
 		}

@@ -25,7 +25,7 @@ function parser(name) {
 	return require(
 		path.resolve(
 			__dirname,
-			`../parser`,
+			`../../fixtures/parsers/array-bracket-spacing/${name}.js`,
 		),
 	);
 }

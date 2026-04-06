@@ -12,7 +12,7 @@ const rule = __filename;
 const RuleTester = require("../rule-tester");
 
 const { unIndent } = require("../utils");
-const fixtureParser = require("../parser");
+const fixtureParser = require("../../fixtures/fixture-parser");
 
 //------------------------------------------------------------------------------
 // Tests

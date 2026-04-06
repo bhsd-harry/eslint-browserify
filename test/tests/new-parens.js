@@ -9,7 +9,7 @@
 // Requirements
 //------------------------------------------------------------------------------
 
-const parser = require("../parser"),
+const parser = require("../../fixtures/fixture-parser"),
 	rule = __filename,
 	RuleTester = require("../rule-tester");
 

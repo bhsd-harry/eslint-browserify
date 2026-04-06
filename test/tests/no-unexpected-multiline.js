@@ -108,7 +108,7 @@ ruleTester.run("no-unexpected-multiline", rule, {
                 \`;
             `,
 			languageOptions: {
-				parser: require("../parser"),
+				parser: require("../../fixtures/parsers/typescript-parsers/tagged-template-with-generic/tagged-template-with-generic-1"),
 			},
 		},
 		{
@@ -120,7 +120,7 @@ ruleTester.run("no-unexpected-multiline", rule, {
                 \`;
             `,
 			languageOptions: {
-				parser: require("../parser"),
+				parser: require("../../fixtures/parsers/typescript-parsers/tagged-template-with-generic/tagged-template-with-generic-2"),
 			},
 		},
 		{
@@ -130,7 +130,7 @@ ruleTester.run("no-unexpected-multiline", rule, {
                 >\`multiline\`;
             `,
 			languageOptions: {
-				parser: require("../parser"),
+				parser: require("../../fixtures/parsers/typescript-parsers/tagged-template-with-generic/tagged-template-with-generic-3"),
 			},
 		},
 
@@ -366,7 +366,7 @@ ruleTester.run("no-unexpected-multiline", rule, {
 				"\n",
 			),
 			languageOptions: {
-				parser: require("../parser"),
+				parser: require("../../fixtures/parsers/typescript-parsers/tagged-template-with-generic/tagged-template-with-generic-and-comment"),
 			},
 			errors: [
 				{

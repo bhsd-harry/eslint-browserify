@@ -10,7 +10,7 @@
 //------------------------------------------------------------------------------
 
 const rule = __filename,
-	fixtureParser = require("../parser"),
+	fixtureParser = require("../../fixtures/fixture-parser"),
 	RuleTester = require("../rule-tester");
 
 //------------------------------------------------------------------------------
@@ -18,6 +18,23 @@ const rule = __filename,
 //------------------------------------------------------------------------------
 
 const ruleTester = new RuleTester({
+	plugins: {
+		custom: {
+			rules: {
+				"use-x": {
+					create(context) {
+						const sourceCode = context.sourceCode;
+
+						return {
+							VariableDeclaration(node) {
+								sourceCode.markVariableAsUsed("x", node);
+							},
+						};
+					},
+				},
+			},
+		},
+	},
 	languageOptions: { ecmaVersion: 6, sourceType: "script" },
 });
 

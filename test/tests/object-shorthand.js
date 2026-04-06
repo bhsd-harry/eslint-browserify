@@ -1292,7 +1292,7 @@ ruleTester.run("object-shorthand", rule, {
             `,
 			options: ["always", { avoidExplicitReturnArrows: true }],
 			languageOptions: {
-				parser: require("../parser"),
+				parser: require("../../fixtures/parsers/typescript-parsers/object-with-generic-arrow-fn-props"),
 			},
 			errors: Array(4).fill(METHOD_ERROR),
 		},
@@ -1355,7 +1355,7 @@ ruleTester.run("object-shorthand", rule, {
             `,
 			options: ["always", { avoidExplicitReturnArrows: true }],
 			languageOptions: {
-				parser: require("../parser"),
+				parser: require("../../fixtures/parsers/typescript-parsers/object-with-arrow-fn-props"),
 			},
 			errors: Array(18).fill(METHOD_ERROR),
 		},

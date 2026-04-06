@@ -47,7 +47,7 @@ ruleTester.run("require-await", rule, {
 		{
 			code: "await foo()",
 			languageOptions: {
-				parser: require("../parser"),
+				parser: require("../../fixtures/parsers/typescript-parsers/global-await"),
 			},
 		},
 		{
@@ -57,7 +57,7 @@ ruleTester.run("require-await", rule, {
                 }
             `,
 			languageOptions: {
-				parser: require("../parser"),
+				parser: require("../../fixtures/parsers/typescript-parsers/global-for-await-of"),
 			},
 		},
 		{

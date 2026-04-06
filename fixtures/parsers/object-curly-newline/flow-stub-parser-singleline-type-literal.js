@@ -2,13 +2,13 @@
 /*
   AST for:
 
-function foo({ a, b } : { a : string, b : string }) {}
+function foo({ a, b } : MyType) {}
 
 */
 exports.parse = () => ({
     "type": "Program",
     "start": 0,
-    "end": 55,
+    "end": 35,
     "loc": {
         "start": {
             "line": 1,
@@ -21,7 +21,7 @@ exports.parse = () => ({
     },
     "range": [
         0,
-        55
+        35
     ],
     "comments": [],
     "tokens": [
@@ -206,10 +206,10 @@ exports.parse = () => ({
             ]
         },
         {
-            "type": "Punctuator",
-            "value": "{",
+            "type": "Identifier",
+            "value": "MyType",
             "start": 24,
-            "end": 25,
+            "end": 30,
             "loc": {
                 "start": {
                     "line": 1,
@@ -217,59 +217,19 @@ exports.parse = () => ({
                 },
                 "end": {
                     "line": 1,
-                    "column": 25
+                    "column": 30
                 }
             },
             "range": [
                 24,
-                25
-            ]
-        },
-        {
-            "type": "Identifier",
-            "value": "a",
-            "start": 26,
-            "end": 27,
-            "loc": {
-                "start": {
-                    "line": 1,
-                    "column": 26
-                },
-                "end": {
-                    "line": 1,
-                    "column": 27
-                }
-            },
-            "range": [
-                26,
-                27
+                30
             ]
         },
         {
             "type": "Punctuator",
-            "value": ":",
-            "start": 28,
-            "end": 29,
-            "loc": {
-                "start": {
-                    "line": 1,
-                    "column": 28
-                },
-                "end": {
-                    "line": 1,
-                    "column": 29
-                }
-            },
-            "range": [
-                28,
-                29
-            ]
-        },
-        {
-            "type": "Identifier",
-            "value": "string",
+            "value": ")",
             "start": 30,
-            "end": 36,
+            "end": 31,
             "loc": {
                 "start": {
                     "line": 1,
@@ -277,172 +237,52 @@ exports.parse = () => ({
                 },
                 "end": {
                     "line": 1,
-                    "column": 36
+                    "column": 31
                 }
             },
             "range": [
                 30,
-                36
-            ]
-        },
-        {
-            "type": "Punctuator",
-            "value": ",",
-            "start": 36,
-            "end": 37,
-            "loc": {
-                "start": {
-                    "line": 1,
-                    "column": 36
-                },
-                "end": {
-                    "line": 1,
-                    "column": 37
-                }
-            },
-            "range": [
-                36,
-                37
-            ]
-        },
-        {
-            "type": "Identifier",
-            "value": "b",
-            "start": 38,
-            "end": 39,
-            "loc": {
-                "start": {
-                    "line": 1,
-                    "column": 38
-                },
-                "end": {
-                    "line": 1,
-                    "column": 39
-                }
-            },
-            "range": [
-                38,
-                39
-            ]
-        },
-        {
-            "type": "Punctuator",
-            "value": ":",
-            "start": 40,
-            "end": 41,
-            "loc": {
-                "start": {
-                    "line": 1,
-                    "column": 40
-                },
-                "end": {
-                    "line": 1,
-                    "column": 41
-                }
-            },
-            "range": [
-                40,
-                41
-            ]
-        },
-        {
-            "type": "Identifier",
-            "value": "string",
-            "start": 42,
-            "end": 48,
-            "loc": {
-                "start": {
-                    "line": 1,
-                    "column": 42
-                },
-                "end": {
-                    "line": 1,
-                    "column": 48
-                }
-            },
-            "range": [
-                42,
-                48
-            ]
-        },
-        {
-            "type": "Punctuator",
-            "value": "}",
-            "start": 49,
-            "end": 50,
-            "loc": {
-                "start": {
-                    "line": 1,
-                    "column": 49
-                },
-                "end": {
-                    "line": 1,
-                    "column": 50
-                }
-            },
-            "range": [
-                49,
-                50
-            ]
-        },
-        {
-            "type": "Punctuator",
-            "value": ")",
-            "start": 50,
-            "end": 51,
-            "loc": {
-                "start": {
-                    "line": 1,
-                    "column": 50
-                },
-                "end": {
-                    "line": 1,
-                    "column": 51
-                }
-            },
-            "range": [
-                50,
-                51
+                31
             ]
         },
         {
             "type": "Punctuator",
             "value": "{",
-            "start": 52,
-            "end": 53,
+            "start": 32,
+            "end": 33,
             "loc": {
                 "start": {
                     "line": 1,
-                    "column": 52
+                    "column": 32
                 },
                 "end": {
                     "line": 1,
-                    "column": 53
+                    "column": 33
                 }
             },
             "range": [
-                52,
-                53
+                32,
+                33
             ]
         },
         {
             "type": "Punctuator",
             "value": "}",
-            "start": 53,
-            "end": 54,
+            "start": 33,
+            "end": 34,
             "loc": {
                 "start": {
                     "line": 1,
-                    "column": 53
+                    "column": 33
                 },
                 "end": {
                     "line": 1,
-                    "column": 54
+                    "column": 34
                 }
             },
             "range": [
-                53,
-                54
+                33,
+                34
             ]
         }
     ],
@@ -451,7 +291,7 @@ exports.parse = () => ({
         {
             "type": "FunctionDeclaration",
             "start": 0,
-            "end": 54,
+            "end": 34,
             "loc": {
                 "start": {
                     "line": 1,
@@ -459,12 +299,12 @@ exports.parse = () => ({
                 },
                 "end": {
                     "line": 1,
-                    "column": 54
+                    "column": 34
                 }
             },
             "range": [
                 0,
-                54
+                34
             ],
             "id": {
                 "type": "Identifier",
@@ -495,7 +335,7 @@ exports.parse = () => ({
                 {
                     "type": "ObjectPattern",
                     "start": 13,
-                    "end": 50,
+                    "end": 30,
                     "loc": {
                         "start": {
                             "line": 1,
@@ -503,12 +343,12 @@ exports.parse = () => ({
                         },
                         "end": {
                             "line": 1,
-                            "column": 50
+                            "column": 30
                         }
                     },
                     "range": [
                         13,
-                        50
+                        30
                     ],
                     "properties": [
                         {
@@ -657,7 +497,7 @@ exports.parse = () => ({
                     "typeAnnotation": {
                         "type": "TypeAnnotation",
                         "start": 22,
-                        "end": 50,
+                        "end": 30,
                         "loc": {
                             "start": {
                                 "line": 1,
@@ -665,17 +505,17 @@ exports.parse = () => ({
                             },
                             "end": {
                                 "line": 1,
-                                "column": 50
+                                "column": 30
                             }
                         },
                         "range": [
                             22,
-                            50
+                            30
                         ],
                         "typeAnnotation": {
-                            "type": "ObjectTypeAnnotation",
+                            "type": "GenericTypeAnnotation",
                             "start": 24,
-                            "end": 50,
+                            "end": 30,
                             "loc": {
                                 "start": {
                                     "line": 1,
@@ -683,107 +523,37 @@ exports.parse = () => ({
                                 },
                                 "end": {
                                     "line": 1,
-                                    "column": 50
+                                    "column": 30
                                 }
                             },
                             "range": [
                                 24,
-                                50
+                                30
                             ],
-                            "callProperties": [],
-                            "properties": [
-                                {
-                                    "type": "ObjectTypeProperty",
-                                    "start": 26,
-                                    "end": 36,
-                                    "loc": {
-                                        "start": {
-                                            "line": 1,
-                                            "column": 26
-                                        },
-                                        "end": {
-                                            "line": 1,
-                                            "column": 36
-                                        }
+                            "typeParameters": null,
+                            "id": {
+                                "type": "Identifier",
+                                "start": 24,
+                                "end": 30,
+                                "loc": {
+                                    "start": {
+                                        "line": 1,
+                                        "column": 24
                                     },
-                                    "range": [
-                                        26,
-                                        36
-                                    ],
-                                    "static": false,
-                                    "kind": "init",
-                                    "value": {
-                                        "type": "StringTypeAnnotation",
-                                        "start": 30,
-                                        "end": 36,
-                                        "loc": {
-                                            "start": {
-                                                "line": 1,
-                                                "column": 30
-                                            },
-                                            "end": {
-                                                "line": 1,
-                                                "column": 36
-                                            }
-                                        },
-                                        "range": [
-                                            30,
-                                            36
-                                        ],
-                                        "_babelType": "StringTypeAnnotation"
+                                    "end": {
+                                        "line": 1,
+                                        "column": 30
                                     },
-                                    "variance": null,
-                                    "optional": false,
-                                    "_babelType": "ObjectTypeProperty"
+                                    "identifierName": "MyType"
                                 },
-                                {
-                                    "type": "ObjectTypeProperty",
-                                    "start": 38,
-                                    "end": 48,
-                                    "loc": {
-                                        "start": {
-                                            "line": 1,
-                                            "column": 38
-                                        },
-                                        "end": {
-                                            "line": 1,
-                                            "column": 48
-                                        }
-                                    },
-                                    "range": [
-                                        38,
-                                        48
-                                    ],
-                                    "static": false,
-                                    "kind": "init",
-                                    "value": {
-                                        "type": "StringTypeAnnotation",
-                                        "start": 42,
-                                        "end": 48,
-                                        "loc": {
-                                            "start": {
-                                                "line": 1,
-                                                "column": 42
-                                            },
-                                            "end": {
-                                                "line": 1,
-                                                "column": 48
-                                            }
-                                        },
-                                        "range": [
-                                            42,
-                                            48
-                                        ],
-                                        "_babelType": "StringTypeAnnotation"
-                                    },
-                                    "variance": null,
-                                    "optional": false,
-                                    "_babelType": "ObjectTypeProperty"
-                                }
-                            ],
-                            "indexers": [],
-                            "exact": false,
-                            "_babelType": "ObjectTypeAnnotation"
+                                "range": [
+                                    24,
+                                    30
+                                ],
+                                "name": "MyType",
+                                "_babelType": "Identifier"
+                            },
+                            "_babelType": "GenericTypeAnnotation"
                         },
                         "_babelType": "TypeAnnotation"
                     },
@@ -792,21 +562,21 @@ exports.parse = () => ({
             ],
             "body": {
                 "type": "BlockStatement",
-                "start": 52,
-                "end": 54,
+                "start": 32,
+                "end": 34,
                 "loc": {
                     "start": {
                         "line": 1,
-                        "column": 52
+                        "column": 32
                     },
                     "end": {
                         "line": 1,
-                        "column": 54
+                        "column": 34
                     }
                 },
                 "range": [
-                    52,
-                    54
+                    32,
+                    34
                 ],
                 "body": [],
                 "_babelType": "BlockStatement"

@@ -21,6 +21,31 @@ const ruleTester = new RuleTester({
 		ecmaVersion: 5,
 		sourceType: "script",
 	},
+	plugins: {
+		custom: {
+			rules: {
+				"use-every-a": {
+					create(context) {
+						const sourceCode = context.sourceCode;
+
+						/**
+						 * Mark a variable as used
+						 * @param {ASTNode} node The node representing the scope to search
+						 * @returns {void}
+						 * @private
+						 */
+						function useA(node) {
+							sourceCode.markVariableAsUsed("a", node);
+						}
+						return {
+							VariableDeclaration: useA,
+							ReturnStatement: useA,
+						};
+					},
+				},
+			},
+		},
+	},
 });
 
 /**
@@ -289,6 +314,11 @@ ruleTester.run("no-unused-vars", rule, {
 			code: "/*exported x, y*/  var { x, y } = z",
 			languageOptions: { ecmaVersion: 6 },
 		},
+
+		// Can mark variables as used via context.markVariableAsUsed()
+		"/*eslint custom/use-every-a:1*/ var a;",
+		"/*eslint custom/use-every-a:1*/ !function(a) { return 1; }",
+		"/*eslint custom/use-every-a:1*/ !function() { var a; return 1 }",
 
 		// ignore pattern
 		{
@@ -618,6 +648,9 @@ ruleTester.run("no-unused-vars", rule, {
 			options: [{ ignoreRestSiblings: true }],
 			languageOptions: { ecmaVersion: 2020 },
 		},
+
+		// https://github.com/eslint/eslint/issues/10952
+		"/*eslint custom/use-every-a:1*/ !function(b, a) { return 1 }",
 
 		// https://github.com/eslint/eslint/issues/10982
 		"var a = function () { a(); }; a();",

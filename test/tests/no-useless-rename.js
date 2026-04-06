@@ -160,7 +160,7 @@ ruleTester.run("no-useless-rename", rule, {
 		{
 			code: "const { ...foo } = bar;",
 			languageOptions: {
-				parser: require("../parser"),
+				parser: require("../../fixtures/parsers/babel-eslint10/object-pattern-with-rest-element"),
 			},
 		},
 	],

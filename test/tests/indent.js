@@ -32,7 +32,7 @@ const fixedFixture = fs.readFileSync(
 	),
 	"utf8",
 );
-const parser = require("../parser");
+const parser = require("../../fixtures/fixture-parser");
 const { unIndent } = require("../utils");
 
 /**
@@ -10038,7 +10038,7 @@ ruleTester.run("indent", rule, {
                 }: bar) => baz
             `,
 			languageOptions: {
-				parser: require("../parser"),
+				parser: require("../../fixtures/parsers/babel-eslint7/object-pattern-with-annotation"),
 			},
 			errors: expectedErrors([3, 0, 4]),
 		},
@@ -10054,7 +10054,7 @@ ruleTester.run("indent", rule, {
                 ]: bar) => baz
             `,
 			languageOptions: {
-				parser: require("../parser"),
+				parser: require("../../fixtures/parsers/babel-eslint7/array-pattern-with-annotation"),
 			},
 			errors: expectedErrors([3, 0, 4]),
 		},
@@ -10070,7 +10070,7 @@ ruleTester.run("indent", rule, {
                 }: {}) => baz
             `,
 			languageOptions: {
-				parser: require("../parser"),
+				parser: require("../../fixtures/parsers/babel-eslint7/object-pattern-with-object-annotation"),
 			},
 			errors: expectedErrors([3, 0, 4]),
 		},
