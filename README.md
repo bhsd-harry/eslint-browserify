@@ -21,7 +21,7 @@ The `Linter` instance does the actual evaluation of the JavaScript code. It pars
 The most important method on `Linter` is `verify()`, which initiates linting of the given text. This method accepts three arguments:
 
 - `code` - the source code to lint (a string).
-- `config` - a [configuration object](https://eslint.org/docs/v8.x/use/configure/) or an array of configuration objects.
+- `config` - a [configuration object](https://eslint.org/docs/latest/use/configure/configuration-files#configuration-objects) or an array of configuration objects.
 
 You can call `verify()` like this:
 
