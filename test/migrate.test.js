@@ -18,6 +18,7 @@ describe.only('Migration tests', () => {
 			const migrated = migrateConfig(eslintrc);
 			fs.writeFileSync(file, `${JSON.stringify(migrated, null, '\t')}\n`);
 			assert.deepStrictEqual(migrated, expected);
+			assert.deepStrictEqual(migrateConfig(migrated), migrated);
 		});
 	}
 });

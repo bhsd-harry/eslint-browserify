@@ -1,10 +1,10 @@
 [
 	{
-		"linterOptions": {
-			"reportUnusedDisableDirectives": false
-		},
 		"rules": {
 			"no-console": "off"
+		},
+		"linterOptions": {
+			"reportUnusedDisableDirectives": false
 		}
 	}
 ]

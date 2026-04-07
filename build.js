@@ -68,16 +68,14 @@ const /** @type {esbuild.Plugin} */ plugin = {
 						'config',
 						'eslint-scope',
 						'eslint-visitor-keys',
-						'espree',
+						'esrecurse',
 						'estraverse',
 						'flat-config-array',
 						'flat-config-schema',
 						'index-universal',
 						'keyword',
 						'linter',
-						'no-magic-numbers',
 						'posix',
-						'severity',
 						'unsupported-api',
 					].join('|')}|(?:${[
 						'config-array/dist/cjs',
@@ -87,6 +85,7 @@ const /** @type {esbuild.Plugin} */ plugin = {
 						'regexpp',
 						'rules',
 						'token-store',
+						'type-check/lib',
 					].join('|')})/index)\.c?js|(?:package|globals)\.json|rules/[\w-]+\.js)$`,
 				),
 			},
@@ -175,7 +174,7 @@ const /** @type {esbuild.Plugin} */ plugin = {
 								'}',
 							)
 							.replace(
-								/(?<=^function (?:getFunction(?:NameWithKind|HeadLocation)|hasSideEffect)\().+?^\}$/gmsu,
+								/(?<=^function (?:getFunction(?:NameWithKind|HeadLocation)|hasSideEffect|is(?!Comment|(?:Opening|Closing)Paren)\w+Token)\().+?^\}$/gmsu,
 								') {}',
 							)
 							.replace(
@@ -186,6 +185,12 @@ const /** @type {esbuild.Plugin} */ plugin = {
 					case 'eslint-visitor-keys':
 						contents = contents.replace(
 							'exports.unionWith = unionWith;',
+							'',
+						);
+						break;
+					case 'esrecurse':
+						contents = contents.replace(
+							/^([ \t]+)exports\.(?:version = .+|visit = [\s\S]+?^\1\};)$/gmu,
 							'',
 						);
 						break;
@@ -293,6 +298,17 @@ const /** @type {esbuild.Plugin} */ plugin = {
 							'',
 						);
 						break;
+					case 'lib':
+						contents = contents
+							.replace(
+								/^([ \t]+)typeCheck = .+?^\1\};$/msu,
+								'',
+							)
+							.replace(
+								/^[ \t]+(VERSION|typeCheck): \1,$/gmu,
+								'',
+							);
+						break;
 					case 'linter':
 						contents = contents
 							.replace(
@@ -327,7 +343,7 @@ const /** @type {esbuild.Plugin} */ plugin = {
 						break;
 					case 'posix':
 						contents = contents.replace(
-							/^exports\.(?:(?:to|from)FileUrl|normalize(?:Glob)?|joinGlobs|isGlob|globToRegExp|format|(?:base|ext)name|common|parse|SEPARATOR_PATTERN|DELIMITER) = .+$/gmu,
+							/^exports\.(?:(?:to|from)FileUrl|normalize(?:Glob)?|join(?:Globs)?|isGlob|globToRegExp|format|(?:base|ext)name|common|parse|SEPARATOR_PATTERN|DELIMITER) = .+$/gmu,
 							'',
 						);
 						break;
@@ -402,7 +418,6 @@ const /** @type {esbuild.BuildOptions} */ config = {
 		...config,
 		minify: true,
 		outfile: 'bundle/linter.min.js',
-		legalComments: 'external',
 	});
 	if (shimSet.size > 0) {
 		console.error(

@@ -7,16 +7,10 @@ eslint.MAX_AUTOFIX_PASSES = 1;
 const linter = new eslint.Linter(),
 	reduce = ({line, column, endLine, endColumn, message, messageId}) =>
 		JSON.parse(JSON.stringify({line, column, endLine, endColumn, message, messageId})),
-	isUnknownParser = parser => {
-		if (!parser || parser.meta?.name === 'typescript-eslint/parser') {
-			return false;
-		} else if (parser.meta) {
-			throw new Error(`Unknown parser: ${parser.meta.name}`);
-		}
-		return typeof parser.parse !== 'function';
-	},
-	shouldSkip = ({languageOptions: {parser, parserOptions}}) => parserOptions?.ecmaFeatures?.jsx
-		|| isUnknownParser(parser),
+	isKnownParser = ({languageOptions: {parser}}) => !parser // default parser
+		|| parser.meta?.name === 'typescript-eslint/parser' // TypeScript ESLint parser
+		|| typeof parser.parse === 'function', // fixture parser
+	shouldSkip = ({languageOptions: {parserOptions}}) => parserOptions?.ecmaFeatures?.jsx,
 	getConfig = ({languageOptions = {}, plugins, ...cfg}, extraLanguageOptions, options, rule) => {
 		for (let i = options.length - 1; i >= 0; i--) {
 			if (typeof options[i] === 'object' && JSON.stringify(options[i]) === '{}') {
@@ -49,20 +43,11 @@ class RuleTester {
 	}
 
 	run(rule, _, {valid, invalid}) {
-		if (isUnknownParser(this.config.languageOptions.parser)) {
-			describe.skip(rule, () => {
-				for (const {code} of invalid) {
-					it.skip(`invalid: ${code}`);
-				}
-				for (const code of valid) {
-					it.skip(`valid: ${code}`);
-				}
-			});
-			return;
-		}
 		describe(rule, () => {
+			assert.ok(isKnownParser(this.config));
 			for (const {code, options = [], languageOptions, errors, output} of invalid) {
 				const [config, printConfig] = getConfig(this.config, languageOptions, options, rule);
+				assert.ok(isKnownParser(config), code);
 				if (shouldSkip(config)) {
 					it.skip(`invalid: ${code}`);
 					continue;

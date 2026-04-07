@@ -1,5 +1,10 @@
 [
 	{
+		"linterOptions": {
+			"reportUnusedDisableDirectives": false
+		}
+	},
+	{
 		"rules": {
 			"constructor-super": 2,
 			"for-direction": 2,
@@ -68,9 +73,6 @@
 		}
 	},
 	{
-		"linterOptions": {
-			"reportUnusedDisableDirectives": false
-		},
 		"languageOptions": {
 			"globals": {
 				"ArrayBuffer": false,

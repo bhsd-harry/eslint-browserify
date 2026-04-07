@@ -2,6 +2,8 @@ import {builtinRules} from 'eslint/use-at-your-own-risk';
 import {Legacy} from '@eslint/eslintrc/universal';
 import type {Linter} from 'eslint';
 
+declare type Config = Linter.LegacyConfig | Linter.Config;
+
 export const {environments} = Legacy;
 
 const createExtends = (configExtends: Linter.LegacyConfig['extends']): Linter.Config[] => {
@@ -81,24 +83,55 @@ const createLanguageOptions = (config: Linter.LegacyConfig): Linter.LanguageOpti
 		}
 	}
 	if (parserOptions?.ecmaFeatures) {
-		properties.parserOptions ??= {};
-		properties.parserOptions.ecmaFeatures ??= {};
-		Object.assign(properties.parserOptions.ecmaFeatures, parserOptions.ecmaFeatures);
+		delete parserOptions.ecmaFeatures.jsx;
+		if (Object.keys(parserOptions.ecmaFeatures).length > 0) {
+			properties.parserOptions ??= {};
+			properties.parserOptions.ecmaFeatures ??= {};
+			Object.assign(properties.parserOptions.ecmaFeatures, parserOptions.ecmaFeatures);
+		}
 	}
 	return Object.keys(properties).length === 0 ? undefined : properties;
 };
 
-const migrateConfigObject = (config: Linter.LegacyConfig, base?: boolean): Linter.Config[] => {
+const eslintrcKeys = [
+	'env',
+	'extends',
+	'globals',
+	'ignorePatterns',
+	'noInlineConfig',
+	'overrides',
+	'parser',
+	'parserOptions',
+	'reportUnusedDisableDirectives',
+	'root',
+	'excludedFiles',
+];
+
+const isEslintrcConfig = (config: Config): config is Linter.LegacyConfig =>
+	eslintrcKeys.some(key => key in config) || Array.isArray(config.plugins);
+
+const migrateConfigObject = (config: Config, base?: boolean): Linter.Config[] => {
+	if (!isEslintrcConfig(config)) {
+		if ((config.languageOptions as Linter.LanguageOptions | undefined)?.parserOptions?.ecmaFeatures?.jsx) {
+			delete (config.languageOptions as Linter.LanguageOptions).parserOptions!.ecmaFeatures!.jsx;
+		}
+		if (base) {
+			config.linterOptions ??= {};
+			config.linterOptions.reportUnusedDisableDirectives ??= false;
+		}
+		return [config];
+	}
 	const configArrayElements: Linter.Config[] = [];
+	if (base) {
+		configArrayElements.push({
+			linterOptions: {reportUnusedDisableDirectives: false},
+		});
+	}
 	if (config.extends) {
 		configArrayElements.push(...createExtends(config.extends));
 	}
 	const properties: Linter.Config = {};
-	let linterOptions = createLinterOptions(config);
-	if (base) {
-		linterOptions ??= {};
-		linterOptions.reportUnusedDisableDirectives ??= false;
-	}
+	const linterOptions = createLinterOptions(config);
 	if (linterOptions) {
 		properties.linterOptions = linterOptions;
 	}
@@ -115,18 +148,24 @@ const migrateConfigObject = (config: Linter.LegacyConfig, base?: boolean): Linte
 	if (Object.keys(properties).length > 0) {
 		configArrayElements.push(properties);
 	}
-	return configArrayElements;
-};
-
-export const migrateConfig = (config: Linter.LegacyConfig | Linter.Config[] = []): Linter.Config[] => {
-	if (Array.isArray(config)) {
-		return config;
-	}
-	const configArrayElements = migrateConfigObject(config, true);
-	if (config.overrides) {
+	if (base && config.overrides) {
 		for (const override of config.overrides) {
 			configArrayElements.push(...migrateConfigObject(override));
 		}
 	}
 	return configArrayElements;
 };
+
+export const migrateConfig = (config: Config | Config[] = []): Linter.Config[] => Array.isArray(config)
+	? [
+		...(config[0] as Linter.Config | undefined)?.linterOptions?.reportUnusedDisableDirectives === undefined
+		&& (config[0] as Linter.LegacyConfig | undefined)?.reportUnusedDisableDirectives === undefined
+			? [
+				{
+					linterOptions: {reportUnusedDisableDirectives: false},
+				},
+			]
+			: [],
+		...config.flatMap(c => migrateConfigObject(c)),
+	]
+	: migrateConfigObject(config, true);
