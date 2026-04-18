@@ -1,6 +1,6 @@
 {
 	"name": "@bhsd/eslint-browserify",
-	"version": "10.2.0",
+	"version": "10.2.1",
 	"description": "ESLint in browser",
 	"keywords": [
 		"eslint",
@@ -49,7 +49,7 @@
 		]
 	},
 	"dependencies": {
-		"eslint": "^10.2.0"
+		"eslint": "^10.2.1"
 	},
 	"devDependencies": {
 		"@bhsd/code-standard": "^2.2.0",
@@ -75,6 +75,6 @@
 		"typescript": "^6.0.2"
 	},
 	"overrides": {
-		"eslint": "^10.2.0"
+		"eslint": "^10.2.1"
 	}
 }
