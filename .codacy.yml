@@ -1,6 +1,6 @@
 ---
 exclude_paths:
-  - "fixtures/**"
-  - "test/migrate/**"
-  - "test/tests/**"
-  - "test/utils.js"
+  - 'fixtures/**'
+  - 'test/migrate/**'
+  - 'test/tests/**'
+  - test/utils.js
