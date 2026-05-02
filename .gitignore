@@ -1,6 +1,7 @@
 /.vscode/
 /bundle/
-/coverage/
+/coverage/*
+!/coverage/badge.svg
 /.eslintcache
 /build
 /dist

@@ -6,6 +6,7 @@ globalThis.eslint ??= require('../bundle/coverage.min.js').eslint;
 eslint.MAX_AUTOFIX_PASSES = 1;
 const linter = new eslint.Linter(),
 	reduce = ({line, column, endLine, endColumn, message, messageId}) =>
+		// eslint-disable-next-line unicorn/prefer-structured-clone
 		JSON.parse(JSON.stringify({line, column, endLine, endColumn, message, messageId})),
 	isKnownParser = ({languageOptions: {parser}}) => !parser // default parser
 		|| parser.meta?.name === 'typescript-eslint/parser' // TypeScript ESLint parser

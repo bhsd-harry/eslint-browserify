@@ -51,11 +51,13 @@ export default extend(
 			'unicorn/consistent-function-scoping': 0,
 			'unicorn/explicit-length-check': 0,
 			'unicorn/new-for-builtins': 0,
+			'unicorn/no-array-callback-reference': 0,
 			'unicorn/no-array-for-each': 0,
 			'unicorn/no-array-reduce': 0,
 			'unicorn/number-literal-case': 0,
 			'unicorn/prefer-spread': 0,
 			'unicorn/prefer-string-raw': 0,
+			'unicorn/prefer-string-replace-all': 0,
 			'regexp/no-super-linear-move': 0,
 		},
 		settings: {

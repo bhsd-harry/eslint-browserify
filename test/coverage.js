@@ -16,7 +16,7 @@ for (const statementId in s) {
 		}
 	}
 }
-const uncoveredLines = [...fileUncoveredLines].sort((a, b) => a - b),
+const uncoveredLines = [...fileUncoveredLines].toSorted((a, b) => a - b),
 	uncoveredLineSummary = [];
 for (let i = 0; i < uncoveredLines.length;) {
 	const start = uncoveredLines[i];
