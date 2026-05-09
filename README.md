@@ -1,7 +1,6 @@
 # ESLint-browserify
 
 [![npm version](https://badge.fury.io/js/@bhsd%2Feslint-browserify.svg)](https://www.npmjs.com/package/@bhsd/eslint-browserify)
-[![License](https://img.shields.io/badge/License-MIT-brightgreen.svg)](LICENSE)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/f8d073568955481f9aa7acbc9484c8a6)](https://app.codacy.com/gh/bhsd-harry/eslint-browserify/dashboard)
 ![Coverage](./coverage/badge.svg)
 

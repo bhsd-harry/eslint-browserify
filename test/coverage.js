@@ -2,6 +2,7 @@
 
 const fs = require('fs'),
 	path = require('path'),
+	{updateBadge} = require('@bhsd/test-util'),
 	coverageData = require('../coverage/coverage-final.json');
 
 const filePath = fs.realpathSync(path.join('build', 'eslint.js')),
@@ -33,3 +34,4 @@ fs.writeFileSync(
 	path.join('coverage', 'uncovered-lines.txt'),
 	uncoveredLineSummary.map(({start, end}) => `${start}-${end}`).join('\n'),
 );
+updateBadge();
