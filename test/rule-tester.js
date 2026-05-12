@@ -1,4 +1,3 @@
-/* global eslint */
 'use strict';
 
 const assert = require('assert');

@@ -17,7 +17,10 @@ export default extend(
 	{
 		files: ['test/**/*.js'],
 		languageOptions: {
-			globals: globals.mocha,
+			globals: {
+				...globals.mocha,
+				eslint: 'readonly',
+			},
 		},
 		rules: {
 			'func-name-matching': 0,

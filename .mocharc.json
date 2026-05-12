@@ -1,4 +1,3 @@
 {
-	"reporter": "progress",
-	"spec": "test/tests/*.js"
+	"reporter": "progress"
 }

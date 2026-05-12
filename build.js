@@ -10,7 +10,6 @@ const shim = [
 		'ast',
 		'debug-helpers',
 		'flags',
-		'processor-service',
 		'stats',
 		'timing',
 		'warning-service',
@@ -312,7 +311,7 @@ const /** @type {esbuild.Plugin} */ plugin = {
 					case 'linter':
 						contents = contents
 							.replaceAll(
-								/^([ \t]+)(?:(?:hasFlag|_verifyWithFlatConfigArrayAndProcessor)\(|if \((?:config\.processor|firstCall|(?:options\.)?stats)\b).+?^\1\}$|^([ \t]+)flags\.forEach\(.+?^\2\}\);$/gmsu,
+								/^([ \t]+)(?:hasFlag\(|if \((?:firstCall|(?:options\.)?stats)\b).+?^\1\}$|^([ \t]+)flags\.forEach\(.+?^\2\}\);$/gmsu,
 								'',
 							)
 							.replace(
@@ -412,7 +411,10 @@ const /** @type {esbuild.BuildOptions} */ config = {
 };
 
 (async () => {
-	await esbuild.build(config);
+	await esbuild.build({
+		...config,
+		legalComments: 'none',
+	});
 	min = true;
 	await esbuild.build({
 		...config,
