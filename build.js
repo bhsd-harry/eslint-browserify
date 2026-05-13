@@ -399,13 +399,16 @@ const /** @type {esbuild.BuildOptions} */ config = {
 	logLevel: 'info',
 	plugins: [plugin],
 	alias: {
+		/* eslint-disable n/no-extraneous-require */
 		'acorn-jsx': './shim/acorn-jsx.js',
 		debug: './shim/debug.js',
-		// eslint-disable-next-line n/no-extraneous-require
+		'escape-string-regexp': require.resolve('escape-string-regexp'),
 		'eslint-visitor-keys': require.resolve('eslint-visitor-keys'),
+		ignore: './shim/ignore.js',
 		minimatch: './shim/minimatch.js',
 		'node:path': './shim/path.js',
 		'prelude-ls': './shim/prelude-ls.js',
+		/* eslint-enable n/no-extraneous-require */
 	},
 };
 

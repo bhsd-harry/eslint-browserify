@@ -83,10 +83,7 @@ export default extend(
 				2,
 				'never',
 			],
-			'n/exports-style': [
-				2,
-				'exports',
-			],
+			'n/exports-style': 0,
 		},
 	},
 );

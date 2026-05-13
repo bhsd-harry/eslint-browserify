@@ -4,5 +4,5 @@
 !/coverage/badge.svg
 /.eslintcache
 /build
-/dist
+dist
 /package-lock.json

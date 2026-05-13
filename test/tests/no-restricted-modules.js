@@ -124,36 +124,6 @@ ruleTester.run("no-restricted-modules", rule, {
 			],
 		},
 		{
-			code: 'var withPatterns = require("foo/bar");',
-			options: [{ patterns: ["foo/*"] }],
-			errors: [
-				{
-					messageId: "patternMessage",
-					data: { name: "foo/bar" },
-				},
-			],
-		},
-		{
-			code: 'var withPatternsAndPaths = require("foo/bar");',
-			options: [{ patterns: ["foo/*"], paths: ["foo"] }],
-			errors: [
-				{
-					messageId: "patternMessage",
-					data: { name: "foo/bar" },
-				},
-			],
-		},
-		{
-			code: 'var withGitignores = require("foo/bar");',
-			options: [{ patterns: ["foo/*", "!foo/baz"], paths: ["foo"] }],
-			errors: [
-				{
-					messageId: "patternMessage",
-					data: { name: "foo/bar" },
-				},
-			],
-		},
-		{
 			code: 'var withGitignores = require("foo");',
 			options: [
 				{

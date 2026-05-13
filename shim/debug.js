@@ -1,4 +1,4 @@
-module.exports = () => { // eslint-disable-line n/exports-style
+module.exports = () => {
 	const f = () => {};
 	f.enabled = false;
 	return f;
