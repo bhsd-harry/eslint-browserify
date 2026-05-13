@@ -3,6 +3,7 @@
 const fs = require('fs'),
 	path = require('path'),
 	assert = require('assert');
+globalThis.eslint ??= require('../bundle/coverage.min.js').eslint;
 const {migrateConfig} = eslint;
 
 const tests = fs.readdirSync('test/migrate', {withFileTypes: true}).filter(dirent => dirent.isDirectory());

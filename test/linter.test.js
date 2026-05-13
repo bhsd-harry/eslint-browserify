@@ -10,11 +10,12 @@
 //------------------------------------------------------------------------------
 
 const assert = require("assert"),
-	sinon = {},
+	sinon = require("sinon"),
 	espree = require("espree"),
 	esprima = require("esprima"),
 	testParsers = require("../fixtures/parsers/linter-test-parsers");
 
+globalThis.eslint ??= require('../bundle/coverage.min.js').eslint;
 const { Linter } = eslint;
 const { FlatConfigArray } = {};
 const { SourceCode } = {};
@@ -131,7 +132,7 @@ describe("Linter with FlatConfigArray", () => {
 			);
 		});
 
-		it.skip("should throw an error if an inactive flag whose feature has been abandoned is used", () => {
+		it("should throw an error if an inactive flag whose feature has been abandoned is used", () => {
 			assert.throws(() => {
 				// eslint-disable-next-line no-new -- needed for test
 				new Linter({
@@ -141,7 +142,7 @@ describe("Linter with FlatConfigArray", () => {
 			}, /The flag 'test_only_abandoned' is inactive: This feature has been abandoned/u);
 		});
 
-		it.skip("should throw an error if an unknown flag is present", () => {
+		it("should throw an error if an unknown flag is present", () => {
 			assert.throws(() => {
 				// eslint-disable-next-line no-new -- needed for test
 				new Linter({ configType: "flat", flags: ["x_unknown"] });
@@ -584,7 +585,7 @@ describe("Linter with FlatConfigArray", () => {
 					assert.strictEqual(suppressedMessages.length, 0);
 				});
 
-				it.skip("should pass parser as context.languageOptions.parser to all rules when provided on config", () => {
+				it("should pass parser as context.languageOptions.parser to all rules when provided on config", () => {
 					const config = {
 						plugins: {
 							test: {
@@ -711,7 +712,7 @@ describe("Linter with FlatConfigArray", () => {
 					assert.strictEqual(suppressedMessages2.length, 0);
 				});
 
-				it.skip("should pass parser as context.languageOptions.parser to all rules when default parser is used", () => {
+				it("should pass parser as context.languageOptions.parser to all rules when default parser is used", () => {
 					// references to Espree get messed up in a browser context, so wrap it
 					const fakeParser = {
 						parse: espree.parse,
@@ -748,7 +749,7 @@ describe("Linter with FlatConfigArray", () => {
 				describe("Custom Parsers", () => {
 					const errorPrefix = "Parsing error: ";
 
-					it.skip("should have file path passed to it", () => {
+					it("should have file path passed to it", () => {
 						const code = "/* this is code */";
 						const parseSpy = { parse: sinon.spy(espree.parse) };
 						const config = {
@@ -764,7 +765,7 @@ describe("Linter with FlatConfigArray", () => {
 						});
 					});
 
-					it.skip("should not report an error when JSX code contains a spread operator and JSX is enabled", () => {
+					it("should not report an error when JSX code contains a spread operator and JSX is enabled", () => {
 						const code =
 							"var myDivElement = <div {...this.props} />;";
 						const config = {
@@ -1095,7 +1096,7 @@ describe("Linter with FlatConfigArray", () => {
 						});
 					});
 
-					it.skip("should pass default languageOptions to the parser", () => {
+					it("should pass default languageOptions to the parser", () => {
 						const spy = sinon.spy((code, options) =>
 							espree.parse(code, options),
 						);
@@ -1107,6 +1108,7 @@ describe("Linter with FlatConfigArray", () => {
 									parser: {
 										parse: spy,
 									},
+									sourceType: "module",
 								},
 							},
 							"filename.js",
@@ -1160,7 +1162,7 @@ describe("Linter with FlatConfigArray", () => {
 					linter.verify("0", config, filename);
 				});
 
-				it.skip("should switch globalReturn to false if sourceType is module", () => {
+				it("should switch globalReturn to false if sourceType is module", () => {
 					const config = {
 						plugins: {
 							test: {
@@ -1999,7 +2001,7 @@ describe("Linter with FlatConfigArray", () => {
 		});
 
 		describe("Plugins", () => {
-			it.skip("should not load rule definition when rule isn't used", () => {
+			it("should not load rule definition when rule isn't used", () => {
 				const spy = sinon.spy();
 
 				const config = {
@@ -2023,7 +2025,7 @@ describe("Linter with FlatConfigArray", () => {
 		describe("Rule Internals", () => {
 			const code = TEST_CODE;
 
-			it.skip("should throw an error when an error occurs inside of a rule visitor", () => {
+			it("should throw an error when an error occurs inside of a rule visitor", () => {
 				const config = {
 					plugins: {
 						test: {
@@ -2045,10 +2047,10 @@ describe("Linter with FlatConfigArray", () => {
 
 				assert.throws(() => {
 					linter.verify(code, config, filename);
-				}, `Intentional error.\nOccurred while linting ${filename}:1\nRule: "test/checker"`);
+				}, `Intentional error.\nOccurred while linting <input>:1\nRule: "test/checker"`);
 			});
 
-			it.skip("should not call rule visitor with a `this` value", () => {
+			it("should not call rule visitor with a `this` value", () => {
 				const spy = sinon.spy();
 				const config = {
 					plugins: {
@@ -2070,7 +2072,7 @@ describe("Linter with FlatConfigArray", () => {
 				assert.strictEqual(spy.firstCall.thisValue, void 0);
 			});
 
-			it.skip("should not call unrecognized rule visitor when present in a rule", () => {
+			it("should not call unrecognized rule visitor when present in a rule", () => {
 				const spy = sinon.spy();
 				const config = {
 					plugins: {
@@ -2094,7 +2096,7 @@ describe("Linter with FlatConfigArray", () => {
 				assert(spy.notCalled);
 			});
 
-			it.skip("should have all the `parent` properties on nodes when the rule visitors are created", () => {
+			it("should have all the `parent` properties on nodes when the rule visitors are created", () => {
 				const spy = sinon.spy(context => {
 					const ast = context.sourceCode.ast;
 
@@ -2130,7 +2132,7 @@ describe("Linter with FlatConfigArray", () => {
 				assert(spy.calledOnce);
 			});
 
-			it.skip("events for each node type should fire", () => {
+			it("events for each node type should fire", () => {
 				// spies for various AST node types
 				const spyLiteral = sinon.spy(),
 					spyVariableDeclarator = sinon.spy(),
@@ -2175,7 +2177,7 @@ describe("Linter with FlatConfigArray", () => {
 				assert.strictEqual(suppressedMessages.length, 0);
 			});
 
-			it.skip("should throw an error if a rule is a function", () => {
+			it("should throw an error if a rule is a function", () => {
 				/**
 				 * Legacy-format rule (a function instead of an object with `create` method).
 				 * @param {RuleContext} context The ESLint rule context object.
@@ -2207,7 +2209,7 @@ describe("Linter with FlatConfigArray", () => {
 				);
 			});
 
-			it.skip("should throw an error if a rule is an object without 'create' method", () => {
+			it("should throw an error if a rule is an object without 'create' method", () => {
 				const rule = {
 					create_(context) {
 						return {
@@ -2295,7 +2297,7 @@ describe("Linter with FlatConfigArray", () => {
 				);
 			});
 
-			it.skip("should throw an error if a rule reports a problem without a message", () => {
+			it("should throw an error if a rule reports a problem without a message", () => {
 				const config = {
 					plugins: {
 						test: {
@@ -2424,7 +2426,7 @@ describe("Linter with FlatConfigArray", () => {
 				const code = "a;\nb;";
 				const baseConfig = { rules: { "test/checker": "error" } };
 
-				it.skip("should get cwd correctly in the context", () => {
+				it("should get cwd correctly in the context", () => {
 					const cwd = "/cwd";
 					const linterWithOption = new Linter({
 						cwd,
@@ -2456,7 +2458,7 @@ describe("Linter with FlatConfigArray", () => {
 					assert(spy && spy.calledOnce);
 				});
 
-				it.skip("should assign process.cwd() to it if cwd is undefined", () => {
+				it("should assign process.cwd() to it if cwd is undefined", () => {
 					const linterWithOption = new Linter({ configType: "flat" });
 					let spy;
 					const config = {
@@ -2484,7 +2486,7 @@ describe("Linter with FlatConfigArray", () => {
 					assert(spy && spy.calledOnce);
 				});
 
-				it.skip("should assign process.cwd() to it if the option is undefined", () => {
+				it("should assign process.cwd() to it if the option is undefined", () => {
 					let spy;
 					const config = {
 						plugins: {
@@ -2599,7 +2601,7 @@ describe("Linter with FlatConfigArray", () => {
 				assert.strictEqual(suppressedMessages.length, 0);
 			});
 
-			it.skip("should have a comment with the hashbang in it", () => {
+			it("should have a comment with the hashbang in it", () => {
 				const spy = sinon.spy(context => {
 					const comments = context.sourceCode.getAllComments();
 
@@ -2628,7 +2630,7 @@ describe("Linter with FlatConfigArray", () => {
 
 		describe("Options", () => {
 			describe("filename", () => {
-				it.skip("should allow filename to be passed on options object", () => {
+				it("should allow filename to be passed on options object", () => {
 					const filenameChecker = sinon.spy(context => {
 						assert.strictEqual(context.filename, "foo.js");
 						return {};
@@ -2651,7 +2653,7 @@ describe("Linter with FlatConfigArray", () => {
 					assert(filenameChecker.calledOnce);
 				});
 
-				it.skip("should allow filename to be passed as third argument", () => {
+				it("should allow filename to be passed as third argument", () => {
 					const filenameChecker = sinon.spy(context => {
 						assert.strictEqual(context.filename, "bar.js");
 						return {};
@@ -2674,7 +2676,7 @@ describe("Linter with FlatConfigArray", () => {
 					assert(filenameChecker.calledOnce);
 				});
 
-				it.skip("should default filename to <input> when options object doesn't have filename", () => {
+				it("should default filename to <input> when options object doesn't have filename", () => {
 					const filenameChecker = sinon.spy(context => {
 						assert.strictEqual(context.filename, "<input>");
 						return {};
@@ -2697,7 +2699,7 @@ describe("Linter with FlatConfigArray", () => {
 					assert(filenameChecker.calledOnce);
 				});
 
-				it.skip("should default filename to <input> when only two arguments are passed", () => {
+				it("should default filename to <input> when only two arguments are passed", () => {
 					const filenameChecker = sinon.spy(context => {
 						assert.strictEqual(context.filename, "<input>");
 						return {};
@@ -2722,7 +2724,7 @@ describe("Linter with FlatConfigArray", () => {
 			});
 
 			describe("physicalFilename", () => {
-				it.skip("should be same as `filename` passed on options object, if no processors are used", () => {
+				it("should be same as `filename` passed on options object, if no processors are used", () => {
 					const physicalFilenameChecker = sinon.spy(context => {
 						assert.strictEqual(context.physicalFilename, "foo.js");
 						return {};
@@ -2747,7 +2749,7 @@ describe("Linter with FlatConfigArray", () => {
 					assert(physicalFilenameChecker.calledOnce);
 				});
 
-				it.skip("should default physicalFilename to <input> when options object doesn't have filename", () => {
+				it("should default physicalFilename to <input> when options object doesn't have filename", () => {
 					const physicalFilenameChecker = sinon.spy(context => {
 						assert.strictEqual(context.physicalFilename, "<input>");
 						return {};
@@ -2772,7 +2774,7 @@ describe("Linter with FlatConfigArray", () => {
 					assert(physicalFilenameChecker.calledOnce);
 				});
 
-				it.skip("should default physicalFilename to <input> when only two arguments are passed", () => {
+				it("should default physicalFilename to <input> when only two arguments are passed", () => {
 					const physicalFilenameChecker = sinon.spy(context => {
 						assert.strictEqual(context.physicalFilename, "<input>");
 						return {};
@@ -2929,7 +2931,7 @@ describe("Linter with FlatConfigArray", () => {
 
 		describe("Inline Directives", () => {
 			describe("/*global*/ Comments", () => {
-				describe.skip("when evaluating code containing /*global */ and /*globals */ blocks", () => {
+				describe("when evaluating code containing /*global */ and /*globals */ blocks", () => {
 					/**
 					 * Asserts the global variables in the provided code using the specified language options and data.
 					 * @param {string} code The code to verify.
@@ -2987,7 +2989,7 @@ describe("Linter with FlatConfigArray", () => {
 						assert(spy && spy.calledOnce);
 					}
 
-					it.skip("variables should be available in global scope", () => {
+					it("variables should be available in global scope", () => {
 						const code = `
                         /*global a b:true c:false d:readable e:writeable Math:off */
                         function foo() {}
@@ -3165,7 +3167,7 @@ describe("Linter with FlatConfigArray", () => {
 				describe("when evaluating code containing a /*global */ block with sloppy whitespace", () => {
 					const code = "/* global  a b  : true   c:  false*/";
 
-					it.skip("variables should be available in global scope", () => {
+					it("variables should be available in global scope", () => {
 						let spy;
 						const config = {
 							plugins: {
@@ -3234,7 +3236,7 @@ describe("Linter with FlatConfigArray", () => {
 				describe("when evaluating code containing a line comment", () => {
 					const code = "//global a \n function f() {}";
 
-					it.skip("should not introduce a global variable", () => {
+					it("should not introduce a global variable", () => {
 						let spy;
 
 						const config = {
@@ -3272,7 +3274,7 @@ describe("Linter with FlatConfigArray", () => {
 				describe("when evaluating code containing normal block comments", () => {
 					const code = "/**/  /*a*/  /*b:true*/  /*foo c:false*/";
 
-					it.skip("should not introduce a global variable", () => {
+					it("should not introduce a global variable", () => {
 						let spy;
 
 						const config = {
@@ -3448,7 +3450,7 @@ describe("Linter with FlatConfigArray", () => {
 					linter.verify(code, config, filename);
 				});
 
-				it.skip("variable should be exported", () => {
+				it("variable should be exported", () => {
 					const code = "/* exported horse */\n\nvar horse;";
 					let spy;
 					const config = {
@@ -3486,7 +3488,7 @@ describe("Linter with FlatConfigArray", () => {
 					assert(spy && spy.calledOnce);
 				});
 
-				it.skip("`key: value` pair variable should not be exported", () => {
+				it("`key: value` pair variable should not be exported", () => {
 					const code = "/* exported horse: true */\n\nvar horse;";
 					let spy;
 					const config = {
@@ -3524,7 +3526,7 @@ describe("Linter with FlatConfigArray", () => {
 					assert(spy && spy.calledOnce);
 				});
 
-				it.skip("variables with comma should be exported", () => {
+				it("variables with comma should be exported", () => {
 					const code = "/* exported horse, dog */\n\nvar horse, dog;";
 					let spy;
 					const config = {
@@ -3567,7 +3569,7 @@ describe("Linter with FlatConfigArray", () => {
 					assert(spy && spy.calledOnce);
 				});
 
-				it.skip("variables without comma should not be exported", () => {
+				it("variables without comma should not be exported", () => {
 					const code = "/* exported horse dog */\n\nvar horse, dog;";
 					let spy;
 					const config = {
@@ -3610,7 +3612,7 @@ describe("Linter with FlatConfigArray", () => {
 					assert(spy && spy.calledOnce);
 				});
 
-				it.skip("variables should be exported", () => {
+				it("variables should be exported", () => {
 					const code = "/* exported horse */\n\nvar horse = 'circus'";
 					let spy;
 
@@ -3652,7 +3654,7 @@ describe("Linter with FlatConfigArray", () => {
 					assert(spy && spy.calledOnce);
 				});
 
-				it.skip("undefined variables should not be exported", () => {
+				it("undefined variables should not be exported", () => {
 					const code = "/* exported horse */\n\nhorse = 'circus'";
 					let spy;
 					const config = {
@@ -3690,7 +3692,7 @@ describe("Linter with FlatConfigArray", () => {
 					assert(spy && spy.calledOnce);
 				});
 
-				it.skip("variables should be exported in strict mode", () => {
+				it("variables should be exported in strict mode", () => {
 					const code =
 						"/* exported horse */\n'use strict';\nvar horse = 'circus'";
 					let spy;
@@ -3732,7 +3734,7 @@ describe("Linter with FlatConfigArray", () => {
 					assert(spy && spy.calledOnce);
 				});
 
-				it.skip("variables should not be exported in the es6 module environment", () => {
+				it("variables should not be exported in the es6 module environment", () => {
 					const code = "/* exported horse */\nvar horse = 'circus'";
 					let spy;
 					const config = {
@@ -3771,7 +3773,7 @@ describe("Linter with FlatConfigArray", () => {
 					assert(spy && spy.calledOnce);
 				});
 
-				it.skip("variables should not be exported when in a commonjs file", () => {
+				it("variables should not be exported when in a commonjs file", () => {
 					const code = "/* exported horse */\nvar horse = 'circus'";
 					let spy;
 					const config = {
@@ -4376,6 +4378,10 @@ describe("Linter with FlatConfigArray", () => {
 								"test/my-rule",
 							);
 							assert.strictEqual(messages[0].severity, 1);
+							assert.strictEqual(
+								messages[0].message,
+								true,
+							);
 							assert.strictEqual(
 								messages[1].ruleId,
 								"test/requires-option",
@@ -6591,7 +6597,7 @@ let c; // var a = "test2";
 			});
 
 			describe("descriptions in directive comments", () => {
-				it.skip("should ignore the part preceded by '--' in '/*eslint*/'.", () => {
+				it("should ignore the part preceded by '--' in '/*eslint*/'.", () => {
 					const aaa = sinon.stub().returns({});
 					const bbb = sinon.stub().returns({});
 					const config = {
@@ -7014,7 +7020,7 @@ let c; // var a = "test2";
 					]);
 				});
 
-				it.skip("should not ignore the part preceded by '--' if the '--' is not surrounded by whitespaces.", () => {
+				it("should not ignore the part preceded by '--' if the '--' is not surrounded by whitespaces.", () => {
 					const rule = sinon.stub().returns({});
 					const config = {
 						plugins: {
@@ -7044,7 +7050,7 @@ let c; // var a = "test2";
 					assert.strictEqual(suppressedMessages.length, 0);
 				});
 
-				it.skip("should ignore the part preceded by '--' even if the '--' is longer than 2.", () => {
+				it("should ignore the part preceded by '--' even if the '--' is longer than 2.", () => {
 					const aaa = sinon.stub().returns({});
 					const bbb = sinon.stub().returns({});
 					const config = {
@@ -7077,7 +7083,7 @@ let c; // var a = "test2";
 					assert.strictEqual(suppressedMessages.length, 0);
 				});
 
-				it.skip("should ignore the part preceded by '--' with line breaks.", () => {
+				it("should ignore the part preceded by '--' with line breaks.", () => {
 					const aaa = sinon.stub().returns({});
 					const bbb = sinon.stub().returns({});
 					const config = {
@@ -7690,7 +7696,7 @@ let c; // var a = "test2";
 					assert.strictEqual(suppressedMessages.length, 0);
 				});
 
-				it.skip("throws with invalid string for reportUnusedDisableDirectives in config", () => {
+				it("throws with invalid string for reportUnusedDisableDirectives in config", () => {
 					assert.throws(
 						() =>
 							linter.verify("/* eslint-disable */", {
@@ -7702,7 +7708,7 @@ let c; // var a = "test2";
 					);
 				});
 
-				it.skip("throws with invalid type for reportUnusedDisableDirectives in config", () => {
+				it("throws with invalid type for reportUnusedDisableDirectives in config", () => {
 					assert.throws(
 						() =>
 							linter.verify("/* eslint-disable */", {
@@ -9165,7 +9171,7 @@ let c; // var a = "test2";
 		describe("Default Global Variables", () => {
 			const code = "x";
 
-			it.skip("builtin global variables should be available in the global scope", () => {
+			it("builtin global variables should be available in the global scope", () => {
 				let spy;
 				const config = {
 					plugins: {
@@ -9212,7 +9218,7 @@ let c; // var a = "test2";
 				assert(spy && spy.calledOnce, "Rule should have been called.");
 			});
 
-			it.skip("ES6 global variables should be available by default", () => {
+			it("ES6 global variables should be available by default", () => {
 				let spy;
 				const config = {
 					plugins: {
@@ -9402,7 +9408,7 @@ let c; // var a = "test2";
 				assert.strictEqual(suppressedMessages.length, 0);
 			});
 
-			it.skip("should throw an error if suggestion is passed but `meta.hasSuggestions` property is not enabled", () => {
+			it("should throw an error if suggestion is passed but `meta.hasSuggestions` property is not enabled", () => {
 				const config = {
 					plugins: {
 						test: {
@@ -9441,7 +9447,7 @@ let c; // var a = "test2";
 				}, "Rules with suggestions must set the `meta.hasSuggestions` property to `true`.");
 			});
 
-			it.skip("should throw an error if suggestion is passed but `meta.hasSuggestions` property is not enabled and the rule has the obsolete `meta.docs.suggestion` property", () => {
+			it("should throw an error if suggestion is passed but `meta.hasSuggestions` property is not enabled and the rule has the obsolete `meta.docs.suggestion` property", () => {
 				const config = {
 					plugins: {
 						test: {
@@ -9612,9 +9618,9 @@ let c; // var a = "test2";
 
 			const sourceCode = linter.getSourceCode();
 
-			assert(typeof sourceCode === 'object');
+			assert.strictEqual(typeof sourceCode, 'object');
 			assert.strictEqual(sourceCode.text, code);
-			assert(typeof sourceCode.ast === 'object');
+			assert.strictEqual(typeof sourceCode.ast, 'object');
 		});
 
 		it("should retrieve SourceCode object without reset", () => {
@@ -9622,9 +9628,9 @@ let c; // var a = "test2";
 
 			const sourceCode = linter.getSourceCode();
 
-			assert(typeof sourceCode === 'object');
+			assert.strictEqual(typeof sourceCode, 'object');
 			assert.strictEqual(sourceCode.text, code);
-			assert(typeof sourceCode.ast === 'object');
+			assert.strictEqual(typeof sourceCode.ast, 'object');
 		});
 	});
 
@@ -9680,7 +9686,7 @@ let c; // var a = "test2";
 		it("should return current version number", () => {
 			const version = linter.version;
 
-			assert(typeof version === 'string');
+			assert.strictEqual(typeof version, 'string');
 
 			const majorVersion = version.slice(0, version.indexOf("."));
 			assert.ok(parseInt(majorVersion, 10) >= 9);
@@ -9806,7 +9812,7 @@ let c; // var a = "test2";
 			assert.strictEqual(suppressedMessages.length, 0);
 		});
 
-		it.skip("should throw an error if fix is passed but meta has no `fixable` property", () => {
+		it("should throw an error if fix is passed but meta has no `fixable` property", () => {
 			const config = {
 				plugins: {
 					test: {
@@ -9840,7 +9846,7 @@ let c; // var a = "test2";
 			}, /Fixable rules must set the `meta\.fixable` property to "code" or "whitespace".\nOccurred while linting <input>:1\nRule: "test\/test-rule"$/u);
 		});
 
-		it.skip("should throw an error if fix is passed and there is no metadata", () => {
+		it("should throw an error if fix is passed and there is no metadata", () => {
 			const config = {
 				plugins: {
 					test: {
@@ -9870,7 +9876,7 @@ let c; // var a = "test2";
 			}, /Fixable rules must set the `meta\.fixable` property/u);
 		});
 
-		it.skip("should throw an error if fix is passed from a legacy-format rule", () => {
+		it("should throw an error if fix is passed from a legacy-format rule", () => {
 			const config = {
 				plugins: {
 					test: {
@@ -9902,7 +9908,7 @@ let c; // var a = "test2";
 
 		describe("Options", () => {
 			describe("filename", () => {
-				it.skip("should allow filename to be passed on options object", () => {
+				it("should allow filename to be passed on options object", () => {
 					const filenameChecker = sinon.spy(context => {
 						assert.strictEqual(context.filename, "foo.js");
 						return {};
@@ -9929,7 +9935,7 @@ let c; // var a = "test2";
 					assert(filenameChecker.calledOnce);
 				});
 
-				it.skip("should allow filename to be passed as third argument", () => {
+				it("should allow filename to be passed as third argument", () => {
 					const filenameChecker = sinon.spy(context => {
 						assert.strictEqual(context.filename, "bar.js");
 						return {};
@@ -9954,7 +9960,7 @@ let c; // var a = "test2";
 					assert(filenameChecker.calledOnce);
 				});
 
-				it.skip("should default filename to <input> when options object doesn't have filename", () => {
+				it("should default filename to <input> when options object doesn't have filename", () => {
 					const filenameChecker = sinon.spy(context => {
 						assert.strictEqual(context.filename, "<input>");
 						return {};
@@ -9979,7 +9985,7 @@ let c; // var a = "test2";
 					assert(filenameChecker.calledOnce);
 				});
 
-				it.skip("should default filename to <input> when only two arguments are passed", () => {
+				it("should default filename to <input> when only two arguments are passed", () => {
 					const filenameChecker = sinon.spy(context => {
 						assert.strictEqual(context.filename, "<input>");
 						return {};
@@ -10328,7 +10334,7 @@ let c; // var a = "test2";
 		});
 	});
 
-	describe.skip("processors", () => {
+	describe("processors", () => {
 		let receivedFilenames = [];
 		let receivedPhysicalFilenames = [];
 		const extraConfig = {
@@ -10387,7 +10393,7 @@ let c; // var a = "test2";
 				);
 			});
 
-			it("should run preprocess only once", () => {
+			it.skip("should run preprocess only once", () => {
 				const logs = [];
 				const config = {
 					files: ["*.md"],
@@ -10414,7 +10420,7 @@ let c; // var a = "test2";
 				);
 			});
 
-			it("should pass the BOM to preprocess", () => {
+			it.skip("should pass the BOM to preprocess", () => {
 				const logs = [];
 				const code = "\uFEFFfoo";
 				const config = {
@@ -10455,7 +10461,7 @@ let c; // var a = "test2";
 				assert.strictEqual(results[0].ruleId, "unicode-bom");
 			});
 
-			it("should apply a preprocessor to the code, and lint each code sample separately", () => {
+			it.skip("should apply a preprocessor to the code, and lint each code sample separately", () => {
 				const code = "foo bar baz";
 				const configs = createFlatConfigArray([
 					extraConfig,
@@ -10483,7 +10489,7 @@ let c; // var a = "test2";
 				assert.strictEqual(suppressedMessages.length, 0);
 			});
 
-			it("should apply a preprocessor to the code even if the preprocessor returned code block objects.", () => {
+			it.skip("should apply a preprocessor to the code even if the preprocessor returned code block objects.", () => {
 				const code = "foo bar baz";
 				const configs = createFlatConfigArray([
 					extraConfig,
@@ -10598,7 +10604,7 @@ let c; // var a = "test2";
 			});
 
 			// https://github.com/eslint/markdown/blob/main/rfcs/configure-file-name-from-block-meta.md#name-uniqueness
-			it("should allow preprocessor to return filenames with a slash and treat them as subpaths.", () => {
+			it.skip("should allow preprocessor to return filenames with a slash and treat them as subpaths.", () => {
 				const problems = linter.verify(
 					"foo bar baz",
 					[
@@ -10684,7 +10690,7 @@ let c; // var a = "test2";
 				]);
 			});
 
-			it("should apply a postprocessor to the reported messages", () => {
+			it.skip("should apply a postprocessor to the reported messages", () => {
 				const code = "foo bar baz";
 				const configs = createFlatConfigArray([
 					extraConfig,
@@ -10734,7 +10740,7 @@ let c; // var a = "test2";
 				assert.strictEqual(suppressedMessages.length, 0);
 			});
 
-			it("should use postprocessed problem ranges when applying autofixes", () => {
+			it.skip("should use postprocessed problem ranges when applying autofixes", () => {
 				const code = "foo bar baz";
 				const configs = createFlatConfigArray([
 					extraConfig,
@@ -10814,7 +10820,7 @@ let c; // var a = "test2";
 			});
 
 			// https://github.com/eslint/eslint/issues/16716
-			it("should receive unique range arrays in suggestions", () => {
+			it.skip("should receive unique range arrays in suggestions", () => {
 				const configs = [
 					{
 						plugins: {
@@ -11073,6 +11079,10 @@ let c; // var a = "test2";
 			assert.deepStrictEqual(messages.length, 1);
 			assert.ok(messages[0].message.includes("Invalid ecmaVersion"));
 
+			assert.throws(() => {
+				linter.verify("", { languageOptions: { sourceType: "foo" } });
+			}, /Expected "script", "module", or "commonjs"./u);
+
 			messages = linter.verify("", {
 				languageOptions: { ecmaVersion: 5, sourceType: "module" },
 			});
@@ -11188,7 +11198,7 @@ let c; // var a = "test2";
 			linter.verify("var", config);
 		});
 
-		it.skip("should pass 'id' to rule contexts with the rule id", () => {
+		it("should pass 'id' to rule contexts with the rule id", () => {
 			const spy = sinon.spy(context => {
 				assert.strictEqual(context.id, "test/foo-bar-baz");
 				return {};

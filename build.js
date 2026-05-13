@@ -169,7 +169,7 @@ const /** @type {esbuild.Plugin} */ plugin = {
 					case 'eslint-utils':
 						contents = contents
 							.replace(
-								/(?<=^class PatternMatcher \{)$.+?^\}$/msu,
+								/(?<=^class PatternMatcher \{$).+?^\}$/msu,
 								'}',
 							)
 							.replaceAll(
@@ -393,7 +393,6 @@ const /** @type {esbuild.Plugin} */ plugin = {
 
 const /** @type {esbuild.BuildOptions} */ config = {
 	entryPoints: ['src/index.ts'],
-	outfile: 'build/eslint.js',
 	charset: 'utf8',
 	bundle: true,
 	format: 'esm',
@@ -413,6 +412,7 @@ const /** @type {esbuild.BuildOptions} */ config = {
 (async () => {
 	await esbuild.build({
 		...config,
+		outfile: 'build/eslint.js',
 		legalComments: 'none',
 	});
 	min = true;
