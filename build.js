@@ -63,6 +63,7 @@ const /** @type {esbuild.Plugin} */ plugin = {
 				// eslint-disable-next-line require-unicode-regexp
 				filter: new RegExp(
 					String.raw`/(?:(?:${[
+						'api',
 						'code',
 						'config',
 						'eslint-scope',
@@ -132,6 +133,17 @@ const /** @type {esbuild.Plugin} */ plugin = {
 					base = basename.slice(0, basename.lastIndexOf('.'));
 				}
 				switch (base) {
+					case 'api':
+						contents = contents
+							.replace(
+								/(?<=^module\.exports = \{$).+?(?=^\};$)/msu,
+								'Linter, SourceCode',
+							)
+							.replaceAll(
+								/^const \{ (?:ESLint|RuleTester) \} = require\(.+/gmu,
+								'',
+							);
+						break;
 					case 'code':
 						contents = contents.replaceAll(
 							/^([ \t]+)(?:function is(?!Identifier)\w+\([\s\S]+?\1\}|NON_ASCII_WHITESPACES = [\s\S]+?\1\];)$|^[ \t]+(is(?!Identifier)\w+): \2,$/gmu,
@@ -400,10 +412,13 @@ const /** @type {esbuild.BuildOptions} */ config = {
 	plugins: [plugin],
 	alias: {
 		/* eslint-disable n/no-extraneous-require */
+		'@eslint-community/eslint-utils': require.resolve('@eslint-community/eslint-utils'),
 		'acorn-jsx': './shim/acorn-jsx.js',
 		debug: './shim/debug.js',
 		'escape-string-regexp': require.resolve('escape-string-regexp'),
+		'eslint-scope': require.resolve('eslint-scope'),
 		'eslint-visitor-keys': require.resolve('eslint-visitor-keys'),
+		espree: require.resolve('espree'),
 		ignore: './shim/ignore.js',
 		minimatch: './shim/minimatch.js',
 		'node:path': './shim/path.js',
