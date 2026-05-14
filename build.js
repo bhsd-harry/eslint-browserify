@@ -188,7 +188,7 @@ const /** @type {esbuild.Plugin} */ plugin = {
 								') {}',
 							)
 							.replaceAll(
-								/^([ \t]+)\*(?:iterate(?:Cjs|Esm|Property)|_iterateImport)References\b[\s\S]+?^\1\}$|^const (?:(?:visitor|typeConversionBinaryOps) = [\s\S]+?^\)|typeConversionUnaryOps = .+);$/gmu,
+								/^([ \t]+)\*iteratePropertyReferences\b[\s\S]+?^\1\}$|^const (?:(?:visitor|typeConversionBinaryOps) = [\s\S]+?^\)|typeConversionUnaryOps = .+);$/gmu,
 								'',
 							);
 						break;

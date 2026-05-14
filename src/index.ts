@@ -1,15 +1,15 @@
-/* eslint-disable n/no-extraneous-import */
+/* eslint-disable @typescript-eslint/no-require-imports */
 import eslint from 'eslint';
-import * as unsupported from 'eslint/use-at-your-own-risk';
-import * as utils from '@eslint-community/eslint-utils';
-import * as keys from 'eslint-visitor-keys';
-import * as scope from 'eslint-scope';
+import unsupported = require('eslint/use-at-your-own-risk');
+import utils = require('@eslint-community/eslint-utils');
+import keys = require('eslint-visitor-keys');
+import scope = require('eslint-scope');
 // @ts-expect-error no types available
-import * as espree from 'espree';
+import espree = require('espree');
 // @ts-expect-error no types available
-import * as esquery from 'esquery';
+import esquery = require('esquery');
 // @ts-expect-error no types available
-import * as compare from 'natural-compare';
+import compare = require('natural-compare');
 import {environments, migrateConfig} from './migrate';
 import type {Linter} from 'eslint';
 
