@@ -1,5 +1,6 @@
 /* eslint-disable n/no-extraneous-import */
 import eslint from 'eslint';
+import * as unsupported from 'eslint/use-at-your-own-risk';
 import * as utils from '@eslint-community/eslint-utils';
 import * as keys from 'eslint-visitor-keys';
 import * as scope from 'eslint-scope';
@@ -29,6 +30,7 @@ Object.assign(eslint, {
 	LegacyLinter,
 	migrateConfig,
 	packages: {
+		'eslint/use-at-your-own-risk': unsupported,
 		'@eslint-community/eslint-utils': utils,
 		'eslint-visitor-keys': keys,
 		'eslint-scope': scope,

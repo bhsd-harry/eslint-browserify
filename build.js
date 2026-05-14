@@ -67,7 +67,6 @@ const /** @type {esbuild.Plugin} */ plugin = {
 						'code',
 						'config',
 						'eslint-scope',
-						'eslint-visitor-keys',
 						'esrecurse',
 						'estraverse',
 						'flat-config-array',
@@ -192,12 +191,6 @@ const /** @type {esbuild.Plugin} */ plugin = {
 								/^([ \t]+)\*(?:iterate(?:Cjs|Esm|Property)|_iterateImport)References\b[\s\S]+?^\1\}$|^const (?:(?:visitor|typeConversionBinaryOps) = [\s\S]+?^\)|typeConversionUnaryOps = .+);$/gmu,
 								'',
 							);
-						break;
-					case 'eslint-visitor-keys':
-						contents = contents.replace(
-							'exports.unionWith = unionWith;',
-							'',
-						);
 						break;
 					case 'esrecurse':
 						contents = contents.replaceAll(
