@@ -1,0 +1,72 @@
+/**
+ * @author Toru Nagashima
+ */
+import { RuleTester } from '../../rule-tester.js';
+const rule = 'eslint-plugin-vue';
+import vueEslintParser from 'vue-eslint-parser';
+
+const tester = new RuleTester({
+  languageOptions: { parser: vueEslintParser, ecmaVersion: 2015 },
+});
+
+tester.run('eqeqeq', rule, {
+  valid: [
+    '<template><div :attr="a === 1" /></template>',
+    // CSS vars injection
+    `
+    <style>
+    .text {
+      color: v-bind(a === 1 ? 'red' : 'blue')
+    }
+    </style>`,
+  ],
+  invalid: [
+    {
+      code: '<template><div :attr="a == 1" /></template>',
+      errors: [
+        {
+          message: "Expected '===' and instead saw '=='.",
+          line: 1,
+          column: 25,
+          endLine: 1,
+          endColumn: 27,
+          suggestions: [
+            {
+              desc: "Use '===' instead of '=='.",
+              output: `<template><div :attr="a === 1" /></template>`,
+            },
+          ],
+        },
+      ],
+    },
+    // CSS vars injection
+    {
+      code: `
+      <style>
+      .text {
+        color: v-bind(a == 1 ? 'red' : 'blue')
+      }
+      </style>`,
+      errors: [
+        {
+          message: "Expected '===' and instead saw '=='.",
+          line: 4,
+          column: 25,
+          endLine: 4,
+          endColumn: 27,
+          suggestions: [
+            {
+              desc: "Use '===' instead of '=='.",
+              output: `
+    <style>
+    .text {
+      color: v-bind(a === 1 ? 'red' : 'blue')
+    }
+    </style>`,
+            },
+          ],
+        },
+      ],
+    },
+  ],
+});

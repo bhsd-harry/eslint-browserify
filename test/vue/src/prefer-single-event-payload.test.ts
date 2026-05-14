@@ -1,0 +1,422 @@
+/**
+ * @author Flo Edelmann
+ * See LICENSE file in root directory for full license.
+ */
+import { RuleTester } from '../../rule-tester.js';
+const rule = 'eslint-plugin-vue';
+import vueEslintParser from 'vue-eslint-parser';
+
+const tester = new RuleTester({
+  languageOptions: {
+    parser: vueEslintParser,
+    ecmaVersion: 2020,
+    sourceType: 'module',
+  },
+});
+
+tester.run('prefer-single-event-payload', rule, {
+  valid: [
+    // Template - no payload
+    {
+      filename: 'test.vue',
+      code: `
+      <template>
+        <div @click="$emit('change')" />
+      </template>
+      `,
+    },
+    // Template - single payload value
+    {
+      filename: 'test.vue',
+      code: `
+      <template>
+        <div @click="$emit('change', value)" />
+      </template>
+      `,
+    },
+    // Template - single object payload
+    {
+      filename: 'test.vue',
+      code: `
+      <template>
+        <div @click="$emit('change', { a, b })" />
+      </template>
+      `,
+    },
+    // Options API - no payload
+    {
+      filename: 'test.vue',
+      code: `
+      <script>
+      export default {
+        methods: {
+          handleClick() {
+            this.$emit('change')
+          }
+        }
+      }
+      </script>
+      `,
+    },
+    // Options API - single payload
+    {
+      filename: 'test.vue',
+      code: `
+      <script>
+      export default {
+        methods: {
+          handleClick() {
+            this.$emit('change', value)
+          }
+        }
+      }
+      </script>
+      `,
+    },
+    // Options API - single object payload
+    {
+      filename: 'test.vue',
+      code: `
+      <script>
+      export default {
+        methods: {
+          handleClick() {
+            this.$emit('change', { a, b })
+          }
+        }
+      }
+      </script>
+      `,
+    },
+    // setup() with context - single payload
+    {
+      filename: 'test.vue',
+      code: `
+      <script>
+      export default {
+        setup(props, context) {
+          context.emit('change', value)
+        }
+      }
+      </script>
+      `,
+    },
+    // setup() with destructured emit - single payload
+    {
+      filename: 'test.vue',
+      code: `
+      <script>
+      export default {
+        setup(props, { emit }) {
+          emit('change', value)
+        }
+      }
+      </script>
+      `,
+    },
+    // script setup - no payload
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup>
+      const emit = defineEmits(['change'])
+      emit('change')
+      </script>
+      `,
+    },
+    // script setup - single payload
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup>
+      const emit = defineEmits(['change'])
+      emit('change', value)
+      </script>
+      `,
+    },
+    // script setup - single object payload
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup>
+      const emit = defineEmits(['change'])
+      emit('change', { a, b })
+      </script>
+      `,
+    },
+    // script setup - runtime defineEmits object syntax with validator
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup>
+      const emit = defineEmits({
+        change: (payload) => {
+          return true
+        }
+      })
+      emit('change', { a, b })
+      </script>
+      `,
+    },
+    // defineEmits not assigned to variable - cannot track
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup>
+      defineEmits(['change'])
+      </script>
+      `,
+    },
+    // Options API emit declaration - null validator (no params)
+    {
+      filename: 'test.vue',
+      code: `
+      <script>
+      export default {
+        emits: {
+          change: null
+        },
+      }
+      </script>
+      `,
+    },
+    // Options API emit declaration - single-param validator
+    {
+      filename: 'test.vue',
+      code: `
+      <script>
+      export default {
+        emits: {
+          change: (value) => true
+        },
+      }
+      </script>
+      `,
+    },
+  ],
+
+  invalid: [
+    // Template - multiple payloads
+    {
+      filename: 'test.vue',
+      code: `
+      <template>
+        <div @click="$emit('change', value1, value2)" />
+      </template>
+      `,
+      errors: [
+        {
+          message:
+            'Pass a single payload object instead of multiple arguments when emitting the "change" event.',
+          line: 3,
+          column: 46,
+          endLine: 3,
+          endColumn: 52,
+        },
+      ],
+    },
+    // Template - three payload args
+    {
+      filename: 'test.vue',
+      code: `
+      <template>
+        <div @click="$emit('update', a, b, c)" />
+      </template>
+      `,
+      errors: [
+        {
+          message:
+            'Pass a single payload object instead of multiple arguments when emitting the "update" event.',
+          line: 3,
+          column: 41,
+          endLine: 3,
+          endColumn: 45,
+        },
+      ],
+    },
+    // Options API - multiple payloads
+    {
+      filename: 'test.vue',
+      code: `
+      <script>
+      export default {
+        methods: {
+          handleClick() {
+            this.$emit('change', value1, value2)
+          }
+        }
+      }
+      </script>
+      `,
+      errors: [
+        {
+          message:
+            'Pass a single payload object instead of multiple arguments when emitting the "change" event.',
+          line: 6,
+          column: 42,
+          endLine: 6,
+          endColumn: 48,
+        },
+      ],
+    },
+    // Options API optional chaining - multiple payloads
+    {
+      filename: 'test.vue',
+      code: `
+      <script>
+      export default {
+        methods: {
+          handleClick() {
+            this.$emit?.('change', value1, value2)
+          }
+        }
+      }
+      </script>
+      `,
+      errors: [
+        {
+          message:
+            'Pass a single payload object instead of multiple arguments when emitting the "change" event.',
+          line: 6,
+          column: 44,
+          endLine: 6,
+          endColumn: 50,
+        },
+      ],
+    },
+    // setup() with context - multiple payloads
+    {
+      filename: 'test.vue',
+      code: `
+      <script>
+      export default {
+        setup(props, context) {
+          context.emit('change', value1, value2)
+        }
+      }
+      </script>
+      `,
+      errors: [
+        {
+          message:
+            'Pass a single payload object instead of multiple arguments when emitting the "change" event.',
+          line: 5,
+          column: 42,
+          endLine: 5,
+          endColumn: 48,
+        },
+      ],
+    },
+    // setup() with destructured emit - multiple payloads
+    {
+      filename: 'test.vue',
+      code: `
+      <script>
+      export default {
+        setup(props, { emit }) {
+          emit('change', value1, value2)
+        }
+      }
+      </script>
+      `,
+      errors: [
+        {
+          message:
+            'Pass a single payload object instead of multiple arguments when emitting the "change" event.',
+          line: 5,
+          column: 34,
+          endLine: 5,
+          endColumn: 40,
+        },
+      ],
+    },
+    // script setup - multiple payloads
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup>
+      const emit = defineEmits(['change'])
+      emit('change', value1, value2)
+      </script>
+      `,
+      errors: [
+        {
+          message:
+            'Pass a single payload object instead of multiple arguments when emitting the "change" event.',
+          line: 4,
+          column: 30,
+          endLine: 4,
+          endColumn: 36,
+        },
+      ],
+    },
+    // script setup - three payloads
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup>
+      const emit = defineEmits(['update'])
+      emit('update', a, b, c)
+      </script>
+      `,
+      errors: [
+        {
+          message:
+            'Pass a single payload object instead of multiple arguments when emitting the "update" event.',
+          line: 4,
+          column: 25,
+          endLine: 4,
+          endColumn: 29,
+        },
+      ],
+    },
+    // Dynamic event name - multiple payloads
+    {
+      filename: 'test.vue',
+      code: `
+      <script>
+      export default {
+        methods: {
+          handleClick() {
+            this.$emit(eventName, value1, value2)
+          }
+        }
+      }
+      </script>
+      `,
+      errors: [
+        {
+          message:
+            'Pass a single payload object instead of multiple arguments when emitting the "unknown" event.',
+          line: 6,
+          column: 43,
+          endLine: 6,
+          endColumn: 49,
+        },
+      ],
+    },
+    // Options API emit declaration - multiple-param validator
+    {
+      filename: 'test.vue',
+      code: `
+      <script>
+      export default {
+        emits: {
+          change: (value1, value2) => true
+        },
+      }
+      </script>
+      `,
+      errors: [
+        {
+          message:
+            'Declare a single payload parameter instead of multiple parameters for the "change" event.',
+          line: 5,
+          column: 28,
+          endLine: 5,
+          endColumn: 34,
+        },
+      ],
+    },
+  ],
+});

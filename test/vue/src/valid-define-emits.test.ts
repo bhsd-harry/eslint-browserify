@@ -1,0 +1,161 @@
+/**
+ * @author Yosuke Ota <https://github.com/ota-meshi>
+ * See LICENSE file in root directory for full license.
+ */
+import { RuleTester } from '../../rule-tester.js';
+const rule = 'eslint-plugin-vue';
+import vueEslintParser from 'vue-eslint-parser';
+
+const tester = new RuleTester({
+  languageOptions: {
+    parser: vueEslintParser,
+    ecmaVersion: 2015,
+    sourceType: 'module',
+  },
+});
+
+tester.run('valid-define-emits', rule, {
+  valid: [
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup>
+        /* ✓ GOOD */
+        defineEmits({ notify: null })
+      </script>
+      `,
+    },
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup>
+        /* ✓ GOOD */
+        defineEmits(['notify'])
+      </script>
+      `,
+    },
+    {
+      filename: 'test.vue',
+      code: `
+      <script>
+        const def = { notify: null }
+      </script>
+      <script setup>
+        /* ✓ GOOD */
+        defineEmits(def)
+      </script>
+      `,
+    },
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup>
+        defineEmits({
+          notify (payload) {
+            return typeof payload === 'string'
+          }
+        })
+      </script>
+      `,
+    },
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup>
+      import { propsDef, emitsDef } from './defs';
+
+      defineProps(propsDef);
+      defineEmits(emitsDef);
+      </script>`,
+    },
+  ],
+  invalid: [
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup>
+        /* ✗ BAD */
+        const def = { notify: null }
+        defineEmits(def)
+      </script>
+      `,
+      errors: [
+        {
+          message: '`defineEmits` is referencing locally declared variables.',
+          line: 5,
+          column: 21,
+          endLine: 5,
+          endColumn: 24,
+        },
+      ],
+    },
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup>
+        /* ✗ BAD */
+        defineEmits({ notify: null })
+        defineEmits({ submit: null })
+      </script>
+      `,
+      errors: [
+        {
+          message: '`defineEmits` has been called multiple times.',
+          line: 4,
+          column: 9,
+          endLine: 4,
+          endColumn: 38,
+        },
+        {
+          message: '`defineEmits` has been called multiple times.',
+          line: 5,
+          column: 9,
+          endLine: 5,
+          endColumn: 38,
+        },
+      ],
+    },
+    {
+      filename: 'test.vue',
+      code: `
+      <script>
+      export default {
+        emits: ['notify']
+      }
+      </script>
+      <script setup>
+        /* ✗ BAD */
+        defineEmits({ submit: null })
+      </script>
+      `,
+      errors: [
+        {
+          message:
+            'Custom events are defined in both `defineEmits` and `export default {}`.',
+          line: 9,
+          column: 9,
+          endLine: 9,
+          endColumn: 38,
+        },
+      ],
+    },
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup>
+        /* ✗ BAD */
+        defineEmits()
+      </script>
+      `,
+      errors: [
+        {
+          message: 'Custom events are not defined.',
+          line: 4,
+          column: 9,
+          endLine: 4,
+          endColumn: 22,
+        },
+      ],
+    },
+  ],
+});
