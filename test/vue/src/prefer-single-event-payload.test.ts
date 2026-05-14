@@ -5,6 +5,7 @@
 import { RuleTester } from '../../rule-tester.js';
 const rule = 'eslint-plugin-vue';
 import vueEslintParser from 'vue-eslint-parser';
+import tsParser from '@typescript-eslint/parser';
 
 const tester = new RuleTester({
   languageOptions: {
@@ -13,6 +14,13 @@ const tester = new RuleTester({
     sourceType: 'module',
   },
 });
+
+const tsLanguageOptions = {
+  parser: vueEslintParser,
+  ecmaVersion: 2020 as const,
+  sourceType: 'module' as const,
+  parserOptions: { parser: tsParser },
+};
 
 tester.run('prefer-single-event-payload', rule, {
   valid: [
@@ -42,6 +50,21 @@ tester.run('prefer-single-event-payload', rule, {
         <div @click="$emit('change', { a, b })" />
       </template>
       `,
+    },
+    // <script setup> - defineEmits used in template with single object payload
+    {
+      filename: 'test.vue',
+      code: `
+       <template>
+         <div @click="emit('change', { a: 'foo', b: 'bar' })" />
+       </template>
+       <script setup lang="ts">
+       const emit = defineEmits<{
+         (e: 'change', payload: { a: string; b: string }): void
+       }>()
+       </script>
+       `,
+      languageOptions: tsLanguageOptions,
     },
     // Options API - no payload
     {
@@ -192,6 +215,78 @@ tester.run('prefer-single-event-payload', rule, {
       }
       </script>
       `,
+    },
+    // TypeScript - call signature with single payload
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+      const emit = defineEmits<{
+        (e: 'change', value: string): void
+      }>()
+      </script>
+      `,
+      languageOptions: tsLanguageOptions,
+    },
+    // TypeScript - call signature with no payload
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+      const emit = defineEmits<{
+        (e: 'change'): void
+      }>()
+      </script>
+      `,
+      languageOptions: tsLanguageOptions,
+    },
+    // TypeScript - property signature with single-element tuple
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+      const emit = defineEmits<{
+        change: [value: string]
+      }>()
+      </script>
+      `,
+      languageOptions: tsLanguageOptions,
+    },
+    // TypeScript - property signature with empty tuple
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+      const emit = defineEmits<{
+        change: []
+      }>()
+      </script>
+      `,
+      languageOptions: tsLanguageOptions,
+    },
+    // TypeScript - method signature with single param
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+      const emit = defineEmits<{
+        change(value: string): void
+      }>()
+      </script>
+      `,
+      languageOptions: tsLanguageOptions,
+    },
+    // TypeScript - method signature with no params
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+      const emit = defineEmits<{
+        change(): void
+      }>()
+      </script>
+      `,
+      languageOptions: tsLanguageOptions,
     },
   ],
 
@@ -415,6 +510,105 @@ tester.run('prefer-single-event-payload', rule, {
           column: 28,
           endLine: 5,
           endColumn: 34,
+        },
+      ],
+    },
+    // TypeScript - call signature with multiple payloads
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+      const emit = defineEmits<{
+        (e: 'change', value1: string, value2: number): void
+      }>()
+      </script>
+      `,
+      languageOptions: tsLanguageOptions,
+      errors: [
+        {
+          message:
+            'Declare a single payload parameter instead of multiple parameters for the "change" event.',
+          line: 4,
+          column: 39,
+          endLine: 4,
+          endColumn: 53,
+        },
+      ],
+    },
+    // TypeScript - property signature with multi-element tuple
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+      const emit = defineEmits<{
+        change: [value1: string, value2: number]
+      }>()
+      </script>
+      `,
+      languageOptions: tsLanguageOptions,
+      errors: [
+        {
+          message:
+            'Declare a single payload parameter instead of multiple parameters for the "change" event.',
+          line: 4,
+          column: 34,
+          endLine: 4,
+          endColumn: 48,
+        },
+      ],
+    },
+    // TypeScript - method signature with multiple params
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+      const emit = defineEmits<{
+        change(value1: string, value2: number): void
+      }>()
+      </script>
+      `,
+      languageOptions: tsLanguageOptions,
+      errors: [
+        {
+          message:
+            'Declare a single payload parameter instead of multiple parameters for the "change" event.',
+          line: 4,
+          column: 32,
+          endLine: 4,
+          endColumn: 46,
+        },
+      ],
+    },
+    // <script setup> - defineEmits used in template
+    {
+      filename: 'test.vue',
+      code: `
+       <template>
+         <div @click="emit('change', 'foo', 'bar')" />
+       </template>
+       <script setup lang="ts">
+       const emit = defineEmits<{
+         (e: 'change', a: string, b: string): void
+       }>()
+       </script>
+       `,
+      languageOptions: tsLanguageOptions,
+      errors: [
+        {
+          message:
+            'Pass a single payload object instead of multiple arguments when emitting the "change" event.',
+          line: 3,
+          column: 45,
+          endLine: 3,
+          endColumn: 50,
+        },
+        {
+          message:
+            'Declare a single payload parameter instead of multiple parameters for the "change" event.',
+          line: 7,
+          column: 35,
+          endLine: 7,
+          endColumn: 44,
         },
       ],
     },

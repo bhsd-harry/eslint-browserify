@@ -187,6 +187,34 @@ tester.run('no-import-compiler-macros', rule, {
     {
       filename: 'test.vue',
       code: `
+      <script setup lang="ts">
+      import { ref as refFoo, defineSlots as defineSlotsFoo, type computed } from '@vue/runtime-core'
+      </script>
+      `,
+      output: `
+      <script setup lang="ts">
+      import { ref as refFoo,  type computed } from '@vue/runtime-core'
+      </script>
+      `,
+      languageOptions: {
+        parserOptions: {},
+      },
+      errors: [
+        {
+          messageId: 'noImportCompilerMacros',
+          data: {
+            name: 'defineSlots',
+          },
+          line: 3,
+          column: 31,
+          endLine: 3,
+          endColumn: 60,
+        },
+      ],
+    },
+    {
+      filename: 'test.vue',
+      code: `
       <script>
       // not in <script setup>
       import { defineProps } from 'vue'

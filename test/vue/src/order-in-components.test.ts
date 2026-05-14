@@ -1251,6 +1251,44 @@ ruleTester.run('order-in-components', rule, {
     {
       filename: 'example.vue',
       code: `
+        <script lang="ts">
+          export default {
+            setup () {},
+            props: {
+              foo: { type: Array as PropType<number[]> },
+            },
+          };
+        </script>
+      `,
+      output: `
+        <script lang="ts">
+          export default {
+            props: {
+              foo: { type: Array as PropType<number[]> },
+            },
+            setup () {},
+          };
+        </script>
+      `,
+      languageOptions: {
+        parser: vueEslintParser,
+        ...languageOptions,
+        parserOptions: {},
+      },
+      errors: [
+        {
+          message:
+            'The "props" property should be above the "setup" property on line 4.',
+          line: 5,
+          column: 13,
+          endLine: 7,
+          endColumn: 14,
+        },
+      ],
+    },
+    {
+      filename: 'example.vue',
+      code: `
       <script setup>
         defineOptions({
           inheritAttrs: true,

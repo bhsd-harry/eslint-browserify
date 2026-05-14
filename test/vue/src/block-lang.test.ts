@@ -16,6 +16,11 @@ tester.run('block-lang', rule, {
   valid: [
     {
       code: `<template></template>
+      <script lang="ts"></script>`,
+      options: [{ script: { lang: 'ts' } }],
+    },
+    {
+      code: `<template></template>
       <script></script>`,
       options: [{ script: { lang: 'js' } }],
     },
@@ -90,12 +95,38 @@ tester.run('block-lang', rule, {
       ],
     },
     {
+      code: '<template></template><script lang="ts"></script>',
+      options: [{ script: { lang: 'js' } }],
+      errors: [
+        {
+          message: "Do not specify the 'lang' attribute of '<script>'.",
+          line: 1,
+          column: 30,
+          endLine: 1,
+          endColumn: 39,
+        },
+      ],
+    },
+    {
       code: '<template></template><script lang="js"></script>',
       options: [{ script: { lang: 'js' } }],
       errors: [
         {
           message:
             "Do not explicitly specify the default language for the 'lang' attribute of '<script>'.",
+          line: 1,
+          column: 30,
+          endLine: 1,
+          endColumn: 39,
+        },
+      ],
+    },
+    {
+      code: '<template></template><script lang="ts"></script>',
+      options: [{ script: {} }],
+      errors: [
+        {
+          message: "Do not specify the 'lang' attribute of '<script>'.",
           line: 1,
           column: 30,
           endLine: 1,
@@ -144,6 +175,35 @@ tester.run('block-lang', rule, {
           column: 13,
           endLine: 2,
           endColumn: 24,
+        },
+      ],
+    },
+
+    {
+      code: `<template lang="pug"></template>
+      <script lang="ts"></script>
+      <style lang="stylus"></style>`,
+      errors: [
+        {
+          message: "Do not specify the 'lang' attribute of '<template>'.",
+          line: 1,
+          column: 11,
+          endLine: 1,
+          endColumn: 21,
+        },
+        {
+          message: "Do not specify the 'lang' attribute of '<script>'.",
+          line: 2,
+          column: 15,
+          endLine: 2,
+          endColumn: 24,
+        },
+        {
+          message: "Do not specify the 'lang' attribute of '<style>'.",
+          line: 3,
+          column: 14,
+          endLine: 3,
+          endColumn: 27,
         },
       ],
     },

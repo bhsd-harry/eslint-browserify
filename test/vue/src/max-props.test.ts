@@ -93,6 +93,31 @@ tester.run('max-props', rule, {
       `,
       options: [{ maxProps: 5 }],
     },
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+      defineProps<{ prop1: string, prop2: string }>();
+      </script>
+      `,
+      options: [{ maxProps: 5 }],
+      languageOptions: {
+        parser: vueEslintParser,
+        parserOptions: {},
+      },
+    },
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+      defineProps<{prop1: string, prop2: string} | {prop1: number}>()
+      </script>
+      `,
+      options: [{ maxProps: 2 }],
+      languageOptions: {
+        parserOptions: {},
+      },
+    },
   ],
   invalid: [
     {
@@ -133,6 +158,78 @@ tester.run('max-props', rule, {
           column: 9,
           endLine: 7,
           endColumn: 10,
+        },
+      ],
+    },
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+      defineProps<{ prop1: string, prop2: string, prop3: string }>();
+      </script>
+      `,
+      options: [{ maxProps: 2 }],
+      languageOptions: {
+        parser: vueEslintParser,
+        parserOptions: {},
+      },
+      errors: [
+        {
+          message: 'Component has too many props (3). Maximum allowed is 2.',
+          line: 3,
+          column: 7,
+          endLine: 3,
+          endColumn: 69,
+        },
+      ],
+    },
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+      defineProps<{prop1: string, prop2: string} | {prop1: number, prop3: string}>()
+      </script>
+      `,
+      options: [{ maxProps: 2 }],
+      languageOptions: {
+        parserOptions: {},
+      },
+      errors: [
+        {
+          message: 'Component has too many props (3). Maximum allowed is 2.',
+          line: 3,
+          column: 7,
+          endLine: 3,
+          endColumn: 85,
+        },
+      ],
+    },
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+      defineProps<{
+        prop1: string
+      } & {
+        prop2?: true;
+        prop3?: never;
+      } | {
+        prop2?: false;
+        prop3?: boolean;
+      }>()
+      </script>
+      `,
+      options: [{ maxProps: 2 }],
+      languageOptions: {
+        parserOptions: {},
+      },
+      errors: [
+        {
+          message: 'Component has too many props (3). Maximum allowed is 2.',
+          line: 3,
+          column: 7,
+          endLine: 11,
+          endColumn: 11,
         },
       ],
     },

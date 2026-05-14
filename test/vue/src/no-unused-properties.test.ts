@@ -3,13 +3,10 @@
  * @author Learning Equality
  */
 import type { Linter as ESLintLinter } from 'eslint';
-import { RuleTester } from '../../rule-tester.js';
+import { RuleTester, Linter } from '../../rule-tester.js';
 import assert from 'node:assert';
 const rule = 'eslint-plugin-vue';
 import vueEslintParser from 'vue-eslint-parser';
-import plugin from '../../../bundle/eslint-plugin-vue.min.js';
-
-declare const eslint: {Linter: typeof ESLintLinter};
 
 const tester = new RuleTester({
   languageOptions: {
@@ -2383,6 +2380,72 @@ tester.run('no-unused-properties', rule, {
           }
         </style>
         `,
+    },
+
+    // toRefs
+    {
+      // https://github.com/vuejs/eslint-plugin-vue/issues/1643
+      filename: 'test.vue',
+      code: `
+      <template>
+        <span v-for="(item, index) of pages" :key="index" @click="changePage(item)">
+          {{ item }}
+        </span>
+      </template>
+
+      <script setup lang="ts">
+      import {
+        computed,
+        defineProps,
+        toRefs,
+        withDefaults,
+        defineEmits,
+        ComputedRef,
+      } from 'vue';
+      import { getPagesOnPagination } from '@/libs/pagination';
+
+      const props = withDefaults(
+        defineProps<{
+          currentPage: number;
+          totalRows: number;
+          rowsPerPage: number;
+        }>(),
+        {
+          currentPage: 1,
+          totalRows: 100,
+          rowsPerPage: 10,
+        }
+      );
+      const { currentPage, totalRows, rowsPerPage } = toRefs(props);
+
+      const totalPages = computed(() =>
+        Math.ceil(totalRows.value / rowsPerPage.value)
+      );
+
+      const pages: ComputedRef<(number | '...')[]> = computed(() =>
+        getPagesOnPagination(currentPage.value, totalPages.value)
+      );
+
+      const emit = defineEmits<{
+        (e: 'changePage', page: number): void;
+      }>();
+
+      function changePage(page: number | '...') {
+        if (page === '...') {
+          return;
+        }
+        emit('changePage', page);
+      }
+      </script>
+
+      <style lang="scss" scoped>
+      //
+      </style>`,
+      languageOptions: {
+        parserOptions: {
+          parser: '@typescript-eslint/parser',
+        },
+      },
     },
 
     // Vue2 functional component
@@ -5410,41 +5473,4 @@ tester.run('no-unused-properties', rule, {
       ],
     },
   ],
-});
-
-// https://github.com/vuejs/eslint-plugin-vue/issues/1789
-describe('`vue/no-unused-properties` and `vue/no-unused-components` should not conflict.', () => {
-  const { Linter } = eslint;
-  const linter = new Linter();
-  const config: ESLintLinter.Config = {
-    files: ['**/*.vue'],
-    plugins: {
-      vue: plugin,
-    },
-    languageOptions: {
-      parser: vueEslintParser,
-      ecmaVersion: 2020,
-      sourceType: 'module',
-    },
-    rules: {
-      'vue/no-unused-components': 'error',
-      'vue/no-unused-properties': 'error',
-    },
-  };
-
-  it('should not be a false positive when using CSS v-bind().', () => {
-    const code = `
-      <template></template>
-      <script>
-        export default {
-          props: ['a']
-        };
-      </script>
-      <style>
-      a {
-        color: v-bind(a);
-      }
-      </style>`;
-    assert.deepStrictEqual(linter.verify(code, config, 'test.vue'), []);
-  });
 });

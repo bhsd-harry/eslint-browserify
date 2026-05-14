@@ -4,6 +4,7 @@
  */
 const rule = 'eslint-plugin-vue';
 import { RuleTester } from '../../rule-tester.js';
+import tsParser from '@typescript-eslint/parser';
 import vueEslintParser from 'vue-eslint-parser';
 
 const ruleTester = new RuleTester({
@@ -217,6 +218,66 @@ ruleTester.run('require-prop-type-constructor', rule, {
           column: 14,
           endLine: 7,
           endColumn: 18,
+        },
+      ],
+    },
+    {
+      filename: 'SomeComponent.vue',
+      code: `
+      export default {
+        props: {
+          a: {
+            type: 'String',
+            default: 10
+          } as PropOptions<string>,
+        }
+      }
+      `,
+      output: `
+      export default {
+        props: {
+          a: {
+            type: String,
+            default: 10
+          } as PropOptions<string>,
+        }
+      }
+      `,
+      languageOptions: { parser: tsParser },
+      errors: [
+        {
+          message: 'The "a" property should be a constructor.',
+          line: 5,
+          column: 19,
+          endLine: 5,
+          endColumn: 27,
+        },
+      ],
+    },
+    {
+      filename: 'ExtraCommas.vue',
+      code: `
+      export default {
+        props: {
+          name: ['String',,]
+        }
+      }
+      `,
+      output: `
+      export default {
+        props: {
+          name: [String,,]
+        }
+      }
+      `,
+      languageOptions: { parser: tsParser },
+      errors: [
+        {
+          message: 'The "name" property should be a constructor.',
+          line: 4,
+          column: 18,
+          endLine: 4,
+          endColumn: 26,
         },
       ],
     },

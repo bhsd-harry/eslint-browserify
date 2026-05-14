@@ -173,7 +173,7 @@ const /** @type {esbuild.Plugin} */ plugin = {
 						break;
 					case 'eslint-scope':
 						contents = contents.replaceAll(
-							/^exports\.(?!analyze )\w+ = .+$|^([ \t]+)JSX\w+\([\s\S]+?^\1\}$/gmu,
+							/^exports\.(?!(?:analyze|Reference|Variable) )\w+ = .+$|^([ \t]+)JSX\w+\([\s\S]+?^\1\}$/gmu,
 							'',
 						);
 						break;
@@ -184,7 +184,7 @@ const /** @type {esbuild.Plugin} */ plugin = {
 								'}',
 							)
 							.replaceAll(
-								/(?<=^function (?:getFunction(?:NameWithKind|HeadLocation)|hasSideEffect|is(?!Comment|(?:Opening|Closing)Paren)\w+Token)\().+?^\}$/gmsu,
+								/(?<=^function (?:getFunction(?:NameWithKind|HeadLocation)|hasSideEffect|is(?:Colon|Comma)Token)\().+?^\}$/gmsu,
 								') {}',
 							)
 							.replaceAll(

@@ -65,6 +65,30 @@ tester.run('require-prop-comment', rule, {
       `,
       options: [{ type: 'any' }],
     },
+    `
+      <script lang="ts">
+      export default defineComponent({
+        props: {
+          /** JSDoc comment */
+          a: Number
+        }
+      })
+      </script>
+    `,
+    {
+      code: `
+      <script setup lang="ts">
+      type PropType = {
+        /** JSDoc comment */
+        a: number
+      }
+      const props = defineProps<PropType>()
+      </script>
+      `,
+      languageOptions: {
+        parserOptions: {},
+      },
+    },
   ],
   invalid: [
     {
@@ -204,6 +228,26 @@ tester.run('require-prop-comment', rule, {
     },
     {
       code: `
+      <script lang="ts">
+      export default defineComponent({
+        props: {
+          a: Number
+        }
+      })
+      </script>
+      `,
+      errors: [
+        {
+          message: 'The "a" property should have a JSDoc comment.',
+          line: 5,
+          column: 11,
+          endLine: 5,
+          endColumn: 20,
+        },
+      ],
+    },
+    {
+      code: `
       new Vue({
         props: {
           a: Number
@@ -217,6 +261,28 @@ tester.run('require-prop-comment', rule, {
           column: 11,
           endLine: 4,
           endColumn: 20,
+        },
+      ],
+    },
+    {
+      code: `
+      <script setup lang="ts">
+      type PropType = {
+        a: number
+      }
+      const props = defineProps<PropType>()
+      </script>
+      `,
+      languageOptions: {
+        parserOptions: {},
+      },
+      errors: [
+        {
+          message: 'The "a" property should have a JSDoc comment.',
+          line: 4,
+          column: 9,
+          endLine: 4,
+          endColumn: 18,
         },
       ],
     },

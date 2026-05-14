@@ -16,4 +16,12 @@ export default [
 			'no-undef': 2,
 		},
 	},
+	{
+		files: ['build/eslint-plugin-vue.js'],
+		languageOptions: {
+			globals: {
+				eslint: 'readonly',
+			},
+		},
+	},
 ];

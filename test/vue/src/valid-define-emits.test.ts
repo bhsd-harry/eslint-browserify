@@ -37,6 +37,18 @@ tester.run('valid-define-emits', rule, {
     {
       filename: 'test.vue',
       code: `
+      <script setup lang="ts">
+        /* ✓ GOOD */
+        defineEmits<(e: 'notify')=>void>()
+      </script>
+      `,
+      languageOptions: {
+        parserOptions: {},
+      },
+    },
+    {
+      filename: 'test.vue',
+      code: `
       <script>
         const def = { notify: null }
       </script>
@@ -57,6 +69,50 @@ tester.run('valid-define-emits', rule, {
         })
       </script>
       `,
+    },
+    {
+      // https://github.com/vuejs/eslint-plugin-vue/issues/1656
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+      import type { PropType } from 'vue';
+
+      type X = string;
+
+      const props = defineProps({
+        myProp: Array as PropType<string[]>,
+      });
+
+      const emit = defineEmits({
+        myProp: (x: X) => true,
+      });
+      </script>
+      `,
+      languageOptions: {
+        parserOptions: {},
+      },
+    },
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+      import type { PropType } from 'vue';
+
+      const strList = ['a', 'b', 'c']
+      const str = 'abc'
+
+      const props = defineProps({
+        myProp: Array as PropType<typeof strList>,
+      });
+
+      const emit = defineEmits({
+        myProp: (x: typeof str) => true,
+      });
+      </script>
+      `,
+      languageOptions: {
+        parserOptions: {},
+      },
     },
     {
       filename: 'test.vue',
@@ -86,6 +142,27 @@ tester.run('valid-define-emits', rule, {
           column: 21,
           endLine: 5,
           endColumn: 24,
+        },
+      ],
+    },
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+        /* ✗ BAD */
+        defineEmits<(e: 'notify')=>void>({ submit: null })
+      </script>
+      `,
+      languageOptions: {
+        parserOptions: {},
+      },
+      errors: [
+        {
+          message: '`defineEmits` has both a type-only emit and an argument.',
+          line: 4,
+          column: 9,
+          endLine: 4,
+          endColumn: 59,
         },
       ],
     },

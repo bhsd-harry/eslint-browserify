@@ -5,6 +5,7 @@
 const rule = 'eslint-plugin-vue';
 import { RuleTester } from '../../rule-tester.js';
 import vueEslintParser from 'vue-eslint-parser';
+import tsEslintParser from '@typescript-eslint/parser';
 
 const ruleTester = new RuleTester({
   languageOptions: {
@@ -415,6 +416,28 @@ ruleTester.run('no-side-effects-in-computed-properties', rule, {
         },
       ],
     },
+    {
+      filename: 'test.vue',
+      code: `
+        export default Vue.extend({
+          computed: {
+            test1() : string {
+              return this.something.reverse()
+            }
+          }
+        });
+      `,
+      languageOptions: { parser: tsEslintParser },
+      errors: [
+        {
+          message: 'Unexpected side effect in "test1" computed property.',
+          line: 5,
+          column: 22,
+          endLine: 5,
+          endColumn: 46,
+        },
+      ],
+    },
 
     {
       code: `app.component('test', {
@@ -666,6 +689,30 @@ ruleTester.run('no-side-effects-in-computed-properties', rule, {
         },
       ],
     },
+    {
+      filename: 'test.vue',
+      code: `
+      <script lang="ts">
+      import {ref, computed} from 'vue'
+      export default {
+        setup() {
+          const foo = useFoo()
+
+          const test1 = computed(() => foo.something.reverse())
+        }
+      }
+      </script>
+      `,
+      errors: [
+        {
+          message: 'Unexpected side effect in computed function.',
+          line: 8,
+          column: 40,
+          endLine: 8,
+          endColumn: 63,
+        },
+      ],
+    },
 
     {
       filename: 'test.vue',
@@ -820,6 +867,26 @@ ruleTester.run('no-side-effects-in-computed-properties', rule, {
           column: 36,
           endLine: 6,
           endColumn: 49,
+        },
+      ],
+    },
+    {
+      filename: 'test.vue',
+      code: `
+      <script lang="ts" setup>
+      import {ref, computed} from 'vue'
+      const foo = useFoo()
+
+      const test1 = computed(() => foo.something.reverse())
+      </script>
+      `,
+      errors: [
+        {
+          message: 'Unexpected side effect in computed function.',
+          line: 6,
+          column: 36,
+          endLine: 6,
+          endColumn: 59,
         },
       ],
     },

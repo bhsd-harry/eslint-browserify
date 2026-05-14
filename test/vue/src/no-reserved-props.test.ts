@@ -57,6 +57,21 @@ tester.run('no-reserved-props', rule, {
     {
       filename: 'test.vue',
       code: `
+      <script setup lang="ts">
+      interface Props {
+        foo: String
+      }
+      defineProps<Props>()
+      </script>
+      `,
+      languageOptions: {
+        parser: vueEslintParser,
+        parserOptions: {},
+      },
+    },
+    {
+      filename: 'test.vue',
+      code: `
       <script>
       export default {
         data() {
@@ -67,6 +82,23 @@ tester.run('no-reserved-props', rule, {
       }
       </script>
       `,
+    },
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+      interface Props {
+        is: string,
+        slot: string,
+        "slot-scope": string,
+      }
+      defineProps<Props>()
+      </script>
+      `,
+      languageOptions: {
+        parser: vueEslintParser,
+        parserOptions: {},
+      },
     },
   ],
   invalid: [
@@ -227,6 +259,41 @@ tester.run('no-reserved-props', rule, {
           column: 9,
           endLine: 5,
           endColumn: 14,
+        },
+      ],
+    },
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+      interface Props {
+        ref: string,
+        key: string,
+        is: string,
+        slot: string,
+        "slot-scope": string,
+      }
+      defineProps<Props>()
+      </script>
+      `,
+      languageOptions: {
+        parser: vueEslintParser,
+        parserOptions: {},
+      },
+      errors: [
+        {
+          message: "'ref' is a reserved attribute and cannot be used as props.",
+          line: 4,
+          column: 9,
+          endLine: 4,
+          endColumn: 21,
+        },
+        {
+          message: "'key' is a reserved attribute and cannot be used as props.",
+          line: 5,
+          column: 9,
+          endLine: 5,
+          endColumn: 21,
         },
       ],
     },

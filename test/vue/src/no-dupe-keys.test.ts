@@ -405,6 +405,22 @@ ruleTester.run('no-dupe-keys', rule, {
     {
       filename: 'test.vue',
       code: `
+      <script setup lang="ts">
+        defineProps<{
+          foo: string;
+        }>();
+
+        const bar = 0
+      </script>
+      `,
+      languageOptions: {
+        parser: vueEslintParser,
+        parserOptions: {},
+      },
+    },
+    {
+      filename: 'test.vue',
+      code: `
       <script setup>
       const props = defineProps(['foo', 'bar'])
       const { foo, bar } = props
@@ -463,6 +479,26 @@ ruleTester.run('no-dupe-keys', rule, {
       </script>
       `,
       languageOptions: { parser: vueEslintParser },
+    },
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+      const props = withDefaults(
+        defineProps<{
+          foo?: string | number
+        }>(),
+        {
+          foo: "Foo",
+        }
+      );
+      const foo = props.foo
+      </script>
+      `,
+      languageOptions: {
+        parser: vueEslintParser,
+        parserOptions: {},
+      },
     },
     {
       filename: 'test.vue',
@@ -1128,6 +1164,42 @@ ruleTester.run('no-dupe-keys', rule, {
           column: 15,
           endLine: 15,
           endColumn: 32,
+        },
+      ],
+    },
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+      defineProps<{
+        foo: string;
+        bar: string;
+      }>();
+
+      const foo = 'foo';
+      const bar = 'bar';
+      </script>
+      `,
+      languageOptions: {
+        parser: vueEslintParser,
+        parserOptions: {},
+      },
+      errors: [
+        {
+          message:
+            "Duplicate key 'foo'. May cause name collision in script or template tag.",
+          line: 8,
+          column: 13,
+          endLine: 8,
+          endColumn: 24,
+        },
+        {
+          message:
+            "Duplicate key 'bar'. May cause name collision in script or template tag.",
+          line: 9,
+          column: 13,
+          endLine: 9,
+          endColumn: 24,
         },
       ],
     },

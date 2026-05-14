@@ -4,6 +4,7 @@
  */
 const rule = 'eslint-plugin-vue';
 import { RuleTester } from '../../rule-tester.js';
+import tsParser from '@typescript-eslint/parser';
 import vueEslintParser from 'vue-eslint-parser';
 
 const ruleTester = new RuleTester();
@@ -124,6 +125,40 @@ ruleTester.run('require-prop-types', rule, {
     {
       filename: 'test.vue',
       code: `
+        export default (Vue as VueConstructor<Vue>).extend({
+          props: {
+            foo: {
+              type: String
+            } as PropOptions<string>
+          }
+        });
+      `,
+      languageOptions: {
+        parser: tsParser,
+        ecmaVersion: 6,
+        sourceType: 'module',
+      },
+    },
+    {
+      filename: 'test.vue',
+      code: `
+        export default Vue.extend({
+          props: {
+            foo: {
+              type: String
+            } as PropOptions<string>
+          }
+        });
+      `,
+      languageOptions: {
+        parser: tsParser,
+        ecmaVersion: 6,
+        sourceType: 'module',
+      },
+    },
+    {
+      filename: 'test.vue',
+      code: `
       <script setup>
       defineProps({
         foo: String
@@ -134,6 +169,20 @@ ruleTester.run('require-prop-types', rule, {
         parser: vueEslintParser,
         ecmaVersion: 6,
         sourceType: 'module',
+      },
+    },
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+      defineProps<{foo:string}>()
+      </script>
+      `,
+      languageOptions: {
+        parser: vueEslintParser,
+        ecmaVersion: 6,
+        sourceType: 'module',
+        parserOptions: {},
       },
     },
     {
@@ -155,6 +204,20 @@ ruleTester.run('require-prop-types', rule, {
       </script>
       `,
       languageOptions: { parser: vueEslintParser },
+    },
+    {
+      code: `
+      <script setup lang="ts">
+      const m = defineModel<string>()
+      const foo = defineModel<string>('foo')
+      </script>
+      `,
+      languageOptions: {
+        parser: vueEslintParser,
+        ecmaVersion: 6,
+        sourceType: 'module',
+        parserOptions: {},
+      },
     },
   ],
 
@@ -297,6 +360,54 @@ ruleTester.run('require-prop-types', rule, {
           column: 13,
           endLine: 4,
           endColumn: 21,
+        },
+      ],
+    },
+    {
+      filename: 'test.vue',
+      code: `
+        export default Vue.extend({
+          props: {
+            foo: {} as PropOptions<string>
+          }
+        });
+      `,
+      languageOptions: {
+        parser: tsParser,
+        ecmaVersion: 6,
+        sourceType: 'module',
+      },
+      errors: [
+        {
+          message: 'Prop "foo" should define at least its type.',
+          line: 4,
+          column: 13,
+          endLine: 4,
+          endColumn: 43,
+        },
+      ],
+    },
+    {
+      filename: 'test.vue',
+      code: `
+        export default (Vue as VueConstructor<Vue>).extend({
+          props: {
+            foo: {} as PropOptions<string>
+          }
+        });
+      `,
+      languageOptions: {
+        parser: tsParser,
+        ecmaVersion: 6,
+        sourceType: 'module',
+      },
+      errors: [
+        {
+          message: 'Prop "foo" should define at least its type.',
+          line: 4,
+          column: 13,
+          endLine: 4,
+          endColumn: 43,
         },
       ],
     },

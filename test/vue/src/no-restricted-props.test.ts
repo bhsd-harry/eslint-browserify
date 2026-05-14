@@ -421,6 +421,219 @@ tester.run('no-restricted-props', rule as RuleModule, {
     {
       filename: 'test.vue',
       code: `
+      <script setup lang="ts">
+      defineProps<{
+        foo:boolean
+      }>()
+      </script>
+      `,
+      options: [{ name: 'foo', suggest: 'Foo' }],
+      languageOptions: {
+        parserOptions: {},
+      },
+      errors: [
+        {
+          message: 'Using `foo` props is not allowed.',
+          line: 4,
+          column: 9,
+          endLine: 4,
+          endColumn: 12,
+          suggestions: [
+            {
+              desc: 'Instead, change to `Foo`.',
+              output: `
+      <script setup lang="ts">
+      defineProps<{
+        Foo:boolean
+      }>()
+      </script>
+      `,
+            },
+          ],
+        },
+      ],
+    },
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+      interface Props {
+        foo:boolean
+      }
+      defineProps<Props>()
+      </script>
+      `,
+      options: [{ name: 'foo', suggest: 'Foo' }],
+      languageOptions: {
+        parserOptions: {},
+      },
+      errors: [
+        {
+          message: 'Using `foo` props is not allowed.',
+          line: 4,
+          column: 9,
+          endLine: 4,
+          endColumn: 12,
+          suggestions: [
+            {
+              desc: 'Instead, change to `Foo`.',
+              output: `
+      <script setup lang="ts">
+      interface Props {
+        Foo:boolean
+      }
+      defineProps<Props>()
+      </script>
+      `,
+            },
+          ],
+        },
+      ],
+    },
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+      interface Props {
+        foo:boolean
+      }
+      withDefaults(defineProps<Props>(),
+        {
+          foo: false
+        }
+      )
+      </script>
+      `,
+      options: [{ name: 'foo', suggest: 'Foo' }],
+      languageOptions: {
+        parserOptions: {},
+      },
+      errors: [
+        {
+          message: 'Using `foo` props is not allowed.',
+          line: 4,
+          column: 9,
+          endLine: 4,
+          endColumn: 12,
+          suggestions: [
+            {
+              desc: 'Instead, change to `Foo`.',
+              output: `
+      <script setup lang="ts">
+      interface Props {
+        Foo:boolean
+      }
+      withDefaults(defineProps<Props>(),
+        {
+          Foo: false
+        }
+      )
+      </script>
+      `,
+            },
+          ],
+        },
+      ],
+    },
+    {
+      filename: 'test.vue',
+      code: `
+      <script>
+      const foo = false
+      </script>
+      <script setup lang="ts">
+      interface Props {
+        foo:boolean
+      }
+      withDefaults(defineProps<Props>(),
+        {
+          foo
+        }
+      )
+      </script>
+      `,
+      options: [{ name: 'foo', suggest: 'Foo' }],
+      languageOptions: {
+        parserOptions: {},
+      },
+      errors: [
+        {
+          message: 'Using `foo` props is not allowed.',
+          line: 7,
+          column: 9,
+          endLine: 7,
+          endColumn: 12,
+          suggestions: [
+            {
+              desc: 'Instead, change to `Foo`.',
+              output: `
+      <script>
+      const foo = false
+      </script>
+      <script setup lang="ts">
+      interface Props {
+        Foo:boolean
+      }
+      withDefaults(defineProps<Props>(),
+        {
+          Foo:foo
+        }
+      )
+      </script>
+      `,
+            },
+          ],
+        },
+      ],
+    },
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+      withDefaults(defineProps<Props>(),
+        {
+          foo: false
+        }
+      )
+      interface Props {
+        foo:boolean
+      }
+      </script>
+      `,
+      options: [{ name: 'foo', suggest: 'Foo' }],
+      languageOptions: {
+        parserOptions: {},
+      },
+      errors: [
+        {
+          message: 'Using `foo` props is not allowed.',
+          line: 9,
+          column: 9,
+          endLine: 9,
+          endColumn: 12,
+          suggestions: [
+            {
+              desc: 'Instead, change to `Foo`.',
+              output: `
+      <script setup lang="ts">
+      withDefaults(defineProps<Props>(),
+        {
+          Foo: false
+        }
+      )
+      interface Props {
+        Foo:boolean
+      }
+      </script>
+      `,
+            },
+          ],
+        },
+      ],
+    },
+    {
+      filename: 'test.vue',
+      code: `
       <script setup>
       const {foo=false} = defineProps({foo:Boolean})
       </script>

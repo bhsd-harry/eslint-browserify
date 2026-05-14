@@ -38,6 +38,32 @@ tester.run('valid-define-options', rule, {
     {
       filename: 'test.vue',
       code: `
+      <script setup lang="ts">
+      type X = string;
+
+      defineOptions({ name: 'foo' as X })
+      </script>
+      `,
+      languageOptions: {
+        parserOptions: {},
+      },
+    },
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+      const str = 'abc'
+
+      defineOptions({ name: 'foo' as (typeof str) })
+      </script>
+      `,
+      languageOptions: {
+        parserOptions: {},
+      },
+    },
+    {
+      filename: 'test.vue',
+      code: `
       <script setup>
       import { def } from './defs';
 
@@ -111,6 +137,33 @@ tester.run('valid-define-options', rule, {
           column: 9,
           endLine: 3,
           endColumn: 24,
+        },
+      ],
+    },
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+      defineOptions<{ name: 'Foo' }>()
+      </script>
+      `,
+      languageOptions: {
+        parserOptions: {},
+      },
+      errors: [
+        {
+          message: 'Options are not defined.',
+          line: 3,
+          column: 7,
+          endLine: 3,
+          endColumn: 39,
+        },
+        {
+          message: '`defineOptions()` cannot accept type arguments.',
+          line: 3,
+          column: 20,
+          endLine: 3,
+          endColumn: 37,
         },
       ],
     },

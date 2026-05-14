@@ -64,6 +64,93 @@ tester.run('define-macros-order', rule, {
     {
       filename: 'test.vue',
       code: `
+        <script setup lang="ts">
+          const props = withDefaults(defineProps<Props>(), {
+            msg: 'hello',
+            labels: () => ['one', 'two']
+          })
+          const emit = defineEmits<{(e: 'update:test'): void}>()
+          console.log('test')
+        </script>
+      `,
+      languageOptions: {
+        parserOptions: {},
+      },
+    },
+    {
+      filename: 'test.vue',
+      code: `
+        <script setup lang="ts">
+          defineEmits(['update:test'])
+          console.log('test')
+        </script>
+      `,
+      options: optionsPropsFirst,
+    },
+    {
+      filename: 'test.vue',
+      code: `
+        <script setup lang="ts">
+          defineProps({
+            test: Boolean
+          })
+          console.log('test')
+        </script>
+      `,
+      options: optionsPropsFirst,
+    },
+    {
+      filename: 'test.vue',
+      code: `
+        <script setup lang="ts">
+          console.log('test')
+        </script>
+      `,
+      options: optionsPropsFirst,
+    },
+    {
+      filename: 'test.vue',
+      code: `
+        <script setup lang="ts">
+          import { bar } from 'foo'
+          defineEmits(['update:test'])
+          defineProps({
+            test: Boolean
+          })
+          console.log('test')
+        </script>
+      `,
+      options: optionsEmitsFirst,
+    },
+    {
+      filename: 'test.vue',
+      code: `
+        <script setup lang="ts">
+          import { bar } from 'foo'
+          declare global {}
+          declare namespace Namespace {}
+          declare const foo: string
+          declare function bar(): void
+          export interface Props {
+            msg?: string
+            labels?: string[]
+          }
+          defineEmits(['update:test'])
+          const props = withDefaults(defineProps<Props>(), {
+            msg: 'hello',
+            labels: () => ['one', 'two']
+          })
+          console.log('test')
+        </script>
+      `,
+      options: optionsEmitsFirst,
+      languageOptions: {
+        parserOptions: {},
+      },
+    },
+    {
+      filename: 'test.vue',
+      code: `
         <script setup>
           'use strict';
           defineProps({
@@ -184,6 +271,33 @@ tester.run('define-macros-order', rule, {
         </script>
       `,
       options: optionsExposeLast,
+    },
+    {
+      filename: 'test.vue',
+      code: `
+        <script setup lang="ts">
+          import Foo from 'foo'
+          /** props */
+          const props = defineProps({
+            test: Boolean
+          })
+          /** emits */
+          defineEmits(['update:foo'])
+          /** slots */
+          const slots = defineSlots()
+          /** expose */
+          defineExpose({})
+        </script>
+      `,
+      options: [
+        {
+          order: ['defineProps', 'defineEmits'],
+          defineExposeLast: true,
+        },
+      ],
+      languageOptions: {
+        parserOptions: {},
+      },
     },
     {
       filename: 'test.vue',
@@ -390,6 +504,201 @@ tester.run('define-macros-order', rule, {
           column: 11,
           endLine: 10,
           endColumn: 13,
+        },
+      ],
+    },
+    {
+      filename: 'test.vue',
+      code: `
+        <script lang="ts" setup>
+          interface Props {
+            msg?: string
+            labels?: string[]
+          }
+
+          const props = withDefaults(defineProps<Props>(), {
+            msg: 'hello',
+            labels: () => ['one', 'two']
+          })
+          const emit = defineEmits<{(e: 'update:test'): void}>()
+        </script>
+      `,
+      output: `
+        <script lang="ts" setup>
+          interface Props {
+            msg?: string
+            labels?: string[]
+          }
+
+          const emit = defineEmits<{(e: 'update:test'): void}>()
+          const props = withDefaults(defineProps<Props>(), {
+            msg: 'hello',
+            labels: () => ['one', 'two']
+          })
+        </script>
+      `,
+      options: optionsEmitsFirst,
+      languageOptions: {
+        parserOptions: {},
+      },
+      errors: [
+        {
+          message: unorderedMessage('defineEmits', 'defineProps'),
+          line: 12,
+          column: 11,
+          endLine: 12,
+          endColumn: 65,
+        },
+      ],
+    },
+    {
+      filename: 'test.vue',
+      code: `
+        <script lang="ts" setup>
+          interface Props {
+            msg?: string
+            labels?: string[]
+          }
+
+          const props = defineProps<{
+            msg?: string
+            labels?: string[]
+          }>()
+          defineCustom()
+          const emit = defineEmits<{(e: 'update:test'): void}>()
+
+          const page = definePage({
+            name: 'hello'
+          })
+        </script>
+      `,
+      output: `
+        <script lang="ts" setup>
+          interface Props {
+            msg?: string
+            labels?: string[]
+          }
+
+          const page = definePage({
+            name: 'hello'
+          })
+          defineCustom()
+          const props = defineProps<{
+            msg?: string
+            labels?: string[]
+          }>()
+          const emit = defineEmits<{(e: 'update:test'): void}>()
+
+        </script>
+      `,
+      options: [
+        { order: ['definePage', 'defineCustom', 'defineProps', 'defineEmits'] },
+      ],
+      languageOptions: {
+        parserOptions: {},
+      },
+      errors: [
+        {
+          message: unorderedMessage('definePage', 'defineProps'),
+          line: 15,
+          column: 11,
+          endLine: 17,
+          endColumn: 13,
+        },
+      ],
+    },
+    {
+      filename: 'test.vue',
+      code: `
+        <script lang="ts" setup>
+          import bla from 'bla';
+          interface Foo {};
+          type Bar = {};
+          // <--- auto-fix should move \`defineProps\` here
+          const someOtherCode = '';
+          import foo from 'bar'; // not idiomatic, but allowed
+          interface SomeOtherInterface {};
+          defineProps({ test: Boolean });
+        </script>
+      `,
+      output: `
+        <script lang="ts" setup>
+          import bla from 'bla';
+          interface Foo {};
+          type Bar = {};
+          defineProps({ test: Boolean });
+          // <--- auto-fix should move \`defineProps\` here
+          const someOtherCode = '';
+          import foo from 'bar'; // not idiomatic, but allowed
+          interface SomeOtherInterface {};
+        </script>
+      `,
+      languageOptions: {
+        parserOptions: {},
+      },
+      errors: [
+        {
+          message: notAtTopMessage('defineProps'),
+          line: 10,
+          column: 11,
+          endLine: 10,
+          endColumn: 42,
+        },
+      ],
+    },
+    {
+      filename: 'test.vue',
+      code: `
+        <script lang="ts" setup>
+          debugger
+
+          console.log('test1')
+
+          /** Description for props */
+          const props = withDefaults(defineProps<Props>(), {
+            msg: 'hello'
+          });
+
+          console.log('test2')
+
+          // Description for emit
+          // Description for emit line 2
+          const emit = defineEmits<{(e: 'test'): void}>();
+
+          console.log('test3')
+        </script>
+      `,
+      output: `
+        <script lang="ts" setup>
+          debugger
+
+          // Description for emit
+          // Description for emit line 2
+          const emit = defineEmits<{(e: 'test'): void}>();
+
+          /** Description for props */
+          const props = withDefaults(defineProps<Props>(), {
+            msg: 'hello'
+          });
+
+          console.log('test1')
+
+          console.log('test2')
+
+          console.log('test3')
+        </script>
+      `,
+      options: optionsEmitsFirst,
+      languageOptions: {
+        parserOptions: {},
+      },
+      errors: [
+        {
+          message: notAtTopMessage('defineEmits'),
+          line: 16,
+          column: 11,
+          endLine: 16,
+          endColumn: 59,
         },
       ],
     },

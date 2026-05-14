@@ -1,9 +1,10 @@
 /**
  * @author Yosuke Ota
  */
+import assert from 'node:assert';
 import parserVue from 'vue-eslint-parser';
 const rule = 'eslint-plugin-vue';
-import { RuleTester } from '../../rule-tester.js';
+import { ESLint, RuleTester } from '../../rule-tester.js';
 
 const tester = new RuleTester({
   languageOptions: {

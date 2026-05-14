@@ -37,6 +37,18 @@ tester.run('valid-define-props', rule, {
     {
       filename: 'test.vue',
       code: `
+      <script setup lang="ts">
+        /* ✓ GOOD */
+        defineProps<{ msg?:string }>()
+      </script>
+      `,
+      languageOptions: {
+        parserOptions: {},
+      },
+    },
+    {
+      filename: 'test.vue',
+      code: `
       <script>
         const def = { msg: String }
       </script>
@@ -60,6 +72,50 @@ tester.run('valid-define-props', rule, {
         })
       </script>
       `,
+    },
+    {
+      // https://github.com/vuejs/eslint-plugin-vue/issues/1656
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+      import type { PropType } from 'vue';
+
+      type X = string;
+
+      const props = defineProps({
+        myProp: Array as PropType<string[]>,
+      });
+
+      const emit = defineEmits({
+        myProp: (x: X) => true,
+      });
+      </script>
+      `,
+      languageOptions: {
+        parserOptions: {},
+      },
+    },
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+      import type { PropType } from 'vue';
+
+      const strList = ['a', 'b', 'c']
+      const str = 'abc'
+
+      const props = defineProps({
+        myProp: Array as PropType<typeof strList>,
+      });
+
+      const emit = defineEmits({
+        myProp: (x: typeof str) => true,
+      });
+      </script>
+      `,
+      languageOptions: {
+        parserOptions: {},
+      },
     },
     {
       filename: 'test.vue',
@@ -89,6 +145,27 @@ tester.run('valid-define-props', rule, {
           column: 21,
           endLine: 5,
           endColumn: 24,
+        },
+      ],
+    },
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+        /* ✗ BAD */
+        defineProps<{ msg?:string }>({ msg: String })
+      </script>
+      `,
+      languageOptions: {
+        parserOptions: {},
+      },
+      errors: [
+        {
+          message: '`defineProps` has both a type-only props and an argument.',
+          line: 4,
+          column: 9,
+          endLine: 4,
+          endColumn: 54,
         },
       ],
     },

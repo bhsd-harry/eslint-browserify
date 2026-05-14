@@ -333,6 +333,19 @@ tester.run('no-unused-emit-declarations', rule, {
       `,
     },
     {
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+      const emit = defineEmits<{
+        (e: 'foo'): void
+      }>()
+      const change = () => emit('foo');
+      `,
+      languageOptions: {
+        parserOptions: {},
+      },
+    },
+    {
       // defineModel
       filename: 'test.vue',
       code: `
@@ -658,6 +671,28 @@ tester.run('no-unused-emit-declarations', rule, {
     {
       filename: 'test.vue',
       code: `
+      <script setup lang="ts">
+        const emit = defineEmits<{
+          (e: 'foo' | 'bar'): void;
+        }>()
+        const change = () => emit('foo');
+      `,
+      languageOptions: {
+        parserOptions: {},
+      },
+      errors: [
+        {
+          messageId: 'unused',
+          line: 4,
+          column: 11,
+          endLine: 4,
+          endColumn: 36,
+        },
+      ],
+    },
+    {
+      filename: 'test.vue',
+      code: `
       <script setup>
         const emits = ['foo'];
         defineEmits(emits)
@@ -670,6 +705,26 @@ tester.run('no-unused-emit-declarations', rule, {
           column: 24,
           endLine: 3,
           endColumn: 29,
+        },
+      ],
+    },
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+        defineEmits<{(e: 'foo'): void}>()
+      </script>
+      `,
+      languageOptions: {
+        parserOptions: {},
+      },
+      errors: [
+        {
+          messageId: 'unused',
+          line: 3,
+          column: 22,
+          endLine: 3,
+          endColumn: 38,
         },
       ],
     },

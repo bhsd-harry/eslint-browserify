@@ -6,6 +6,7 @@ import type { Linter } from 'eslint';
 const rule = 'eslint-plugin-vue';
 import { RuleTester } from '../../rule-tester.js';
 import vueEslintParser from 'vue-eslint-parser';
+import tsEslintParser from '@typescript-eslint/parser';
 
 const languageOptions: Linter.LanguageOptions = {
   ecmaVersion: 2018,
@@ -353,6 +354,24 @@ ruleTester.run('component-definition-name-casing', rule, {
           column: 15,
           endLine: 1,
           endColumn: 24,
+        },
+      ],
+    },
+    {
+      filename: 'test.vue',
+      code: `(Vue as VueConstructor<Vue>).component('foo-bar', component)`,
+      output: `(Vue as VueConstructor<Vue>).component('FooBar', component)`,
+      languageOptions: {
+        parser: tsEslintParser,
+        ...languageOptions,
+      },
+      errors: [
+        {
+          message: 'Property name "foo-bar" is not PascalCase.',
+          line: 1,
+          column: 40,
+          endLine: 1,
+          endColumn: 49,
         },
       ],
     },

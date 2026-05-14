@@ -35,6 +35,41 @@ tester.run('define-props-destructuring', rule, {
     {
       filename: 'test.vue',
       code: `
+      <script setup lang="ts">
+      const { foo = 'default' } = defineProps<{ foo?: string }>()
+      </script>
+      `,
+      languageOptions: {
+        parserOptions: {},
+      },
+    },
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+      import type { Props } from './type'
+      const { foo } = defineProps<Props>()
+      </script>
+      `,
+      languageOptions: {
+        parserOptions: {},
+      },
+    },
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+      import { propsObj } from './type'
+      const { foo } = defineProps(propsObj)
+      </script>
+      `,
+      languageOptions: {
+        parserOptions: {},
+      },
+    },
+    {
+      filename: 'test.vue',
+      code: `
       <script setup>
       const props = defineProps(['foo'])
       </script>
@@ -53,10 +88,59 @@ tester.run('define-props-destructuring', rule, {
     {
       filename: 'test.vue',
       code: `
+      <script setup lang="ts">
+      const props = defineProps<{ foo?: string }>()
+      </script>
+      `,
+      options: [{ destructure: 'never' }],
+      languageOptions: {
+        parserOptions: {},
+      },
+    },
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+      import type { Props } from './type'
+      const props = defineProps<Props>()
+      </script>
+      `,
+      options: [{ destructure: 'never' }],
+      languageOptions: {
+        parserOptions: {},
+      },
+    },
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+      import { propsObj } from './type'
+      const props = defineProps(propsObj)
+      </script>
+      `,
+      options: [{ destructure: 'never' }],
+      languageOptions: {
+        parserOptions: {},
+      },
+    },
+    {
+      filename: 'test.vue',
+      code: `
       <script setup>
       defineProps(['foo'])
       </script>
       `,
+    },
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+      defineProps<{ foo?: string }>()
+      </script>
+      `,
+      languageOptions: {
+        parserOptions: {},
+      },
     },
   ],
   invalid: [
@@ -114,6 +198,88 @@ tester.run('define-props-destructuring', rule, {
     {
       filename: 'test.vue',
       code: `
+      <script setup lang="ts">
+      const props = withDefaults(defineProps<{ foo?: string }>(), { foo: 'default' })
+      </script>
+      `,
+      languageOptions: {
+        parserOptions: {},
+      },
+      errors: [
+        {
+          messageId: 'preferDestructuring',
+          line: 3,
+          column: 34,
+          endLine: 3,
+          endColumn: 65,
+        },
+      ],
+    },
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+      const { foo } = withDefaults(defineProps<{ foo?: string }>(), { foo: 'default' })
+      </script>
+      `,
+      languageOptions: {
+        parserOptions: {},
+      },
+      errors: [
+        {
+          messageId: 'avoidWithDefaults',
+          line: 3,
+          column: 23,
+          endLine: 3,
+          endColumn: 35,
+        },
+      ],
+    },
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+      import type { Props } from './type'
+      const props = defineProps<Props>()
+      </script>
+      `,
+      languageOptions: {
+        parserOptions: {},
+      },
+      errors: [
+        {
+          messageId: 'preferDestructuring',
+          line: 4,
+          column: 21,
+          endLine: 4,
+          endColumn: 41,
+        },
+      ],
+    },
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+      import { propsObj } from './type'
+      const props = defineProps(propsObj)
+      </script>
+      `,
+      languageOptions: {
+        parserOptions: {},
+      },
+      errors: [
+        {
+          messageId: 'preferDestructuring',
+          line: 4,
+          column: 21,
+          endLine: 4,
+          endColumn: 42,
+        },
+      ],
+    },
+    {
+      filename: 'test.vue',
+      code: `
       <script setup>
       const { foo } = defineProps(['foo'])
       </script>
@@ -144,6 +310,186 @@ tester.run('define-props-destructuring', rule, {
           column: 36,
           endLine: 3,
           endColumn: 56,
+        },
+      ],
+    },
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+      const { foo } = defineProps<{ foo?: string }>()
+      </script>
+      `,
+      options: [{ destructure: 'never' }],
+      languageOptions: {
+        parserOptions: {},
+      },
+      errors: [
+        {
+          messageId: 'avoidDestructuring',
+          line: 3,
+          column: 23,
+          endLine: 3,
+          endColumn: 54,
+        },
+      ],
+    },
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+      import type { Props } from './type'
+      const { foo } = defineProps<Props>()
+      </script>
+      `,
+      options: [{ destructure: 'never' }],
+      languageOptions: {
+        parserOptions: {},
+      },
+      errors: [
+        {
+          messageId: 'avoidDestructuring',
+          line: 4,
+          column: 23,
+          endLine: 4,
+          endColumn: 43,
+        },
+      ],
+    },
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+      import { propsObj } from './type'
+      const { foo } = defineProps(propsObj)
+      </script>
+      `,
+      options: [{ destructure: 'never' }],
+      languageOptions: {
+        parserOptions: {},
+      },
+      errors: [
+        {
+          messageId: 'avoidDestructuring',
+          line: 4,
+          column: 23,
+          endLine: 4,
+          endColumn: 44,
+        },
+      ],
+    },
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+      withDefaults(defineProps(['foo']), { foo: 'default' })
+      </script>
+      `,
+      errors: [
+        {
+          messageId: 'avoidWithDefaults',
+          line: 3,
+          column: 7,
+          endLine: 3,
+          endColumn: 19,
+        },
+      ],
+    },
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+      withDefaults(defineProps<{ foo?: string }>(), { foo: 'default' })
+      </script>
+      `,
+      languageOptions: {
+        parserOptions: {},
+      },
+      errors: [
+        {
+          messageId: 'avoidWithDefaults',
+          line: 3,
+          column: 7,
+          endLine: 3,
+          endColumn: 19,
+        },
+      ],
+    },
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+      withDefaults(defineProps(['foo']), { foo: 'default' })
+      </script>
+      `,
+      options: [{ destructure: 'always' }],
+      errors: [
+        {
+          messageId: 'preferDestructuring',
+          line: 3,
+          column: 20,
+          endLine: 3,
+          endColumn: 40,
+        },
+      ],
+    },
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+      withDefaults(defineProps<{ foo?: string }>(), { foo: 'default' })
+      </script>
+      `,
+      options: [{ destructure: 'always' }],
+      languageOptions: {
+        parserOptions: {},
+      },
+      errors: [
+        {
+          messageId: 'preferDestructuring',
+          line: 3,
+          column: 20,
+          endLine: 3,
+          endColumn: 51,
+        },
+      ],
+    },
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+      defineProps(['foo'])
+      </script>
+      `,
+      options: [{ destructure: 'always' }],
+      errors: [
+        {
+          messageId: 'preferDestructuring',
+          line: 3,
+          column: 7,
+          endLine: 3,
+          endColumn: 27,
+        },
+      ],
+    },
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+      defineProps<{ foo?: string }>()
+      </script>
+      `,
+      options: [{ destructure: 'always' }],
+      languageOptions: {
+        parserOptions: {},
+      },
+      errors: [
+        {
+          messageId: 'preferDestructuring',
+          line: 3,
+          column: 7,
+          endLine: 3,
+          endColumn: 38,
         },
       ],
     },

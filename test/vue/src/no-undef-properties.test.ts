@@ -537,6 +537,25 @@ tester.run('no-undef-properties', rule, {
     },
 
     {
+      // unknown type
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+      import type { Props1 } from './test01';
+
+      defineProps<Props1>();
+
+      </script>
+
+      <template>
+      <div>{{ foo }}</div>
+      <div>{{ unknown }}</div>
+      </template>`,
+      languageOptions: {
+        parserOptions: {},
+      },
+    },
+    {
       // Vuex
       filename: 'test.vue',
       code: `

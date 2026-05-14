@@ -8,6 +8,7 @@ export default extend(
 			'bundle/',
 			'coverage/',
 			'fixtures/',
+			'test/*.d.ts',
 		],
 	},
 	{
@@ -15,7 +16,10 @@ export default extend(
 		...browser,
 	},
 	{
-		files: ['test/**/*.js'],
+		files: [
+			'test/**/*.js',
+			'test/**/*.ts',
+		],
 		languageOptions: {
 			globals: {
 				...globals.mocha,
@@ -67,6 +71,32 @@ export default extend(
 			node: {
 				version: '>=24.0.0',
 			},
+		},
+	},
+	{
+		files: ['test/vue/src/*.ts'],
+		rules: {
+			'require-unicode-regexp': 0,
+			'regexp/prefer-regexp-exec': 0,
+			'n/no-extraneous-import': [
+				2,
+				{
+					allowModules: ['semver'],
+				},
+			],
+			'n/no-missing-import': 0,
+			'@typescript-eslint/await-thenable': 0,
+			'@typescript-eslint/explicit-function-return-type': 0,
+			'@typescript-eslint/no-shadow': 0,
+			'@typescript-eslint/no-unnecessary-boolean-literal-compare': 0,
+			'@typescript-eslint/no-unnecessary-condition': 0,
+			'@typescript-eslint/no-unnecessary-type-assertion': 0,
+			'@typescript-eslint/no-unsafe-argument': 0,
+			'@typescript-eslint/no-unsafe-member-access': 0,
+			'@typescript-eslint/no-unused-vars': 0,
+			'@typescript-eslint/no-useless-default-assignment': 0,
+			'@typescript-eslint/prefer-destructuring': 0,
+			'@typescript-eslint/prefer-string-starts-ends-with': 0,
 		},
 	},
 	{

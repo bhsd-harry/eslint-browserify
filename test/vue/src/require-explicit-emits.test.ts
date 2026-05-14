@@ -418,6 +418,66 @@ tester.run('require-explicit-emits', rule, {
       </script>
       `,
     },
+    {
+      filename: 'test.vue',
+      code: `
+      <template>
+        <div @click="$emit('foo')"/>
+      </template>
+      <script setup lang="ts">
+      defineEmits<{
+        (e: 'foo'): void
+      }>()
+      </script>
+      `,
+      languageOptions: {
+        parserOptions: {},
+      },
+    },
+    {
+      filename: 'test.vue',
+      code: `
+      <template>
+        <div @click="$emit('foo')"/>
+      </template>
+      <script setup lang="ts">
+      defineEmits<(e: 'foo') => void>()
+      </script>
+      `,
+      languageOptions: {
+        parserOptions: {},
+      },
+    },
+    {
+      filename: 'test.vue',
+      code: `
+      <template>
+        <div @click="$emit('foo')"/>
+        <div @click="$emit('bar')"/>
+      </template>
+      <script setup lang="ts">
+      defineEmits<(e: 'foo' | 'bar') => void>()
+      </script>
+      `,
+      languageOptions: {
+        parserOptions: {},
+      },
+    },
+    {
+      filename: 'test.vue',
+      code: `
+      <template>
+        <div @click="emit('foo')"/>
+        <div @click="emit('bar')"/>
+      </template>
+      <script setup lang="ts">
+      const emit = defineEmits<(e: 'foo' | 'bar') => void>()
+      </script>
+      `,
+      languageOptions: {
+        parserOptions: {},
+      },
+    },
 
     // unknown emits definition
     {
@@ -553,6 +613,35 @@ tester.run('require-explicit-emits', rule, {
       </script>
       `,
       options: [{ allowProps: true }],
+    },
+    {
+      // new syntax in Vue 3.3
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+      const emit = defineEmits<{foo: [], bar:[number]}>()
+      emit('foo')
+      emit('bar', 42)
+      </script>
+      `,
+      languageOptions: {
+        parserOptions: {},
+      },
+    },
+    {
+      // new syntax in Vue 3.3
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+      type Emits = {foo: [], bar:[number]}
+      const emit = defineEmits<Emits>()
+      emit('foo')
+      emit('bar', 42)
+      </script>
+      `,
+      languageOptions: {
+        parserOptions: {},
+      },
     },
   ],
   invalid: [
@@ -2104,6 +2193,56 @@ emits: {'foo': null},
       filename: 'test.vue',
       code: `
       <template>
+        <div @click="$emit('bar')"/>
+      </template>
+      <script setup lang="ts">
+      defineEmits<{
+        (e: 'foo'): void
+      }>()
+      </script>
+      `,
+      languageOptions: {
+        parserOptions: {},
+      },
+      errors: [
+        {
+          message:
+            'The "bar" event has been triggered but not declared on `defineEmits`.',
+          line: 3,
+          column: 28,
+          endLine: 3,
+          endColumn: 33,
+        },
+      ],
+    },
+    {
+      filename: 'test.vue',
+      code: `
+      <template>
+        <div @click="$emit('bar')"/>
+      </template>
+      <script setup lang="ts">
+      defineEmits<(e: 'foo') => void>()
+      </script>
+      `,
+      languageOptions: {
+        parserOptions: {},
+      },
+      errors: [
+        {
+          message:
+            'The "bar" event has been triggered but not declared on `defineEmits`.',
+          line: 3,
+          column: 28,
+          endLine: 3,
+          endColumn: 33,
+        },
+      ],
+    },
+    {
+      filename: 'test.vue',
+      code: `
+      <template>
         <div @click="$emit('foo')"/>
       </template>
       <script setup>
@@ -2117,6 +2256,29 @@ emits: {'foo': null},
           column: 28,
           endLine: 3,
           endColumn: 33,
+        },
+      ],
+    },
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+      const emit = defineEmits<(e: 'foo') => void>()
+      emit('foo');
+      emit('bar')
+      </script>
+      `,
+      languageOptions: {
+        parserOptions: {},
+      },
+      errors: [
+        {
+          message:
+            'The "bar" event has been triggered but not declared on `defineEmits`.',
+          line: 5,
+          column: 12,
+          endLine: 5,
+          endColumn: 17,
         },
       ],
     },
@@ -2149,6 +2311,79 @@ emits: {'foo': null},
       `,
             },
           ],
+        },
+      ],
+    },
+    {
+      // new syntax in Vue 3.3
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+      const emit = defineEmits<{foo: []}>()
+      emit('foo')
+      emit('bar')
+      </script>
+      `,
+      languageOptions: {
+        parserOptions: {},
+      },
+      errors: [
+        {
+          message:
+            'The "bar" event has been triggered but not declared on `defineEmits`.',
+          line: 5,
+          column: 12,
+          endLine: 5,
+          endColumn: 17,
+        },
+      ],
+    },
+    {
+      // new syntax in Vue 3.3
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+      type Emits = {foo: []}
+      const emit = defineEmits<Emits>()
+      emit('foo')
+      emit('bar')
+      </script>
+      `,
+      languageOptions: {
+        parserOptions: {},
+      },
+      errors: [
+        {
+          message:
+            'The "bar" event has been triggered but not declared on `defineEmits`.',
+          line: 6,
+          column: 12,
+          endLine: 6,
+          endColumn: 17,
+        },
+      ],
+    },
+    {
+      filename: 'test.vue',
+      code: `
+      <template>
+        <div @click="emit('bar')"/>
+      </template>
+      <script setup lang="ts">
+      const emit = defineEmits<(e: 'foo') => void>()
+      </script>
+      `,
+      languageOptions: {
+        parserOptions: {},
+      },
+      errors: [
+        {
+          message:
+            'The "bar" event has been triggered but not declared on `defineEmits`.',
+          line: 3,
+          column: 27,
+          endLine: 3,
+          endColumn: 32,
         },
       ],
     },

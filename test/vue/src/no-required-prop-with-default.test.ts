@@ -19,6 +19,128 @@ tester.run('no-required-prop-with-default', rule, {
     {
       filename: 'test.vue',
       code: `
+        <script setup lang="ts">
+          interface TestPropType {
+            name?: string
+            age?: number
+          }
+          const props = withDefaults(
+            defineProps<TestPropType>(),
+            {
+              name: "World",
+            }
+          );
+        </script>
+      `,
+      languageOptions: {
+        parserOptions: {},
+      },
+    },
+    {
+      filename: 'test.vue',
+      code: `
+        <script setup lang="ts">
+          type TestPropType = {
+            name?: string
+            age?: number
+          }
+          const props = withDefaults(
+            defineProps<TestPropType>(),
+            {
+              name: "World",
+            }
+          );
+        </script>
+      `,
+      languageOptions: {
+        parserOptions: {},
+      },
+    },
+    {
+      filename: 'test.vue',
+      code: `
+        <script setup lang="ts">
+          interface TestPropType {
+            name?
+          }
+          const props = withDefaults(
+            defineProps<TestPropType>(),
+            {
+              name: "World",
+            }
+          );
+        </script>
+      `,
+      languageOptions: {
+        parserOptions: {},
+      },
+    },
+    {
+      filename: 'test.vue',
+      code: `
+        <script setup lang="ts">
+          interface TestPropType {
+            get name(): string
+            set name(a: string)
+            age?: number
+          }
+          const props = withDefaults(
+            defineProps<TestPropType>(),
+            {
+              'name': 'World',
+            }
+          );
+        </script>
+      `,
+      languageOptions: {
+        parserOptions: {},
+      },
+    },
+    {
+      filename: 'test.vue',
+      code: `
+        <script setup lang="ts">
+          interface TestPropType {
+            get name(): void
+            age?: number
+          }
+          const props = withDefaults(
+            defineProps<TestPropType>(),
+            {
+              'name': 'World',
+            }
+          );
+        </script>
+      `,
+      languageOptions: {
+        parserOptions: {},
+      },
+    },
+    {
+      filename: 'test.vue',
+      code: `
+        <script setup lang="ts">
+          const [name] = 'test'
+
+          interface TestPropType {
+            [name]: string
+            age?: number
+          }
+          const props = withDefaults(
+            defineProps<TestPropType>(),
+            {
+              [name]: 'World'
+            }
+          );
+        </script>
+      `,
+      languageOptions: {
+        parserOptions: {},
+      },
+    },
+    {
+      filename: 'test.vue',
+      code: `
         <script>
         export default {
           props: {
@@ -58,6 +180,33 @@ tester.run('no-required-prop-with-default', rule, {
     {
       filename: 'test.vue',
       code: `
+        <script setup lang="ts">
+          interface TestPropType {
+            name?: string
+          }
+          const {name="World"} = defineProps<TestPropType>();
+        </script>
+      `,
+      languageOptions: {
+        parserOptions: {},
+      },
+    },
+    {
+      filename: 'test.vue',
+      code: `
+        <script setup lang="ts">
+          const {name="World"} = defineProps<{
+            name?: string
+          }>();
+        </script>
+      `,
+      languageOptions: {
+        parserOptions: {},
+      },
+    },
+    {
+      filename: 'test.vue',
+      code: `
         <script setup>
           const {name='Hello'} = defineProps({
             name: {
@@ -69,6 +218,534 @@ tester.run('no-required-prop-with-default', rule, {
     },
   ],
   invalid: [
+    {
+      filename: 'test.vue',
+      code: `
+        <script setup lang="ts">
+          interface TestPropType {
+            name: string
+            age?: number
+          }
+          const props = withDefaults(
+            defineProps<TestPropType>(),
+            {
+              name: "World",
+            }
+          );
+        </script>
+      `,
+      output: `
+        <script setup lang="ts">
+          interface TestPropType {
+            name?: string
+            age?: number
+          }
+          const props = withDefaults(
+            defineProps<TestPropType>(),
+            {
+              name: "World",
+            }
+          );
+        </script>
+      `,
+      options: [{ autofix: true }],
+      languageOptions: {
+        parserOptions: {},
+      },
+      errors: [
+        {
+          message: 'Prop "name" should be optional.',
+          line: 4,
+          column: 13,
+          endLine: 4,
+          endColumn: 25,
+        },
+      ],
+    },
+    {
+      filename: 'test.vue',
+      code: `
+        <script setup lang="ts">
+          interface TestPropType {
+            name: string | number
+            age?: number
+          }
+          const props = withDefaults(
+            defineProps<TestPropType>(),
+            {
+              name: "World",
+            }
+          );
+        </script>
+      `,
+      output: `
+        <script setup lang="ts">
+          interface TestPropType {
+            name?: string | number
+            age?: number
+          }
+          const props = withDefaults(
+            defineProps<TestPropType>(),
+            {
+              name: "World",
+            }
+          );
+        </script>
+      `,
+      options: [{ autofix: true }],
+      languageOptions: {
+        parserOptions: {},
+      },
+      errors: [
+        {
+          message: 'Prop "name" should be optional.',
+          line: 4,
+          column: 13,
+          endLine: 4,
+          endColumn: 34,
+        },
+      ],
+    },
+    {
+      filename: 'test.vue',
+      code: `
+        <script setup lang="ts">
+          interface TestPropType {
+            'na::me': string
+            age?: number
+          }
+          const props = withDefaults(
+            defineProps<TestPropType>(),
+            {
+              'na::me': "World",
+            }
+          );
+        </script>
+      `,
+      output: `
+        <script setup lang="ts">
+          interface TestPropType {
+            'na::me'?: string
+            age?: number
+          }
+          const props = withDefaults(
+            defineProps<TestPropType>(),
+            {
+              'na::me': "World",
+            }
+          );
+        </script>
+      `,
+      options: [{ autofix: true }],
+      languageOptions: {
+        parserOptions: {},
+      },
+      errors: [
+        {
+          message: 'Prop "na::me" should be optional.',
+          line: 4,
+          column: 13,
+          endLine: 4,
+          endColumn: 29,
+        },
+      ],
+    },
+    {
+      filename: 'test.vue',
+      code: `
+        <script setup lang="ts">
+          import nameType from 'name.ts';
+          interface TestPropType {
+            name: nameType
+            age?: number
+          }
+          const props = withDefaults(
+            defineProps<TestPropType>(),
+            {
+              name: "World",
+            }
+          );
+        </script>
+      `,
+      output: `
+        <script setup lang="ts">
+          import nameType from 'name.ts';
+          interface TestPropType {
+            name?: nameType
+            age?: number
+          }
+          const props = withDefaults(
+            defineProps<TestPropType>(),
+            {
+              name: "World",
+            }
+          );
+        </script>
+      `,
+      options: [{ autofix: true }],
+      languageOptions: {
+        parserOptions: {},
+      },
+      errors: [
+        {
+          message: 'Prop "name" should be optional.',
+          line: 5,
+          column: 13,
+          endLine: 5,
+          endColumn: 27,
+        },
+      ],
+    },
+    {
+      filename: 'test.vue',
+      code: `
+        <script setup lang="ts">
+          interface TestPropType {
+            name
+          }
+          const props = withDefaults(
+            defineProps<TestPropType>(),
+            {
+              name: "World",
+            }
+          );
+        </script>
+      `,
+      output: `
+        <script setup lang="ts">
+          interface TestPropType {
+            name?
+          }
+          const props = withDefaults(
+            defineProps<TestPropType>(),
+            {
+              name: "World",
+            }
+          );
+        </script>
+      `,
+      options: [{ autofix: true }],
+      languageOptions: {
+        parserOptions: {},
+      },
+      errors: [
+        {
+          message: 'Prop "name" should be optional.',
+          line: 4,
+          column: 13,
+          endLine: 4,
+          endColumn: 17,
+        },
+      ],
+    },
+    {
+      filename: 'test.vue',
+      code: `
+        <script setup lang="ts">
+          interface TestPropType {
+            name
+            age?: number
+          }
+          const props = withDefaults(
+            defineProps<TestPropType>(),
+            {
+              name: "World",
+            }
+          );
+        </script>
+      `,
+      output: `
+        <script setup lang="ts">
+          interface TestPropType {
+            name?
+            age?: number
+          }
+          const props = withDefaults(
+            defineProps<TestPropType>(),
+            {
+              name: "World",
+            }
+          );
+        </script>
+      `,
+      options: [{ autofix: true }],
+      languageOptions: {
+        parserOptions: {},
+      },
+      errors: [
+        {
+          message: 'Prop "name" should be optional.',
+          line: 4,
+          column: 13,
+          endLine: 4,
+          endColumn: 17,
+        },
+      ],
+    },
+    {
+      filename: 'test.vue',
+      code: String.raw`
+        <script setup lang="ts">
+          interface TestPropType {
+            'na\"me2'
+            age?: number
+          }
+          const props = withDefaults(
+            defineProps<TestPropType>(),
+            {
+              'na\"me2': "World",
+            }
+          );
+        </script>
+      `,
+      output: String.raw`
+        <script setup lang="ts">
+          interface TestPropType {
+            'na\"me2'?
+            age?: number
+          }
+          const props = withDefaults(
+            defineProps<TestPropType>(),
+            {
+              'na\"me2': "World",
+            }
+          );
+        </script>
+      `,
+      options: [{ autofix: true }],
+      languageOptions: {
+        parserOptions: {},
+      },
+      errors: [
+        {
+          message: 'Prop "na"me2" should be optional.',
+          line: 4,
+          column: 13,
+          endLine: 4,
+          endColumn: 22,
+        },
+      ],
+    },
+    {
+      filename: 'test.vue',
+      code: `
+        <script setup lang="ts">
+          interface TestPropType {
+            foo(): void
+            age?: number
+          }
+          const props = withDefaults(
+            defineProps<TestPropType>(),
+            {
+              foo() {console.log(123)},
+            }
+          );
+        </script>
+      `,
+      output: `
+        <script setup lang="ts">
+          interface TestPropType {
+            foo?(): void
+            age?: number
+          }
+          const props = withDefaults(
+            defineProps<TestPropType>(),
+            {
+              foo() {console.log(123)},
+            }
+          );
+        </script>
+      `,
+      options: [{ autofix: true }],
+      languageOptions: {
+        parserOptions: {},
+      },
+      errors: [
+        {
+          message: 'Prop "foo" should be optional.',
+          line: 4,
+          column: 13,
+          endLine: 4,
+          endColumn: 24,
+        },
+      ],
+    },
+    {
+      filename: 'test.vue',
+      code: `
+        <script setup lang="ts">
+          interface TestPropType {
+            readonly name
+            age?: number
+          }
+          const props = withDefaults(
+            defineProps<TestPropType>(),
+            {
+              name: 'World',
+            }
+          );
+        </script>
+      `,
+      output: `
+        <script setup lang="ts">
+          interface TestPropType {
+            readonly name?
+            age?: number
+          }
+          const props = withDefaults(
+            defineProps<TestPropType>(),
+            {
+              name: 'World',
+            }
+          );
+        </script>
+      `,
+      options: [{ autofix: true }],
+      languageOptions: {
+        parserOptions: {},
+      },
+      errors: [
+        {
+          message: 'Prop "name" should be optional.',
+          line: 4,
+          column: 13,
+          endLine: 4,
+          endColumn: 26,
+        },
+      ],
+    },
+    {
+      filename: 'test.vue',
+      code: `
+        <script setup lang="ts">
+          interface TestPropType {
+            readonly 'name'
+            age?: number
+          }
+          const props = withDefaults(
+            defineProps<TestPropType>(),
+            {
+              'name': 'World',
+            }
+          );
+        </script>
+      `,
+      output: `
+        <script setup lang="ts">
+          interface TestPropType {
+            readonly 'name'?
+            age?: number
+          }
+          const props = withDefaults(
+            defineProps<TestPropType>(),
+            {
+              'name': 'World',
+            }
+          );
+        </script>
+      `,
+      options: [{ autofix: true }],
+      languageOptions: {
+        parserOptions: {},
+      },
+      errors: [
+        {
+          message: 'Prop "name" should be optional.',
+          line: 4,
+          column: 13,
+          endLine: 4,
+          endColumn: 28,
+        },
+      ],
+    },
+    {
+      filename: 'test.vue',
+      code: String.raw`
+        <script setup lang="ts">
+          interface TestPropType {
+            readonly 'a'
+            age?: number
+          }
+          const props = withDefaults(
+            defineProps<TestPropType>(),
+            {
+              '\u0061': 'World',
+            }
+          );
+        </script>
+      `,
+      output: String.raw`
+        <script setup lang="ts">
+          interface TestPropType {
+            readonly 'a'?
+            age?: number
+          }
+          const props = withDefaults(
+            defineProps<TestPropType>(),
+            {
+              '\u0061': 'World',
+            }
+          );
+        </script>
+      `,
+      options: [{ autofix: true }],
+      languageOptions: {
+        parserOptions: {},
+      },
+      errors: [
+        {
+          message: 'Prop "a" should be optional.',
+          line: 4,
+          column: 13,
+          endLine: 4,
+          endColumn: 25,
+        },
+      ],
+    },
+    {
+      filename: 'test.vue',
+      code: String.raw`
+        <script setup lang="ts">
+          interface TestPropType {
+            readonly '\u0061'
+            age?: number
+          }
+          const props = withDefaults(
+            defineProps<TestPropType>(),
+            {
+              'a': 'World',
+            }
+          );
+        </script>
+      `,
+      output: String.raw`
+        <script setup lang="ts">
+          interface TestPropType {
+            readonly '\u0061'?
+            age?: number
+          }
+          const props = withDefaults(
+            defineProps<TestPropType>(),
+            {
+              'a': 'World',
+            }
+          );
+        </script>
+      `,
+      options: [{ autofix: true }],
+      languageOptions: {
+        parserOptions: {},
+      },
+      errors: [
+        {
+          message: 'Prop "a" should be optional.',
+          line: 4,
+          column: 13,
+          endLine: 4,
+          endColumn: 30,
+        },
+      ],
+    },
     {
       filename: 'test.vue',
       code: `
@@ -294,6 +971,99 @@ tester.run('no-required-prop-with-default', rule, {
           line: 4,
           column: 13,
           endLine: 7,
+          endColumn: 14,
+        },
+      ],
+    },
+    {
+      filename: 'test.vue',
+      code: `
+        <script setup lang="ts">
+          interface TestPropType {
+            name: string
+          }
+          const {name="World"} = defineProps<TestPropType>();
+        </script>
+      `,
+      output: `
+        <script setup lang="ts">
+          interface TestPropType {
+            name?: string
+          }
+          const {name="World"} = defineProps<TestPropType>();
+        </script>
+      `,
+      options: [{ autofix: true }],
+      languageOptions: {
+        parserOptions: {},
+      },
+      errors: [
+        {
+          message: 'Prop "name" should be optional.',
+          line: 4,
+          column: 13,
+          endLine: 4,
+          endColumn: 25,
+        },
+      ],
+    },
+    {
+      filename: 'test.vue',
+      code: `
+        <script setup lang="ts">
+          const {name="World"} = defineProps<{
+            name: string
+          }>();
+        </script>
+      `,
+      output: `
+        <script setup lang="ts">
+          const {name="World"} = defineProps<{
+            name?: string
+          }>();
+        </script>
+      `,
+      options: [{ autofix: true }],
+      languageOptions: {
+        parserOptions: {},
+      },
+      errors: [
+        {
+          message: 'Prop "name" should be optional.',
+          line: 4,
+          column: 13,
+          endLine: 4,
+          endColumn: 25,
+        },
+      ],
+    },
+    {
+      filename: 'test.vue',
+      code: `
+        <script setup lang="ts">
+          const {name="World"} = defineProps({
+            name: {
+              required: true,
+            }
+          });
+        </script>
+      `,
+      output: `
+        <script setup lang="ts">
+          const {name="World"} = defineProps({
+            name: {
+              required: false,
+            }
+          });
+        </script>
+      `,
+      options: [{ autofix: true }],
+      errors: [
+        {
+          message: 'Prop "name" should be optional.',
+          line: 4,
+          column: 13,
+          endLine: 6,
           endColumn: 14,
         },
       ],

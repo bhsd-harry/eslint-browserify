@@ -1256,6 +1256,29 @@ ruleTester.run('no-mutating-props', rule, {
     {
       filename: 'test.vue',
       code: `
+        <script setup lang="ts">
+        const props = withDefaults(defineProps<Props>(), {
+          msg: 'hello'
+        })
+        props.value++
+        </script>
+      `,
+      languageOptions: {
+        parserOptions: {},
+      },
+      errors: [
+        {
+          message: 'Unexpected mutation of "value" prop.',
+          line: 6,
+          column: 9,
+          endLine: 6,
+          endColumn: 22,
+        },
+      ],
+    },
+    {
+      filename: 'test.vue',
+      code: `
         <script>
           export default {
             setup(props) {

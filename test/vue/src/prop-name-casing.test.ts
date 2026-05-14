@@ -344,6 +344,22 @@ ruleTester.run('prop-name-casing', rule, {
     {
       filename: 'test.vue',
       code: `
+      <script setup lang="ts">
+      interface Props {
+        greetingText: number
+      }
+      defineProps<Props>()
+      </script>
+      `,
+      languageOptions: {
+        parser: vueEslintParser,
+        ...languageOptions,
+        parserOptions: {},
+      },
+    },
+    {
+      filename: 'test.vue',
+      code: `
         export default {
           props: {
             'ignored-pattern-test': String,
@@ -711,6 +727,31 @@ ruleTester.run('prop-name-casing', rule, {
           column: 20,
           endLine: 3,
           endColumn: 35,
+        },
+      ],
+    },
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+      interface Props {
+        greeting_text: number
+      }
+      defineProps<Props>()
+      </script>
+      `,
+      languageOptions: {
+        parser: vueEslintParser,
+        ...languageOptions,
+        parserOptions: {},
+      },
+      errors: [
+        {
+          message: 'Prop "greeting_text" is not in camelCase.',
+          line: 4,
+          column: 9,
+          endLine: 4,
+          endColumn: 30,
         },
       ],
     },

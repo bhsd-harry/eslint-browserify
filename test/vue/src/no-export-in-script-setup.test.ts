@@ -2,6 +2,7 @@
  * @author Yosuke Ota
  * See LICENSE file in root directory for full license.
  */
+import semver from 'semver';
 import { RuleTester } from '../../rule-tester.js';
 const rule = 'eslint-plugin-vue';
 import vueEslintParser from 'vue-eslint-parser';
@@ -40,6 +41,38 @@ ruleTester.run('no-export-in-script-setup', rule, {
       </script>
       `,
     },
+    ...(semver.satisfies(typescriptPackageJson.version, '>=4.5.0-0')
+      ? [
+          {
+            filename: 'test.vue',
+            code: `
+            <script setup lang="ts">
+            export { type Foo } from "foo"
+            export type Bar = {}
+            export interface Bar {}
+            </script>
+            `,
+            languageOptions: {
+              parser: vueEslintParser,
+              parserOptions: {},
+            },
+          },
+        ]
+      : [
+          {
+            filename: 'test.vue',
+            code: `
+            <script setup lang="ts">
+            export type Bar = {}
+            export interface Bar {}
+            </script>
+            `,
+            languageOptions: {
+              parser: vueEslintParser,
+              parserOptions: {},
+            },
+          },
+        ]),
   ],
 
   invalid: [
@@ -142,6 +175,43 @@ ruleTester.run('no-export-in-script-setup', rule, {
           column: 7,
           endLine: 8,
           endColumn: 13,
+        },
+      ],
+    },
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+      export const Foo = {}
+      export enum Bar {}
+      export {}
+      </script>
+      `,
+      languageOptions: {
+        parser: vueEslintParser,
+        parserOptions: {},
+      },
+      errors: [
+        {
+          message: '`<script setup>` cannot contain ES module exports.',
+          line: 3,
+          column: 7,
+          endLine: 3,
+          endColumn: 13,
+        },
+        {
+          message: '`<script setup>` cannot contain ES module exports.',
+          line: 4,
+          column: 7,
+          endLine: 4,
+          endColumn: 13,
+        },
+        {
+          message: '`<script setup>` cannot contain ES module exports.',
+          line: 5,
+          column: 7,
+          endLine: 5,
+          endColumn: 16,
         },
       ],
     },

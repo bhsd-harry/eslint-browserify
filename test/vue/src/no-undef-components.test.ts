@@ -660,6 +660,26 @@ tester.run('no-undef-components', rule, {
       import TheModal from 'foo'
       </script>`,
     },
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+        import Foo from './Foo.vue'
+        import {HelloWorld1} from './components/HelloWorld'
+      </script>
+
+      <template>
+        <Foo />
+        <HelloWorld1 />
+      </template>
+      `,
+      languageOptions: {
+        parser: vueEslintParser,
+        ecmaVersion: 6,
+        sourceType: 'module',
+        parserOptions: {},
+      },
+    },
   ],
   invalid: [
     // <script setup>
@@ -725,6 +745,112 @@ tester.run('no-undef-components', rule, {
           column: 9,
           endLine: 7,
           endColumn: 22,
+        },
+      ],
+    },
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+        import type Foo from './Foo.vue'
+        import type {HelloWorld1} from './components/HelloWorld'
+        import { type HelloWorld2 } from './components/HelloWorld2'
+        import type {HelloWorld as HelloWorld3} from './components/HelloWorld3'
+        import { type HelloWorld as HelloWorld4 } from './components/HelloWorld4';
+        import { type default as HelloWorld5 } from './components/HelloWorld5';
+      </script>
+
+      <template>
+        <Foo />
+        <HelloWorld1 />
+        <HelloWorld2 />
+        <HelloWorld3 />
+        <HelloWorld4 />
+        <HelloWorld5 />
+      </template>
+      `,
+      languageOptions: {
+        parser: vueEslintParser,
+        ecmaVersion: 6,
+        sourceType: 'module',
+        parserOptions: {},
+      },
+      errors: [
+        {
+          message:
+            "The '<Foo>' component has been used, but 'Foo' only refers to a type.",
+          line: 12,
+          column: 9,
+          endLine: 12,
+          endColumn: 16,
+        },
+        {
+          message:
+            "The '<HelloWorld1>' component has been used, but 'HelloWorld1' only refers to a type.",
+          line: 13,
+          column: 9,
+          endLine: 13,
+          endColumn: 24,
+        },
+        {
+          message:
+            "The '<HelloWorld2>' component has been used, but 'HelloWorld2' only refers to a type.",
+          line: 14,
+          column: 9,
+          endLine: 14,
+          endColumn: 24,
+        },
+        {
+          message:
+            "The '<HelloWorld3>' component has been used, but 'HelloWorld3' only refers to a type.",
+          line: 15,
+          column: 9,
+          endLine: 15,
+          endColumn: 24,
+        },
+        {
+          message:
+            "The '<HelloWorld4>' component has been used, but 'HelloWorld4' only refers to a type.",
+          line: 16,
+          column: 9,
+          endLine: 16,
+          endColumn: 24,
+        },
+        {
+          message:
+            "The '<HelloWorld5>' component has been used, but 'HelloWorld5' only refers to a type.",
+          line: 17,
+          column: 9,
+          endLine: 17,
+          endColumn: 24,
+        },
+      ],
+    },
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+        type Foo = {}
+      </script>
+
+      <template>
+        <Foo />
+      </template>
+      `,
+      languageOptions: {
+        parser: vueEslintParser,
+        ecmaVersion: 6,
+        sourceType: 'module',
+        parserOptions: {},
+      },
+      errors: [
+        {
+          message:
+            "The '<Foo>' component has been used, but 'Foo' only refers to a type.",
+          line: 7,
+          column: 9,
+          endLine: 7,
+          endColumn: 16,
         },
       ],
     },

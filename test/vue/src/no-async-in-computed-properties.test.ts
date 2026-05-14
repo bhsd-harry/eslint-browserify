@@ -374,6 +374,21 @@ ruleTester.run('no-async-in-computed-properties', rule, {
         ecmaVersion: 2020,
       },
     },
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+      import { computed } from 'vue'
+      import { z } from 'zod'
+
+      const foo = computed(() => z.a?.['b'].c!.d.method().catch(err => err).finally(() => {}))
+      </script>`,
+      options: [{ ignoredObjectNames: ['z'] }],
+      languageOptions: {
+        parser,
+        parserOptions: {},
+      },
+    },
   ],
 
   invalid: [

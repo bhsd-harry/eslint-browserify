@@ -298,5 +298,77 @@ ruleTester.run('no-reserved-keys', rule, {
         },
       ],
     },
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+        defineProps<{$el: string}>()
+      </script>
+      `,
+      languageOptions: {
+        parser: vueEslintParser,
+        ecmaVersion: 6,
+        parserOptions: {},
+      },
+      errors: [
+        {
+          message: "Key '$el' is reserved.",
+          line: 3,
+          column: 22,
+          endLine: 3,
+          endColumn: 33,
+        },
+      ],
+    },
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+        interface Props {
+          $el: string
+        }
+        defineProps<Props>()
+      </script>
+      `,
+      languageOptions: {
+        parser: vueEslintParser,
+        ecmaVersion: 6,
+        parserOptions: {},
+      },
+      errors: [
+        {
+          message: "Key '$el' is reserved.",
+          line: 4,
+          column: 11,
+          endLine: 4,
+          endColumn: 22,
+        },
+      ],
+    },
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+        type A = {
+          $el: string
+        }
+        defineProps<A>()
+      </script>
+      `,
+      languageOptions: {
+        parser: vueEslintParser,
+        ecmaVersion: 6,
+        parserOptions: {},
+      },
+      errors: [
+        {
+          message: "Key '$el' is reserved.",
+          line: 4,
+          column: 11,
+          endLine: 4,
+          endColumn: 22,
+        },
+      ],
+    },
   ],
 });

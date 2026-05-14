@@ -406,6 +406,7 @@ ruleTester.run('match-component-file-name', rule, {
       languageOptions,
     },
 
+    // casing
     // https://github.com/vuejs/eslint-plugin-vue/issues/1018
     {
       filename: 'test.jsx',
@@ -851,6 +852,7 @@ ruleTester.run('match-component-file-name', rule, {
       ],
     },
 
+    // casing
     {
       filename: 'MyComponent.vue',
       code: `<script setup> defineOptions({name: 'CoolComponent'}) </script>`,

@@ -251,6 +251,74 @@ ruleTester.run('no-boolean-default', rule, {
     {
       filename: 'test.vue',
       code: `
+      <script setup lang="ts">
+      interface Props {
+        foo: boolean
+      }
+      withDefaults(defineProps<Props>(), {
+      })
+      </script>
+      `,
+      languageOptions: {
+        parser: vueEslintParser,
+        parserOptions: {},
+      },
+    },
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+      interface Props {
+        foo: boolean
+      }
+      withDefaults(defineProps<Props>(), {
+        foo: false
+      })
+      </script>
+      `,
+      options: ['default-false'],
+      languageOptions: {
+        parser: vueEslintParser,
+        parserOptions: {},
+      },
+    },
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+      interface Props {
+        foo: boolean | string
+      }
+      withDefaults(defineProps<Props>(), {
+        foo: false
+      })
+      </script>
+      `,
+      languageOptions: {
+        parser: vueEslintParser,
+        parserOptions: {},
+      },
+    },
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+      interface Props {
+        foo: string
+      }
+      withDefaults(defineProps<Props>(), {
+        foo: false
+      })
+      </script>
+      `,
+      languageOptions: {
+        parser: vueEslintParser,
+        parserOptions: {},
+      },
+    },
+    {
+      filename: 'test.vue',
+      code: `
       <script setup>
       const {foo = false} = defineProps({foo: Boolean})
       </script>
@@ -402,6 +470,60 @@ ruleTester.run('no-boolean-default', rule, {
           column: 20,
           endLine: 6,
           endColumn: 24,
+        },
+      ],
+    },
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+      interface Props {
+        foo: boolean
+      }
+      withDefaults(defineProps<Props>(), {
+        foo: false
+      })
+      </script>
+      `,
+      languageOptions: {
+        parser: vueEslintParser,
+        parserOptions: {},
+      },
+      errors: [
+        {
+          message:
+            'Boolean prop should not set a default (Vue defaults it to false).',
+          line: 7,
+          column: 14,
+          endLine: 7,
+          endColumn: 19,
+        },
+      ],
+    },
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+      interface Props {
+        foo: boolean
+      }
+      withDefaults(defineProps<Props>(), {
+        foo: true
+      })
+      </script>
+      `,
+      options: ['default-false'],
+      languageOptions: {
+        parser: vueEslintParser,
+        parserOptions: {},
+      },
+      errors: [
+        {
+          message: 'Boolean prop should only be defaulted to false.',
+          line: 7,
+          column: 14,
+          endLine: 7,
+          endColumn: 18,
         },
       ],
     },

@@ -5,6 +5,7 @@
 import type { Linter } from 'eslint';
 const rule = 'eslint-plugin-vue';
 import { RuleTester } from '../../rule-tester.js';
+import tsEslintParser from '@typescript-eslint/parser';
 import vueEslintParser from 'vue-eslint-parser';
 
 const languageOptions: Linter.LanguageOptions = {
@@ -107,6 +108,39 @@ ruleTester.run('require-default-prop', rule, {
     {
       filename: 'test.vue',
       code: `
+        export default (Vue as VueConstructor<Vue>).extend({
+          props: {
+            a: {
+              type: String,
+              required: true
+            } as PropOptions<string>
+          }
+        });
+      `,
+
+      languageOptions: {
+        parser: tsEslintParser,
+      },
+    },
+    {
+      filename: 'test.vue',
+      code: `
+        export default Vue.extend({
+          props: {
+            a: {
+              type: String,
+              required: true
+            } as PropOptions<string>
+          }
+        });
+      `,
+      languageOptions: {
+        parser: tsEslintParser,
+      },
+    },
+    {
+      filename: 'test.vue',
+      code: `
         export default {
           props: {
             bar,
@@ -198,6 +232,127 @@ ruleTester.run('require-default-prop', rule, {
     {
       filename: 'test.vue',
       code: `
+      <script setup lang="ts">
+      interface Props {
+        foo?: number
+      }
+      defineProps<Props>()
+      </script>
+      `,
+      languageOptions: {
+        parser: vueEslintParser,
+        ...languageOptions,
+        parserOptions: {},
+      },
+    },
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+      interface Props {
+        foo?: number
+      }
+      withDefaults(defineProps<Props>(), {foo:42})
+      </script>
+      `,
+      languageOptions: {
+        parser: vueEslintParser,
+        ...languageOptions,
+        parserOptions: {},
+      },
+    },
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+      interface Props {
+        foo?: number
+      }
+      defineProps<Props>({
+        foo:{
+          default: 42
+        }
+      })
+      </script>
+      `,
+      languageOptions: {
+        parser: vueEslintParser,
+        ...languageOptions,
+        parserOptions: {},
+      },
+    },
+    {
+      // https://github.com/vuejs/eslint-plugin-vue/issues/1591
+      filename: 'test.vue',
+      code: `
+      <template>
+        <div>
+          {{ required }}
+          {{ optional }}
+        </div>
+      </template>
+
+      <script setup lang="ts">
+      import { defineProps, withDefaults } from 'vue';
+
+      interface Props {
+        required: boolean;
+        optional?: boolean;
+      }
+
+      const props = withDefaults(defineProps<Props>(), {
+        optional: false,
+      });
+      </script>
+      `,
+      languageOptions: {
+        parser: vueEslintParser,
+        ...languageOptions,
+        parserOptions: {},
+      },
+    },
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+      interface Props {
+        optional?: boolean;
+      }
+
+      const props = defineProps<Props>();
+      </script>
+      `,
+      languageOptions: {
+        parser: vueEslintParser,
+        ...languageOptions,
+        parserOptions: {},
+      },
+    },
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+      const defaultProps = {
+        foo: 'foo',
+      }
+      withDefaults(defineProps<{
+        foo: string;
+        bar?: number;
+      }>(), {
+        ...defaultProps,
+        bar: 42,
+      })
+      </script>
+      `,
+      languageOptions: {
+        parser: vueEslintParser,
+        ...languageOptions,
+        parserOptions: {},
+      },
+    },
+    {
+      filename: 'test.vue',
+      code: `
       <script setup>
       const {foo=42,bar=42} = defineProps({foo: Number, bar: {type: Number}})
       </script>
@@ -242,6 +397,19 @@ ruleTester.run('require-default-prop', rule, {
       languageOptions: {
         parser: vueEslintParser,
         ...languageOptions,
+      },
+    },
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+      const {foo = 42, bar} = defineProps<{foo?: number; bar: number}>()
+      </script>
+      `,
+      languageOptions: {
+        parser: vueEslintParser,
+        ...languageOptions,
+        parserOptions: {},
       },
     },
   ],
@@ -310,6 +478,52 @@ ruleTester.run('require-default-prop', rule, {
           column: 13,
           endLine: 16,
           endColumn: 14,
+        },
+      ],
+    },
+    {
+      filename: 'test.vue',
+      code: `
+        export default (Vue as VueConstructor<Vue>).extend({
+          props: {
+            a: {
+              type: String
+            } as PropOptions<string>
+          }
+        });
+      `,
+      languageOptions: {
+        parser: tsEslintParser,
+      },
+      errors: [
+        {
+          message: `Prop 'a' requires default value to be set.`,
+          line: 4,
+          column: 13,
+          endLine: 6,
+          endColumn: 37,
+        },
+      ],
+    },
+    {
+      filename: 'test.vue',
+      code: `
+        export default Vue.extend({
+          props: {
+            a: {
+              type: String
+            } as PropOptions<string>
+          }
+        });
+      `,
+      languageOptions: { parser: tsEslintParser },
+      errors: [
+        {
+          message: `Prop 'a' requires default value to be set.`,
+          line: 4,
+          column: 13,
+          endLine: 6,
+          endColumn: 37,
         },
       ],
     },
@@ -491,6 +705,61 @@ ruleTester.run('require-default-prop', rule, {
     {
       filename: 'test.vue',
       code: `
+      <script setup lang="ts">
+      const defaultProps = {
+        foo: 'foo',
+      }
+      withDefaults(defineProps<{
+        foo: string;
+        bar?: number;
+      }>(), {
+        ...defaultProps,
+      })
+      </script>
+      `,
+      languageOptions: {
+        parser: vueEslintParser,
+        ...languageOptions,
+        parserOptions: {},
+      },
+      errors: [
+        {
+          message: "Prop 'bar' requires default value to be set.",
+          line: 8,
+          column: 9,
+          endLine: 8,
+          endColumn: 22,
+        },
+      ],
+    },
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+      interface Props {
+        foo?: number
+      }
+      withDefaults(defineProps<Props>(), {bar:42})
+      </script>
+      `,
+      languageOptions: {
+        parser: vueEslintParser,
+        ...languageOptions,
+        parserOptions: {},
+      },
+      errors: [
+        {
+          message: "Prop 'foo' requires default value to be set.",
+          line: 4,
+          column: 9,
+          endLine: 4,
+          endColumn: 21,
+        },
+      ],
+    },
+    {
+      filename: 'test.vue',
+      code: `
       <script setup>
       const {foo,bar} = defineProps({foo: Boolean, bar: {type: String}})
       </script>
@@ -534,6 +803,29 @@ ruleTester.run('require-default-prop', rule, {
           column: 51,
           endLine: 3,
           endColumn: 70,
+        },
+      ],
+    },
+    {
+      // https://github.com/vuejs/eslint-plugin-vue/issues/2725
+      filename: 'type-with-props-destructure.vue',
+      code: `
+      <script setup lang="ts">
+      const {foo, bar} = defineProps<{foo?: number; bar: number}>()
+      </script>
+      `,
+      languageOptions: {
+        parser: vueEslintParser,
+        ...languageOptions,
+        parserOptions: {},
+      },
+      errors: [
+        {
+          message: "Prop 'foo' requires default value to be set.",
+          line: 3,
+          column: 39,
+          endLine: 3,
+          endColumn: 52,
         },
       ],
     },

@@ -6,7 +6,6 @@
 import type { RuleTester as ESLintRuleTester } from 'eslint';
 import fs from 'node:fs';
 import path from 'node:path';
-// eslint-disable-next-line n/no-extraneous-import
 import semver from 'semver';
 import { createRequire } from 'node:module';
 import { RuleTester } from '../../rule-tester.js';
@@ -40,7 +39,7 @@ function loadPatterns(
       const commentPattern = /^(<!--|\/\*)(.+?)(-->|\*\/)/;
       const code0 = fs.readFileSync(path.join(FIXTURE_ROOT, filename), 'utf8');
       const code = code0.replace(commentPattern, `$1${filename}$3`);
-      const baseObj = JSON.parse(commentPattern.exec(code0)[2]);
+      const baseObj = JSON.parse(commentPattern.exec(code0)![2]);
 
       if (baseObj.requirements) {
         if (
@@ -119,7 +118,7 @@ function unIndent(strings: TemplateStringsArray): string {
     .split('\n');
   const lineIndents = lines
     .filter(line => line.trim())
-    .map(line => line.match(/ */)[0].length);
+    .map(line => line.match(/ */)![0].length);
   const minLineIndent = Math.min.apply(null, lineIndents);
 
   return lines.map(line => line.slice(minLineIndent)).join('\n');

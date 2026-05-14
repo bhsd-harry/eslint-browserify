@@ -4,6 +4,7 @@
  */
 const rule = 'eslint-plugin-vue';
 import { RuleTester } from '../../rule-tester.js';
+import tsParser from '@typescript-eslint/parser';
 import vueEslintParser from 'vue-eslint-parser';
 
 const ruleTester = new RuleTester();
@@ -107,6 +108,38 @@ ruleTester.run('require-emit-validator', rule, {
     {
       filename: 'test.vue',
       code: `
+        export default defineComponent({
+          emits: {
+            foo: (payload: string | number) => true,
+          }
+        })
+      `,
+      languageOptions: {
+        parser: tsParser,
+        ecmaVersion: 6,
+        sourceType: 'module',
+      },
+    },
+    {
+      filename: 'test.vue',
+      code: `
+        export default defineComponent({
+          emits: {
+            foo(payload: string | number) {
+              return true
+            },
+          },
+        })
+      `,
+      languageOptions: {
+        parser: tsParser,
+        ecmaVersion: 6,
+        sourceType: 'module',
+      },
+    },
+    {
+      filename: 'test.vue',
+      code: `
         function foo () {}
         export default {
           emits: {
@@ -127,6 +160,20 @@ ruleTester.run('require-emit-validator', rule, {
         }
       `,
       languageOptions: { ecmaVersion: 6, sourceType: 'module' },
+    },
+    {
+      filename: 'test.vue',
+      code: `
+      <script setup lang="ts">
+      const emit = defineEmits<(e: 'foo')=>void>()
+      </script>
+      `,
+      languageOptions: {
+        parser: vueEslintParser,
+        ecmaVersion: 6,
+        sourceType: 'module',
+        parserOptions: {},
+      },
     },
   ],
 
@@ -301,6 +348,31 @@ ruleTester.run('require-emit-validator', rule, {
           column: 13,
           endLine: 6,
           endColumn: 14,
+        },
+      ],
+    },
+    {
+      filename: 'test.vue',
+      code: `
+        export default defineComponent({
+          emits: {
+            foo: {} as ((payload: string) => boolean)
+          }
+        });
+      `,
+      languageOptions: {
+        parser: tsParser,
+        ecmaVersion: 6,
+        sourceType: 'module',
+      },
+      errors: [
+        {
+          messageId: 'missing',
+          data: { name: 'foo' },
+          line: 4,
+          column: 13,
+          endLine: 4,
+          endColumn: 54,
         },
       ],
     },

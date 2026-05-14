@@ -4,13 +4,19 @@
  */
 
 import assert from 'node:assert';
-import parserVue from 'vue-eslint-parser';
-import pluginVue from '../../../bundle/eslint-plugin-vue.min.js';
-import type { Linter } from 'eslint';
+import type { Linter, ESLint as ESL } from 'eslint';
 
-declare const eslint: {Linter: typeof Linter};
+declare const eslint: {
+  Linter: typeof Linter;
+  plugins: Record<string, ESL.Plugin>;
+};
 
-const linter = new eslint.Linter();
+let pluginVue: ESL.Plugin;
+let parserVue: Linter.Parser;
+let processor: Linter.Processor;
+let linter: Linter;
+let esLint: ESLint;
+
 class ESLint {
   declare config;
 
@@ -19,31 +25,13 @@ class ESLint {
     delete this.config.files;
   }
 
-  lintText(code, options) {
-    return [{messages: linter.verify(code, this.config)}];
+  lintText(code, {filePath}) {
+    this.config.plugins.vue ??= pluginVue;
+    this.config.languageOptions.parser ??= parserVue;
+    this.config.processor ??= processor;
+    return [{messages: linter.verify(code, this.config, filePath)}];
   }
 }
-const processor = pluginVue.processors.vue;
-
-// Initialize linter.
-const esLint = new ESLint({
-  overrideConfigFile: true,
-  overrideConfig: {
-    files: ['*.*'],
-    languageOptions: {
-      parser: parserVue,
-      ecmaVersion: 2015,
-    },
-    plugins: { vue: pluginVue },
-    rules: {
-      'no-unused-vars': 'error',
-      'vue/comment-directive': 'error',
-      'vue/no-parsing-error': 'error',
-      'vue/no-duplicate-attributes': 'error',
-    },
-    processor,
-  },
-});
 
 async function lintMessages(code: string) {
   const result = await esLint.lintText(code, { filePath: 'test.vue' });
@@ -51,6 +39,40 @@ async function lintMessages(code: string) {
 }
 
 describe('comment-directive', () => {
+  before(async () => {
+    if (globalThis.eslint) {
+      pluginVue = eslint.plugins['vue'];
+    } else {
+      globalThis.eslint = (await import('../../../bundle/coverage.min.js')).eslint;
+      ({default: pluginVue} = await import('../../../bundle/coverage-vue.min.js'));
+      eslint.plugins['vue'] = pluginVue;
+    }
+
+    linter = new eslint.Linter();
+    parserVue = pluginVue.configs!['base'][1].languageOptions.parser;
+    processor = pluginVue.processors['vue'];
+
+    // Initialize linter.
+    esLint = new ESLint({
+      overrideConfigFile: true,
+      overrideConfig: {
+        files: ['*.*'],
+        languageOptions: {
+          parser: parserVue,
+          ecmaVersion: 2015,
+        },
+        plugins: { vue: pluginVue },
+        rules: {
+          'no-unused-vars': 'error',
+          'vue/comment-directive': 'error',
+          'vue/no-parsing-error': 'error',
+          'vue/no-duplicate-attributes': 'error',
+        },
+        processor,
+      },
+    });
+  });
+
   describe('eslint-disable/eslint-enable', () => {
     it('disable all rules if <!-- eslint-disable -->', async () => {
       const code = `

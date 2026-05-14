@@ -35,7 +35,7 @@ function loadPatterns(
     .map(filename => {
       const code0 = fs.readFileSync(path.join(FIXTURE_ROOT, filename), 'utf8');
       const code = code0.replace(/^<!--(.+?)-->/, `<!--${filename}-->`);
-      const baseObj = JSON.parse(/^<!--(.+?)-->/.exec(code0)[1]);
+      const baseObj = JSON.parse(/^<!--(.+?)-->/.exec(code0)![1]);
       if ('parser' in baseObj) {
         baseObj.parser = require.resolve(baseObj.parser);
       }
@@ -97,7 +97,7 @@ function unIndent(strings: TemplateStringsArray): string {
     .split('\n');
   const lineIndents = lines
     .filter(line => line.trim())
-    .map(line => line.match(/ */)[0].length);
+    .map(line => line.match(/ */)![0].length);
   const minLineIndent = Math.min.apply(null, lineIndents);
 
   return lines.map(line => line.slice(minLineIndent)).join('\n');

@@ -1,7 +1,8 @@
 /**
  * @author Yosuke Ota
  */
-import { RuleTester } from '../../rule-tester.js';
+import { RuleTester, ESLint } from '../../rule-tester.js';
+import semver from 'semver';
 const rule = 'eslint-plugin-vue';
 import vueEslintParser from 'vue-eslint-parser';
 
@@ -29,8 +30,9 @@ tester.run('no-sparse-arrays', rule, {
           message: 'Unexpected comma in middle of array.',
           line: 3,
           endLine: 3,
-           column: 23,
-endColumn: 24,
+          ...(semver.gte(ESLint.version, '9.5.0')
+            ? { column: 23, endColumn: 24 }
+            : { column: 22, endColumn: 38 }),
         },
       ],
     },
@@ -44,8 +46,9 @@ endColumn: 24,
           message: 'Unexpected comma in middle of array.',
           line: 3,
           endLine: 3,
-           column: 23,
-endColumn: 24,
+          ...(semver.gte(ESLint.version, '9.5.0')
+            ? { column: 23, endColumn: 24 }
+            : { column: 22, endColumn: 30 }),
         },
       ],
     },
