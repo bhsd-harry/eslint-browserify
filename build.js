@@ -418,6 +418,7 @@ const /** @type {esbuild.BuildOptions} */ config = {
 		'prelude-ls': './shim/prelude-ls.js',
 		/* eslint-enable n/no-extraneous-require */
 	},
+	external: ['./eslint-plugin-vue.min.js'],
 };
 
 (async () => {

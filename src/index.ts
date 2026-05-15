@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
-import eslint from 'eslint';
-import {version} from 'eslint/package.json';
+import eslintBase from 'eslint';
 import unsupported = require('eslint/use-at-your-own-risk');
 import utils = require('@eslint-community/eslint-utils');
 import keys = require('eslint-visitor-keys');
@@ -14,7 +13,7 @@ import compare = require('natural-compare');
 import {environments, migrateConfig, plugins} from './migrate';
 import type {Linter} from 'eslint';
 
-class LegacyLinter extends eslint.Linter {
+class LegacyLinter extends eslintBase.Linter {
 	// @ts-expect-error Override to accept both legacy and flat config formats
 	override verify(
 		code: string,
@@ -34,8 +33,9 @@ class LegacyLinter extends eslint.Linter {
 	}
 }
 
-Object.assign(eslint, {
-	version,
+const eslint = {
+	...eslintBase as Pick<typeof eslintBase, 'Linter' | 'SourceCode'>,
+	version: eslintBase.Linter.version,
 	environments,
 	LegacyLinter,
 	migrateConfig,
@@ -49,6 +49,14 @@ Object.assign(eslint, {
 		esquery,
 		'natural-compare': compare,
 	},
-});
+	async loadPlugin(plugin: string): Promise<void> {
+		if (plugin === 'eslint-plugin-vue' && plugins['vue']?.meta?.name !== plugin) {
+			// @ts-expect-error download the plugin from CDN
+			// eslint-disable-next-line n/no-missing-import
+			const {default: vue} = await import('./eslint-plugin-vue.min.js');
+			plugins['vue'] = vue;
+		}
+	},
+};
 
 export {eslint};
