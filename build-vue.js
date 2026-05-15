@@ -226,7 +226,6 @@ const /** @type {esbuild.BuildOptions} */ config = {
 	await esbuild.build({
 		...config,
 		outfile: 'build/eslint-plugin-vue.js',
-		legalComments: 'none',
 	});
 	min = true;
 	await esbuild.build({

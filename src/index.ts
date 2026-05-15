@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
-import eslintBase from 'eslint';
+import {Linter, SourceCode} from 'eslint';
 import unsupported = require('eslint/use-at-your-own-risk');
 import utils = require('@eslint-community/eslint-utils');
 import keys = require('eslint-visitor-keys');
@@ -11,9 +11,9 @@ import esquery = require('esquery');
 // @ts-expect-error no types available
 import compare = require('natural-compare');
 import {environments, migrateConfig, plugins} from './migrate';
-import type {Linter} from 'eslint';
+import type {ESLint} from 'eslint';
 
-class LegacyLinter extends eslintBase.Linter {
+class LegacyLinter extends Linter {
 	// @ts-expect-error Override to accept both legacy and flat config formats
 	override verify(
 		code: string,
@@ -33,30 +33,34 @@ class LegacyLinter extends eslintBase.Linter {
 	}
 }
 
-const eslint = {
-	...eslintBase as Pick<typeof eslintBase, 'Linter' | 'SourceCode'>,
-	version: eslintBase.Linter.version,
+const packages = {
+	'eslint/use-at-your-own-risk': unsupported,
+	'@eslint-community/eslint-utils': utils,
+	'eslint-visitor-keys': keys,
+	'eslint-scope': scope,
+	espree,
+	esquery,
+	'natural-compare': compare,
+};
+
+export const eslint = {
+	version: Linter.version,
 	environments,
+	Linter,
 	LegacyLinter,
 	migrateConfig,
 	plugins,
-	packages: {
-		'eslint/use-at-your-own-risk': unsupported,
-		'@eslint-community/eslint-utils': utils,
-		'eslint-visitor-keys': keys,
-		'eslint-scope': scope,
-		espree,
-		esquery,
-		'natural-compare': compare,
-	},
 	async loadPlugin(plugin: string): Promise<void> {
-		if (plugin === 'eslint-plugin-vue' && plugins['vue']?.meta?.name !== plugin) {
+		if (plugin !== 'vue' && plugin !== 'eslint-plugin-vue') {
+			throw new RangeError(`Plugin ${JSON.stringify(plugin)} is not supported!`);
+		} else if (plugins['vue']?.meta?.name !== 'eslint-plugin-vue') {
 			// @ts-expect-error download the plugin from CDN
 			// eslint-disable-next-line n/no-missing-import
-			const {default: vue} = await import('./eslint-plugin-vue.min.js');
-			plugins['vue'] = vue;
+			plugins['vue'] = (await import('./eslint-plugin-vue.min.js') as {default: ESLint.Plugin}).default;
 		}
 	},
 };
-
-export {eslint};
+Object.defineProperties(eslint, {
+	SourceCode: {enumerable: false, value: SourceCode},
+	packages: {enumerable: false, value: packages},
+});
