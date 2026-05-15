@@ -3,7 +3,8 @@
 const path = require('path'),
 	fs = require('fs'),
 	{spawnSync} = require('child_process'),
-	esbuild = require('esbuild');
+	esbuild = require('esbuild'),
+	{red} = require('@bhsd/nodejs');
 
 const shim = [
 		'ajv',
@@ -89,16 +90,13 @@ const /** @type {esbuild.Plugin} */ plugin = {
 				),
 			},
 			({path: p}) => {
-				let isRule = /\/rules\/[\w-]+\.js$/u.test(p);
-				let contents = fs.readFileSync(p, 'utf8');
+				const original = fs.readFileSync(p, 'utf8');
+				let contents = original,
+					isRule = /\/rules\/[\w-]+\.js$/u.test(p);
 				if (isRule) {
 					contents = contents
 						.replaceAll(
 							/^([ \t]+)(?:schema|deprecated): (?:\{(?:$.+?^\1|[^\n]*)\}|\[(?:$.+?^\1|[^\n]*)\]),?$/gmsu,
-							'',
-						)
-						.replaceAll(
-							/language: "javascript",|dialects: \["(?:java|type)script", "(?:java|type)script"\],/gu,
 							'',
 						)
 						.replace(
@@ -390,6 +388,9 @@ const /** @type {esbuild.Plugin} */ plugin = {
 						path.resolve(loadPath, (/^index\.c?js$/u.test(basename) ? `${base}-` : '') + basename),
 					);
 				}
+				if (!isRule && contents === original) {
+					console.error(red(`No changes were made to ${p}`));
+				}
 				return {contents};
 			},
 		);
@@ -435,7 +436,7 @@ const /** @type {esbuild.BuildOptions} */ config = {
 	});
 	if (shimSet.size > 0) {
 		console.error(
-			`The following shims were not used in the bundle: ${[...shimSet].join(', ')}`,
+			red('The following shims were not used in the bundle: ') + [...shimSet].join(', '),
 		);
 	}
 })();

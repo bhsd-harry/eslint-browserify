@@ -1,6 +1,6 @@
 {
 	"name": "@bhsd/eslint-browserify",
-	"version": "10.3.0",
+	"version": "10.4.0",
 	"description": "ESLint in browser",
 	"keywords": [
 		"eslint",
@@ -58,14 +58,15 @@
 		]
 	},
 	"dependencies": {
-		"eslint": "^10.3.0"
+		"eslint": "^10.4.0"
 	},
 	"devDependencies": {
 		"@bhsd/code-standard": "^2.4.2",
+		"@bhsd/nodejs": "^1.0.0",
 		"@bhsd/test-util": "^1.3.1",
 		"@eslint/eslintrc": "^3.3.5",
 		"@types/mocha": "^10.0.10",
-		"@types/node": "^25.6.2",
+		"@types/node": "^25.8.0",
 		"@typescript-eslint/parser": "^8.59.2",
 		"c8": "^11.0.0",
 		"esbuild": "^0.28.0",
