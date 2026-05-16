@@ -1,11 +1,3 @@
-// @ts-expect-error no types available
-import plugin from 'eslint-plugin-vue/dist/plugin';
-// @ts-expect-error no types available
-import flatBase from 'eslint-plugin-vue/dist/configs/flat/base';
+import * as vue from 'eslint-plugin-vue';
 
-export default {
-	...(plugin as {default: object}).default,
-	configs: {
-		base: flatBase,
-	},
-};
+export default vue;

@@ -81,7 +81,10 @@ export default extend(
 			'n/no-extraneous-import': [
 				2,
 				{
-					allowModules: ['semver'],
+					allowModules: [
+						'semver',
+						'vue-eslint-parser',
+					],
 				},
 			],
 			'n/no-missing-import': 0,

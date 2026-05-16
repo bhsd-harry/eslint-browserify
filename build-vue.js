@@ -7,6 +7,7 @@ const path = require('path'),
 	{red} = require('@bhsd/nodejs');
 
 const shim = [
+		'configs/index',
 		'indent-ts',
 		'selector',
 		'ts-utils/index',
@@ -31,15 +32,16 @@ const /** @type {esbuild.Plugin} */ plugin = {
 			// eslint-disable-next-line require-unicode-regexp
 			{filter: new RegExp(String.raw`/(?:${shim.join('|')})(?:\.c?js)?$`)},
 			({path: p, resolveDir}) => {
-				const {name, ext} = path.parse(p),
-					file = name + (ext || '.js');
+				const parsed = path.parse(p);
+				let {name} = parsed,
+					shimName = name;
+				if (name === 'index') {
+					name = path.basename(parsed.dir);
+					shimName = `${name}/index`;
+				}
+				const file = name + (parsed.ext || '.js');
 				if (min) {
-					if (name === 'index') {
-						const shimName = [...shimSet].find(s => s.endsWith('/index'));
-						shimSet.delete(shimName);
-					} else {
-						shimSet.delete(name);
-					}
+					shimSet.delete(shimName);
 					fs.copyFileSync(require.resolve(path.join(resolveDir, p)), path.resolve(resolvePath, file));
 				}
 				return {
