@@ -11,6 +11,7 @@
 
 const rule = __filename;
 const RuleTester = require("../rule-tester");
+const { Reference } = require("eslint-scope");
 
 //------------------------------------------------------------------------------
 // Tests
@@ -27,6 +28,29 @@ const ruleTester = new RuleTester({
 						return {
 							VariableDeclaration(node) {
 								sourceCode.markVariableAsUsed("a", node);
+							},
+						};
+					},
+				},
+				"unknown-ref": {
+					create(context) {
+						const sourceCode = context.sourceCode;
+
+						return {
+							VariableDeclarator(node) {
+								const scope = sourceCode.getScope(node);
+								const variable = scope.set.get(node.id.name);
+
+								variable.references.push(
+									new Reference(
+										node,
+										scope,
+										Reference.READ,
+										null,
+										false,
+										null,
+									),
+								);
 							},
 						};
 					},
@@ -382,6 +406,71 @@ ruleTester.run("no-useless-assignment", rule, {
                 }
             }
         }`,
+		`function foo() {
+			let outcome = 'unknown';
+
+			try {
+				helper1();
+				outcome = 'success';
+			} catch (err) {
+				helper2();
+				outcome = 'exception'; 
+			} finally {
+				console.log(outcome);
+			}
+		}`,
+		`function foo() {
+			let outcome = 'unknown';
+
+			try {
+				new Foo();
+				outcome = 'success';
+			} catch (err) {
+				new Bar();
+				outcome = 'exception'; 
+			} finally {
+				console.log(outcome);
+			}
+		}`,
+		`async function foo() {
+			let outcome = 'unknown';
+
+			try {
+				await import("./foo.js");
+				outcome = 'success';
+			} catch (err) {
+				await import("./bar.js");
+				outcome = 'exception';
+			} finally {
+				console.log(outcome);
+			}
+		}`,
+		`function foo() {
+			let outcome = 'unknown';
+
+			try {
+				obj.foo;
+				outcome = 'success';
+			} catch (err) {
+				obj.foo;
+				outcome = 'exception';
+			} finally {
+				console.log(outcome);
+			}
+		}`,
+		`function foo() {
+			let outcome = 'unknown';
+
+			try {
+				helper1();
+				outcome = 'success';
+			} catch (err) {
+			 	outcome = 'exception';
+				helper2(); 
+			} finally {
+				console.log(outcome);
+			}
+		}`,
 
 		// An expression within an assignment.
 		`const obj = { a: 5 };
@@ -440,6 +529,25 @@ ruleTester.run("no-useless-assignment", rule, {
         }   
         function unsafeFn() {
             throw new Error();
+        }`,
+		`/*eslint test/unknown-ref:1*/
+        let a = "used";
+		console.log(a);
+		a = "unused";`,
+		`/*eslint test/unknown-ref:1*/
+		function foo() {
+			let a = "used";
+			console.log(a);
+			a = "unused";
+		}`,
+		`/*eslint test/unknown-ref:1*/
+		function foo() {
+			let a = "used";
+			if (condition) {
+				a = "unused";
+				return
+			}
+			console.log(a);
         }`,
 		{
 			code: `
@@ -1297,6 +1405,35 @@ ruleTester.run("no-useless-assignment", rule, {
 					data: { name: "v" },
 					line: 1,
 					column: 5,
+				},
+			],
+		},
+		{
+			code: `function foo() {
+				let outcome = 'unknown';
+
+				try {
+					bar();
+				} catch (err) {
+					new Baz();
+					outcome = 'exception'; 
+				} finally {
+					return;
+					console.log(outcome);
+				}
+			}`,
+			errors: [
+				{
+					messageId: "unnecessaryAssignment",
+					data: { name: "outcome" },
+					line: 2,
+					column: 9,
+				},
+				{
+					messageId: "unnecessaryAssignment",
+					data: { name: "outcome" },
+					line: 8,
+					column: 6,
 				},
 			],
 		},
