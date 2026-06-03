@@ -5,6 +5,7 @@
 import type { Linter } from 'eslint';
 const rule = 'eslint-plugin-vue';
 import { RuleTester } from '../../rule-tester.js';
+import { getTypeScriptFixtureTestOptions } from '../../typescript.js';
 import vueEslintParser from 'vue-eslint-parser';
 
 const languageOptions: Linter.LanguageOptions = {
@@ -373,6 +374,16 @@ ruleTester.run('prop-name-casing', rule, {
         { ignoreProps: ['ignored_prop', '/^ignored-pattern-/'] },
       ],
       languageOptions,
+    },
+    {
+      code: `
+      <script setup lang="ts">
+      import {Props2 as Props} from './test01'
+
+      defineProps<Props>()
+      </script>
+      `,
+      ...getTypeScriptFixtureTestOptions(),
     },
   ],
 
@@ -810,6 +821,39 @@ ruleTester.run('prop-name-casing', rule, {
           endColumn: 55,
         },
       ],
+    },
+    {
+      code: `
+      <script setup lang="ts">
+      import {Props3 as Props} from './test01'
+
+      defineProps<Props>()
+      </script>
+      `,
+      errors: [
+        {
+          message: 'Prop "snake_case" is not in camelCase.',
+          line: 5,
+          column: 19,
+          endLine: 5,
+          endColumn: 24,
+        },
+        {
+          message: 'Prop "kebab-case" is not in camelCase.',
+          line: 5,
+          column: 19,
+          endLine: 5,
+          endColumn: 24,
+        },
+        {
+          message: 'Prop "PascalCase" is not in camelCase.',
+          line: 5,
+          column: 19,
+          endLine: 5,
+          endColumn: 24,
+        },
+      ],
+      ...getTypeScriptFixtureTestOptions(),
     },
   ],
 });

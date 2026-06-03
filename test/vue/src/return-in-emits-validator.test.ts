@@ -4,6 +4,7 @@
  */
 const rule = 'eslint-plugin-vue';
 import { RuleTester } from '../../rule-tester.js';
+import { getTypeScriptFixtureTestOptions } from '../../typescript.js';
 import vueEslintParser from 'vue-eslint-parser';
 
 const ruleTester = new RuleTester({
@@ -124,6 +125,14 @@ ruleTester.run('return-in-emits-validator', rule, {
         })
         </script>
       `,
+    },
+    {
+      code: `
+      <script setup lang="ts">
+      import {Emits1 as Emits} from './test01'
+      const emit = defineEmits<Emits>()
+      </script>`,
+      ...getTypeScriptFixtureTestOptions(),
     },
   ],
 

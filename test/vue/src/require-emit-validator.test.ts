@@ -3,6 +3,7 @@
  * @author Pig Fang
  */
 const rule = 'eslint-plugin-vue';
+import { getTypeScriptFixtureTestOptions } from '../../typescript.js';
 import { RuleTester } from '../../rule-tester.js';
 import tsParser from '@typescript-eslint/parser';
 import vueEslintParser from 'vue-eslint-parser';
@@ -174,6 +175,14 @@ ruleTester.run('require-emit-validator', rule, {
         sourceType: 'module',
         parserOptions: {},
       },
+    },
+    {
+      code: `
+      <script setup lang="ts">
+      import {Emits1 as Emits} from './test01'
+      const emit = defineEmits<Emits>()
+      </script>`,
+      ...getTypeScriptFixtureTestOptions(),
     },
   ],
 

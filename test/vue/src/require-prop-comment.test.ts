@@ -4,6 +4,7 @@
  */
 import { RuleTester } from '../../rule-tester.js';
 const rule = 'eslint-plugin-vue';
+import { getTypeScriptFixtureTestOptions } from '../../typescript.js';
 import vueEslintParser from 'vue-eslint-parser';
 
 const tester = new RuleTester({
@@ -88,6 +89,14 @@ tester.run('require-prop-comment', rule, {
       languageOptions: {
         parserOptions: {},
       },
+    },
+    {
+      code: `
+      <script setup lang="ts">
+      import {Props1 as Props} from './test01'
+      defineProps<Props>()
+      </script>`,
+      ...getTypeScriptFixtureTestOptions(),
     },
   ],
   invalid: [

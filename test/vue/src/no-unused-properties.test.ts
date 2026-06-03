@@ -6,6 +6,7 @@ import type { Linter as ESLintLinter } from 'eslint';
 import { RuleTester, Linter } from '../../rule-tester.js';
 import assert from 'node:assert';
 const rule = 'eslint-plugin-vue';
+import { getTypeScriptFixtureTestOptions } from '../../typescript.js';
 import vueEslintParser from 'vue-eslint-parser';
 
 const tester = new RuleTester({
@@ -2509,6 +2510,16 @@ tester.run('no-unused-properties', rule, {
       <script setup>
       const foo = defineProps(['a'])
       </script>`,
+    },
+    {
+      code: `
+      <script setup lang="ts">
+      const props = defineProps<{ foo: string, bar: string }>()
+      </script>
+      <template>
+      {{ props.foo }}{{ bar }}
+      </template>`,
+      ...getTypeScriptFixtureTestOptions(),
     },
     // used inject
     {
@@ -5274,6 +5285,27 @@ tester.run('no-unused-properties', rule, {
         },
       ],
     },
+    // script setup with typescript
+    {
+      code: `
+      <script setup lang="ts">
+      import {Props1 as Props} from './test01'
+      defineProps<Props>()
+      </script>
+      <template>
+      {{ foo }}{{ bar }}
+      </template>`,
+      errors: [
+        {
+          message: "'baz' of property found, but never used.",
+          line: 4,
+          column: 19,
+          endLine: 4,
+          endColumn: 24,
+        },
+      ],
+      ...getTypeScriptFixtureTestOptions(),
+    },
 
     {
       // defineModel
@@ -5362,6 +5394,25 @@ tester.run('no-unused-properties', rule, {
           endColumn: 40,
         },
       ],
+    },
+    {
+      code: `
+      <script setup lang="ts">
+      const props = defineProps<{ foo: string, bar: string, baz: string }>()
+      </script>
+      <template>
+      {{ props.foo }}{{ bar }}
+      </template>`,
+      errors: [
+        {
+          message: "'baz' of property found, but never used.",
+          line: 3,
+          column: 61,
+          endLine: 3,
+          endColumn: 64,
+        },
+      ],
+      ...getTypeScriptFixtureTestOptions(),
     },
     // unused inject
     {

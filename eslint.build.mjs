@@ -14,6 +14,7 @@ export default [
 		},
 		rules: {
 			'no-undef': 2,
+			'es-x/no-array-prototype-findlast-findlastindex': 0,
 		},
 	},
 	{

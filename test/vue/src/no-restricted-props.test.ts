@@ -3,6 +3,7 @@
  */
 import { RuleTester } from '../../rule-tester.js';
 const rule = 'eslint-plugin-vue';
+import { getTypeScriptFixtureTestOptions } from '../../typescript.js';
 import vueEslintParser from 'vue-eslint-parser';
 
 const tester = new RuleTester({
@@ -630,6 +631,26 @@ tester.run('no-restricted-props', rule as RuleModule, {
           ],
         },
       ],
+    },
+    {
+      code: `
+        <script setup lang="ts">
+        import {Props1 as Props} from './test01'
+        defineProps<Props>()
+        </script>
+      `,
+      options: [{ name: 'foo', suggest: 'Foo' }],
+      errors: [
+        {
+          message: 'Using `foo` props is not allowed.',
+          line: 4,
+          column: 21,
+          endLine: 4,
+          endColumn: 26,
+          suggestions: [],
+        },
+      ],
+      ...getTypeScriptFixtureTestOptions(),
     },
     {
       filename: 'test.vue',

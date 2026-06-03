@@ -29,7 +29,7 @@
 	},
 	"scripts": {
 		"ls": "npm i --package-lock-only && npm ls --package-lock-only --all --omit=dev",
-		"lint:ts": "tsc --noEmit && eslint --cache --report-unused-disable-directives-severity 0 . && eslint --no-ignore --no-inline-config --no-config-lookup -c eslint.build.mjs build/eslint.js build/eslint-plugin-vue.js",
+		"lint:ts": "tsc --noEmit && eslint --cache --report-unused-disable-directives-severity 0 --ignore-pattern 'test/tests/*.js' --ignore-pattern 'test/vue/src/*.ts' . && eslint --no-ignore --no-inline-config --no-config-lookup -c eslint.build.mjs build/eslint.js build/eslint-plugin-vue.js",
 		"lint:bundle": "eslint --no-ignore --no-config-lookup --report-unused-disable-directives-severity 0 --no-inline-config --rule 'no-unused-vars: [2, {args: \"none\", caughtErrors: \"none\", ignoreRestSiblings: true}]' build/eslint.js build/eslint-plugin-vue.js",
 		"lint:md": "markdownlint-cli2 '**/*.md'",
 		"lint": "npm run lint:ts && npm run lint:md",
@@ -44,7 +44,7 @@
 		"test:vue": "mocha --require bundle/eslint.min.js test/vue/dist/*.test.js",
 		"test:coverage": "mocha test/tests/*.js && mocha test/linter.test.js && mocha test/migrate.test.js && mocha test/vue/dist/*.test.js",
 		"clean": "find test/tests/ -type f -name '*.js' | xargs gsed -i 's|\"../../../lib/rule-tester/rule-tester\"|\"../rule-tester\"| ; s|rule = require(.*)|rule = __filename| ; s|\"../../_utils\"|\"../utils\"| ; s|rule-to-test/||g'; eslint --fix --report-unused-disable-directives-severity 0 test/tests/*.js",
-		"clean:vue": "find test/vue/src/ -type f -name '*.ts' | xargs gsed -i \"s|../../eslint-compat|../../rule-tester.js| ; s|import rule from .*|const rule = 'eslint-plugin-vue'| ; /import { getTypeScriptFixtureTestOptions } from .*/d ; s|import { eslintStylisticVersion } from .*|const eslintStylisticVersion = undefined| ; s|parser: require.resolve('@typescript-eslint/parser'),\\{0,1\\}||g ; s|__dirname, '../../|process.cwd(), './|\"; eslint --fix test/vue/src/*.ts"
+		"clean:vue": "find test/vue/src/ -type f -name '*.ts' | xargs gsed -i \"s|../../eslint-compat|../../rule-tester.js| ; s|import rule from .*|const rule = 'eslint-plugin-vue'| ; s|../../test-utils/typescript|../../typescript.js| ; s|import { eslintStylisticVersion } from .*|const eslintStylisticVersion = undefined| ; s|parser: require.resolve('@typescript-eslint/parser'),\\{0,1\\}||g ; s|__dirname, '../../|process.cwd(), './|\"; eslint --fix --no-inline-config test/vue/src/*.ts"
 	},
 	"c8": {
 		"reporter": [
@@ -57,20 +57,17 @@
 			"bundle/coverage-vue.min.js"
 		]
 	},
-	"dependencies": {
-		"eslint": "^10.4.1"
-	},
 	"devDependencies": {
-		"@bhsd/code-standard": "^2.5.1",
+		"@bhsd/code-standard": "^2.7.0",
 		"@bhsd/nodejs": "^1.0.1",
-		"@bhsd/test-util": "^1.3.1",
+		"@bhsd/test-util": "^1.5.0",
 		"@eslint/eslintrc": "^3.3.5",
-		"@types/mocha": "^10.0.10",
-		"@types/node": "^25.9.0",
-		"@typescript-eslint/parser": "^8.59.4",
+		"@typescript-eslint/parser": "^8.60.1",
 		"c8": "^11.0.0",
 		"esbuild": "^0.28.0",
-		"eslint-plugin-vue": "^10.9.1",
+		"escape-string-regexp": "^4.0.0",
+		"eslint": "^10.4.1",
+		"eslint-plugin-vue": "^10.9.2",
 		"globals": "^17.6.0",
 		"markdownlint-cli2": "^0.22.1",
 		"mocha": "^11.7.6",

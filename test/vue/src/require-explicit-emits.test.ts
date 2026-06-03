@@ -4,6 +4,7 @@
  */
 import { RuleTester } from '../../rule-tester.js';
 const rule = 'eslint-plugin-vue';
+import { getTypeScriptFixtureTestOptions } from '../../typescript.js';
 import vueEslintParser from 'vue-eslint-parser';
 
 const tester = new RuleTester({
@@ -642,6 +643,17 @@ tester.run('require-explicit-emits', rule, {
       languageOptions: {
         parserOptions: {},
       },
+    },
+    {
+      code: `
+      <script setup lang="ts">
+      import {Emits1 as Emits} from './test01'
+      const emit = defineEmits<Emits>()
+      emit('foo')
+      emit('bar')
+      emit('baz')
+      </script>`,
+      ...getTypeScriptFixtureTestOptions(),
     },
   ],
   invalid: [
@@ -2362,6 +2374,28 @@ emits: {'foo': null},
           endColumn: 17,
         },
       ],
+    },
+    {
+      code: `
+      <script setup lang="ts">
+      import {Emits1 as Emits} from './test01'
+      const emit = defineEmits<Emits>()
+      emit('foo')
+      emit('bar')
+      emit('baz')
+      emit('qux')
+      </script>`,
+      errors: [
+        {
+          message:
+            'The "qux" event has been triggered but not declared on `defineEmits`.',
+          line: 8,
+          column: 12,
+          endLine: 8,
+          endColumn: 17,
+        },
+      ],
+      ...getTypeScriptFixtureTestOptions(),
     },
     {
       filename: 'test.vue',

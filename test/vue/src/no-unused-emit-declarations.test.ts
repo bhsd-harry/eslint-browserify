@@ -4,6 +4,7 @@
  */
 import { RuleTester } from '../../rule-tester.js';
 const rule = 'eslint-plugin-vue';
+import { getTypeScriptFixtureTestOptions } from '../../typescript.js';
 import vueEslintParser from 'vue-eslint-parser';
 
 const tester = new RuleTester({
@@ -344,6 +345,16 @@ tester.run('no-unused-emit-declarations', rule, {
       languageOptions: {
         parserOptions: {},
       },
+    },
+    {
+      code: `
+      <script setup lang="ts">
+      const emit = defineEmits<{
+        foo: [string, number]
+      }>()
+      const change = () => emit('foo');
+      `,
+      ...getTypeScriptFixtureTestOptions(),
     },
     {
       // defineModel
@@ -727,6 +738,26 @@ tester.run('no-unused-emit-declarations', rule, {
           endColumn: 38,
         },
       ],
+    },
+    {
+      code: `
+      <script setup lang="ts">
+      const emit = defineEmits<{
+        foo: [string, number],
+        bar: []
+      }>()
+      const change = () => emit('foo');
+      `,
+      errors: [
+        {
+          messageId: 'unused',
+          line: 5,
+          column: 9,
+          endLine: 5,
+          endColumn: 16,
+        },
+      ],
+      ...getTypeScriptFixtureTestOptions(),
     },
     {
       // defineModel

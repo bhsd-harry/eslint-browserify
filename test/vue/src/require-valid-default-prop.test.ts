@@ -4,6 +4,7 @@
  */
 import type { Linter } from 'eslint';
 const rule = 'eslint-plugin-vue';
+import { getTypeScriptFixtureTestOptions } from '../../typescript.js';
 import { RuleTester } from '../../rule-tester.js';
 import tsParser from '@typescript-eslint/parser';
 import vueEslintParser from 'vue-eslint-parser';
@@ -260,6 +261,24 @@ ruleTester.run('require-valid-default-prop', rule, {
       },
     },
     {
+      code: `
+      <script setup lang="ts">
+      import {Props2 as Props} from './test01'
+      withDefaults(defineProps<Props>(), {
+        a: 's',
+        b: 42,
+        c: true,
+        d: false,
+        e: 's',
+        f: () => 42,
+        g: ()=>({ foo: 'foo' }),
+        h: ()=>(['foo', 'bar']),
+        i: ()=>(['foo', 'bar']),
+      })
+      </script>`,
+      ...getTypeScriptFixtureTestOptions(),
+    },
+    {
       filename: 'test.vue',
       code: `
       <script setup>
@@ -288,6 +307,16 @@ ruleTester.run('require-valid-default-prop', rule, {
       languageOptions: {
         parser: vueEslintParser,
       },
+    },
+    {
+      // https://github.com/vuejs/eslint-plugin-vue/issues/2692
+      code: `
+      <script setup lang="ts">
+      type MaybeString<T extends number> = T | \`\${T}\`
+      const { foo = 1 } = defineProps<{ foo: MaybeString<1, 2>}>()
+      </script>
+      `,
+      ...getTypeScriptFixtureTestOptions(),
     },
   ],
 
@@ -1287,6 +1316,90 @@ ruleTester.run('require-valid-default-prop', rule, {
       ],
     },
     {
+      code: `
+      <script setup lang="ts">
+      import {Props2 as Props} from './test01'
+      withDefaults(defineProps<Props>(), {
+        a: 42,
+        b: 's',
+        c: {},
+        d: [],
+        e: [42],
+        f: {},
+        g: { foo: 'foo' },
+        h: ['foo', 'bar'],
+        i: ['foo', 'bar'],
+      })
+      </script>`,
+      errors: [
+        {
+          message: "Type of the default value for 'a' prop must be a string.",
+          line: 5,
+          column: 12,
+          endLine: 5,
+          endColumn: 14,
+        },
+        {
+          message: "Type of the default value for 'b' prop must be a number.",
+          line: 6,
+          column: 12,
+          endLine: 6,
+          endColumn: 15,
+        },
+        {
+          message: "Type of the default value for 'c' prop must be a boolean.",
+          line: 7,
+          column: 12,
+          endLine: 7,
+          endColumn: 14,
+        },
+        {
+          message: "Type of the default value for 'd' prop must be a boolean.",
+          line: 8,
+          column: 12,
+          endLine: 8,
+          endColumn: 14,
+        },
+        {
+          message:
+            "Type of the default value for 'e' prop must be a string or number.",
+          line: 9,
+          column: 12,
+          endLine: 9,
+          endColumn: 16,
+        },
+        {
+          message: "Type of the default value for 'f' prop must be a function.",
+          line: 10,
+          column: 12,
+          endLine: 10,
+          endColumn: 14,
+        },
+        {
+          message: "Type of the default value for 'g' prop must be a function.",
+          line: 11,
+          column: 12,
+          endLine: 11,
+          endColumn: 26,
+        },
+        {
+          message: "Type of the default value for 'h' prop must be a function.",
+          line: 12,
+          column: 12,
+          endLine: 12,
+          endColumn: 26,
+        },
+        {
+          message: "Type of the default value for 'i' prop must be a function.",
+          line: 13,
+          column: 12,
+          endLine: 13,
+          endColumn: 26,
+        },
+      ],
+      ...getTypeScriptFixtureTestOptions(),
+    },
+    {
       filename: 'test.vue',
       code: `
       <script setup>
@@ -1438,6 +1551,24 @@ ruleTester.run('require-valid-default-prop', rule, {
           endColumn: 30,
         },
       ],
+    },
+    {
+      code: `
+      <script setup lang="ts">
+      type MaybeString<T extends string | number> = \`\${T}\`
+      const { foo = 1 } = defineProps<{ foo: MaybeString<1, 2>}>()
+      </script>
+      `,
+      errors: [
+        {
+          message: "Type of the default value for 'foo' prop must be a string.",
+          line: 4,
+          column: 21,
+          endLine: 4,
+          endColumn: 22,
+        },
+      ],
+      ...getTypeScriptFixtureTestOptions(),
     },
   ],
 });

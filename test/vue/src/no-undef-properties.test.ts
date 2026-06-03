@@ -4,6 +4,7 @@
  */
 import { RuleTester } from '../../rule-tester.js';
 const rule = 'eslint-plugin-vue';
+import { getTypeScriptFixtureTestOptions } from '../../typescript.js';
 import vueEslintParser from 'vue-eslint-parser';
 
 const tester = new RuleTester({
@@ -1533,6 +1534,32 @@ tester.run('no-undef-properties', rule, {
           endColumn: 47,
         },
       ],
+    },
+
+    {
+      // known type
+      code: `
+      <script setup lang="ts">
+      import type { Props1 } from './test01';
+
+      defineProps<Props1>();
+
+      </script>
+
+      <template>
+      <div>{{ foo }}</div>
+      <div>{{ unknown }}</div>
+      </template>`,
+      errors: [
+        {
+          message: "'unknown' is not defined.",
+          line: 11,
+          column: 15,
+          endLine: 11,
+          endColumn: 22,
+        },
+      ],
+      ...getTypeScriptFixtureTestOptions(),
     },
 
     {

@@ -3,6 +3,7 @@
  * @author Armano
  */
 const rule = 'eslint-plugin-vue';
+import { getTypeScriptFixtureTestOptions } from '../../typescript.js';
 import { RuleTester } from '../../rule-tester.js';
 import tsParser from '@typescript-eslint/parser';
 import vueEslintParser from 'vue-eslint-parser';
@@ -184,6 +185,14 @@ ruleTester.run('require-prop-types', rule, {
         sourceType: 'module',
         parserOptions: {},
       },
+    },
+    {
+      code: `
+      <script setup lang="ts">
+      import {Props1 as Props} from './test01'
+      defineProps<Props>()
+      </script>`,
+      ...getTypeScriptFixtureTestOptions(),
     },
     {
       // defineModel

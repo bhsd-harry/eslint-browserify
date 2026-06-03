@@ -8,4 +8,7 @@ exports.default = {
 	getComponentSlotsFromTypeDefine() {
 		//
 	},
+	isExhaustiveSwitch() {
+		//
+	},
 };
