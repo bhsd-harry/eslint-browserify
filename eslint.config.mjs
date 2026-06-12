@@ -59,6 +59,7 @@ export default extend(
 			'unicorn/explicit-length-check': 0,
 			'unicorn/new-for-builtins': 0,
 			'unicorn/no-array-callback-reference': 0,
+			'unicorn/no-array-fill-with-reference-type': 0,
 			'unicorn/no-array-for-each': 0,
 			'unicorn/no-array-reduce': 0,
 			'unicorn/number-literal-case': 0,

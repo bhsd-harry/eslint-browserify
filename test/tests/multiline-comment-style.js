@@ -1188,7 +1188,7 @@ ruleTester.run("multiline-comment-style", rule, {
             `,
 			output: `
                 /* foo
-${"                   "}
+${' '.repeat(19)}
                    bar */
             `,
 			options: ["bare-block"],
@@ -1204,7 +1204,7 @@ ${"                   "}
             `,
 			output: `
                 /* foo
-${"                   "}
+${' '.repeat(19)}
                    bar */
             `,
 			options: ["bare-block"],
@@ -1250,7 +1250,7 @@ ${"                   "}
             `,
 			output: `
                 /* foo
-${"                   "}
+${' '.repeat(19)}
                    bar */
             `,
 			options: ["bare-block"],
@@ -1273,7 +1273,7 @@ ${"                   "}
 		{
 			code: `
                 /* foo
-${"                   "}
+${' '.repeat(19)}
                    bar */
             `,
 			output: `
@@ -1308,7 +1308,7 @@ ${"                   "}
 		{
 			code: `
                 /* foo
-${"                   "}
+${' '.repeat(19)}
                    bar */
             `,
 			output: `
@@ -1350,7 +1350,7 @@ ${"                   "}
 		{
 			code: `
                 /*foo
-${"                   "}
+${' '.repeat(19)}
                   bar */
             `,
 			output: `

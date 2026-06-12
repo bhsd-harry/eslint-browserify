@@ -34,7 +34,7 @@ ruleTester.run("no-trailing-spaces", rule, {
 			options: [{ skipBlankLines: true }],
 		},
 		{
-			code: "     ",
+			code: ' '.repeat(5),
 			options: [{ skipBlankLines: true }],
 		},
 		{
