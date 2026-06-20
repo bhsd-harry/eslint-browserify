@@ -968,7 +968,6 @@ describe("Linter with FlatConfigArray", () => {
 
 						it("eslint-scope should use the visitorKeys (so 'childVisitorKeys.ClassDeclaration' includes 'experimentalDecorators')", () => {
 							assert.deepStrictEqual(
-								// eslint-disable-next-line no-underscore-dangle -- ScopeManager API
 								scopeManager.__options.childVisitorKeys
 									.ClassDeclaration,
 								[

@@ -4,7 +4,7 @@ const path = require('path'),
 	fs = require('fs'),
 	{spawnSync} = require('child_process'),
 	esbuild = require('esbuild'),
-	{red} = require('@bhsd/nodejs');
+	{red, ReplacableString} = require('@bhsd/nodejs');
 
 const shim = [
 		'configs/index',
@@ -63,11 +63,10 @@ const /** @type {esbuild.Plugin} */ plugin = {
 				),
 			},
 			({path: p}) => {
-				const original = fs.readFileSync(p, 'utf8');
-				let contents = original,
+				let original = fs.readFileSync(p, 'utf8'),
 					isRule = /\/rules\/[\w-]+\.js$/u.test(p);
 				if (isRule) {
-					contents = contents
+					original = original
 						.replace(
 							/^([ \t]+)schema: (?:\{(?:$[\s\S]+?^\1|.*)\}|\[(?:.*\]|[\s\S]+?^\1(?=\S).*\])),?$/mu,
 							'',
@@ -90,7 +89,8 @@ const /** @type {esbuild.Plugin} */ plugin = {
 						);
 					isRule = false;
 				}
-				const basename = path.basename(p);
+				const contents = new ReplacableString(original),
+					basename = path.basename(p);
 				let base;
 				if (/^index\.c?js$/u.test(basename)) {
 					const i = p.lastIndexOf('/');
@@ -105,20 +105,22 @@ const /** @type {esbuild.Plugin} */ plugin = {
 				}
 				switch (base) {
 					case 'base':
-						contents = contents.replace(
+						contents.replace(
 							/"vue\/jsx-uses-vars": .+/u,
 							'',
 						);
 						break;
 					case 'dist':
-						contents = contents
+						contents
 							.replaceAll(
 								/^([ \t]*)(?:defineCustomBlocksVisitor\(.+?^\1\},|if \(generic\) \{$.+?^\1\})$/gmsu,
 								'',
+								4,
 							)
 							.replaceAll(
 								/(?<=^function (?:extractGeneric|parseGenericExpression)\().+?^\}$/gmsu,
 								') {}',
+								2,
 							)
 							.replace(
 								'if (parser !== "espree") return require(parser);',
@@ -126,37 +128,42 @@ const /** @type {esbuild.Plugin} */ plugin = {
 							);
 						break;
 					case 'max-len':
-						contents = contents.replaceAll(
+						contents.replaceAll(
 							/^([ \t]+)const OPTIONS_.*SCHEMA = \{[\s\S]+?^\1.*\};$/gmu,
 							'',
+							2,
 						);
 						break;
 					case 'plugin': {
 						const rules = [
-							'define-emits-declaration',
-							'define-props-declaration',
-							'jsx-uses-vars',
-							'no-unsupported-features',
-							'require-explicit-slots',
-							'require-typed-object-prop',
-							'require-typed-ref',
-						].join('|');
-						contents = contents
+								'define-emits-declaration',
+								'define-props-declaration',
+								'jsx-uses-vars',
+								'no-unsupported-features',
+								'require-explicit-slots',
+								'require-typed-object-prop',
+								'require-typed-ref',
+							],
+							rulesRe = rules.join('|'),
+							{length} = rules;
+						contents
 							.replaceAll(
-								new RegExp(String.raw`^[ \t]*"(?:${rules})": .+`, 'gmu'),
+								new RegExp(String.raw`^[ \t]*"(?:${rulesRe})": .+`, 'gmu'),
 								'',
+								length,
 							)
 							.replaceAll(
 								new RegExp(
-									String.raw`(?<=^const .+ = )require\('\.\/rules\/(?:${rules})\.js'\);$`,
+									String.raw`(?<=^const .+ = )require\('\.\/rules\/(?:${rulesRe})\.js'\);$`,
 									'gmu',
 								),
 								'{};',
+								length,
 							);
 						break;
 					}
 					case 'utils':
-						contents = contents
+						contents
 							.replace(
 								'baseRule.meta.docs.description',
 								'baseRule.meta.docs?.description',
@@ -168,10 +175,12 @@ const /** @type {esbuild.Plugin} */ plugin = {
 							.replaceAll(
 								/(?<=^([ \t]*)function (?:withinTypeNode|getStylisticRule)\().+?^\1\}$/gmsu,
 								') {}',
+								2,
 							)
 							.replaceAll(
 								/^([ \t]+)extensionSource: \{$.+?^\1\}$/gmsu,
 								'',
+								2,
 							);
 						break;
 					default:
@@ -183,10 +192,7 @@ const /** @type {esbuild.Plugin} */ plugin = {
 						path.resolve(loadPath, (/^index\.c?js$/u.test(basename) ? `${base}-` : '') + basename),
 					);
 				}
-				if (!isRule && contents === original) {
-					console.error(red(`No changes were made to ${p}`));
-				}
-				return {contents};
+				return {contents: contents.input};
 			},
 		);
 	},

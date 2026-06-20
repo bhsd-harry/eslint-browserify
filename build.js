@@ -4,7 +4,7 @@ const path = require('path'),
 	fs = require('fs'),
 	{spawnSync} = require('child_process'),
 	esbuild = require('esbuild'),
-	{red} = require('@bhsd/nodejs');
+	{red, ReplacableString} = require('@bhsd/nodejs');
 
 const shim = [
 		'ajv',
@@ -90,11 +90,10 @@ const /** @type {esbuild.Plugin} */ plugin = {
 				),
 			},
 			({path: p}) => {
-				const original = fs.readFileSync(p, 'utf8');
-				let contents = original,
+				let original = fs.readFileSync(p, 'utf8'),
 					isRule = /\/rules\/[\w-]+\.js$/u.test(p);
 				if (isRule) {
-					contents = contents
+					original = original
 						.replaceAll(
 							/^([ \t]+)(?:schema|deprecated): (?:\{(?:$.+?^\1|[^\n]*)\}|\[(?:$.+?^\1|[^\n]*)\]),?$/gmsu,
 							'',
@@ -117,7 +116,8 @@ const /** @type {esbuild.Plugin} */ plugin = {
 					isRule = false;
 				}
 				const basename = path.basename(p);
-				let base;
+				let contents = new ReplacableString(original),
+					base;
 				if (/^index\.c?js$/u.test(basename)) {
 					const i = p.lastIndexOf('/');
 					if (/\/cjs\/index\.c?js$/u.test(p)) {
@@ -131,7 +131,7 @@ const /** @type {esbuild.Plugin} */ plugin = {
 				}
 				switch (base) {
 					case 'api':
-						contents = contents
+						contents
 							.replace(
 								/(?<=^module\.exports = \{$).+?(?=^\};$)/msu,
 								'Linter, SourceCode',
@@ -139,16 +139,23 @@ const /** @type {esbuild.Plugin} */ plugin = {
 							.replaceAll(
 								/^const \{ (?:ESLint|RuleTester) \} = require\(.+/gmu,
 								'',
+								2,
 							);
 						break;
 					case 'code':
-						contents = contents.replaceAll(
-							/^([ \t]+)(?:function is(?!Identifier)\w+\([\s\S]+?\1\}|NON_ASCII_WHITESPACES = [\s\S]+?\1\];)$|^[ \t]+(is(?!Identifier)\w+): \2,$/gmu,
-							'',
-						);
+						contents
+							.replace(
+								/^([ \t]+)NON_ASCII_WHITESPACES = [\s\S]+?\1\];$/mu,
+								'',
+							)
+							.replace(
+								/^([ \t]+)function is(?!Identifier)\w+\([\s\S]+?\1\}$|^[ \t]+(is(?!Identifier)\w+): \2,$/gmu,
+								'',
+								true,
+							);
 						break;
 					case 'config':
-						contents = contents
+						contents
 							.replace(
 								/(?<=^([ \t]+)validateRulesConfig\().+?^\1\}$/msu,
 								') {}',
@@ -156,27 +163,37 @@ const /** @type {esbuild.Plugin} */ plugin = {
 							.replaceAll(
 								/^([ \t]+)(?:toJSON|static getRuleOptionsSchema)\(.+?^\1\}$/gmsu,
 								'',
+								2,
 							);
 						break;
 					case 'config-array':
-						contents = contents
+						contents
 							.replaceAll(
 								/(?<=^([ \t]+)isDirectoryIgnored\().+?^\1\}$|(?<=^function shouldIgnorePath\().+?^\}$/gmsu,
 								') { return false; }',
+								2,
 							)
 							.replaceAll(
 								/^([ \t]+)(?:async normalize|is(?:File)?Ignored|getConfigStatus)\(.+?^\1\}$/gmsu,
 								'',
+								4,
 							);
 						break;
 					case 'eslint-scope':
-						contents = contents.replaceAll(
-							/^exports\.(?!(?:analyze|Reference|Variable) )\w+ = .+$|^([ \t]+)JSX\w+\([\s\S]+?^\1\}$/gmu,
-							'',
-						);
+						contents
+							.replaceAll(
+								/^([ \t]+)JSX\w+\([\s\S]+?^\1\}$/gmu,
+								'',
+								7,
+							)
+							.replace(
+								/^exports\.(?!(?:analyze|Reference|Variable) )\w+ = .+$/gmu,
+								'',
+								true,
+							);
 						break;
 					case 'eslint-utils':
-						contents = contents
+						contents
 							.replace(
 								/(?<=^class PatternMatcher \{$).+?^\}$/msu,
 								'}',
@@ -184,32 +201,42 @@ const /** @type {esbuild.Plugin} */ plugin = {
 							.replaceAll(
 								/(?<=^function (?:getFunction(?:NameWithKind|HeadLocation)|hasSideEffect|is(?:Colon|Comma)Token)\().+?^\}$/gmsu,
 								') {}',
+								5,
 							)
 							.replaceAll(
 								/^([ \t]+)\*iteratePropertyReferences\b[\s\S]+?^\1\}$|^const (?:(?:visitor|typeConversionBinaryOps) = [\s\S]+?^\)|typeConversionUnaryOps = .+);$/gmu,
 								'',
+								4,
 							);
 						break;
 					case 'esrecurse':
-						contents = contents.replaceAll(
+						contents.replaceAll(
 							/^([ \t]+)exports\.(?:version = .+|visit = [\s\S]+?^\1\};)$/gmu,
 							'',
+							2,
 						);
 						break;
 					case 'estraverse':
-						contents = contents.replaceAll(
-							/^([ \t]+)function \w+\([\s\S]+?^\1\}$|^([ \t]+)\w+\.prototype(?:\.\w+|\['\w+'\]) = [\s\S]+?^\2\};$|^[ \t]+exports\.(?!Syntax |VisitorKeys )\w+ = .+$|^(?:\(function clone\(exports\) \{|\}\(exports\)\);)$/gmu,
-							'',
-						);
+						contents
+							.replaceAll(
+								/^(?:\(function clone\(exports\) \{|\}\(exports\)\);)$/gmu,
+								'',
+								2,
+							)
+							.replace(
+								/^([ \t]+)function \w+\([\s\S]+?^\1\}$|^([ \t]+)\w+\.prototype(?:\.\w+|\['\w+'\]) = [\s\S]+?^\2\};$|^[ \t]+exports\.(?!Syntax |VisitorKeys )\w+ = .+$/gmu,
+								'',
+								true,
+							);
 						break;
 					case 'flat-config-array':
-						contents = contents.replace(
+						contents.replace(
 							/^([ \t]+)normalize\(.+?^\1\}$/msu,
 							'',
 						);
 						break;
 					case 'flat-config-schema':
-						contents = contents.replace(
+						contents.replace(
 							/^[ \t]+hasMethod,$/mu,
 							'',
 						);
@@ -242,66 +269,71 @@ const /** @type {esbuild.Plugin} */ plugin = {
 							embertest,
 							webextensions,
 							greasemonkey,
-						} = JSON.parse(contents);
-						contents = `module.exports = ${stringify(
-							{
-								es5,
-								es2015,
-								browser,
-								worker,
-								node,
-								commonjs,
-								amd,
-								mocha,
-								jasmine,
-								jest,
-								qunit,
-								phantomjs,
-								nashorn,
-								jquery,
-								shelljs,
-								prototypejs,
-								meteor,
-								mongo,
-								applescript,
-								serviceworker,
-								atomtest,
-								embertest,
-								protractor,
-								'shared-node-browser': shared,
-								webextensions,
-								greasemonkey,
-							},
-							null,
-							'\t',
-						)}`;
+						} = JSON.parse(contents.input);
+						contents = new ReplacableString(
+							`module.exports = ${stringify(
+								{
+									es5,
+									es2015,
+									browser,
+									worker,
+									node,
+									commonjs,
+									amd,
+									mocha,
+									jasmine,
+									jest,
+									qunit,
+									phantomjs,
+									nashorn,
+									jquery,
+									shelljs,
+									prototypejs,
+									meteor,
+									mongo,
+									applescript,
+									serviceworker,
+									atomtest,
+									embertest,
+									protractor,
+									'shared-node-browser': shared,
+									webextensions,
+									greasemonkey,
+								},
+								null,
+								'\t',
+							)}`,
+						);
 						break;
 					}
 					case 'indent':
-						contents = contents.replaceAll(
+						contents.replaceAll(
 							/^([ \t]+)(?:JSX\w+|"JSX\w+\[\w+\]")\(.+?^\1\},$/gmsu,
 							'',
+							9,
 						);
 						break;
 					case 'index-universal':
-						contents = contents
+						contents
 							.replace(
 								/^const Legacy = \{.+?^\};$/msu,
 								'const Legacy = {environments};',
 							)
-							.replaceAll(
+							.replace(
 								/^import (?!environments ).+/gmu,
 								'',
+								true,
 							);
 						break;
 					case 'keyword':
-						contents = contents.replaceAll(
+						contents.replace(
 							/^[ \t]+(is(?!IdentifierES)\w+): \1,$/gmu,
 							'',
+							true,
 						);
 						break;
 					case 'lib':
-						contents = contents
+						contents
 							.replace(
 								/^([ \t]+)typeCheck = .+?^\1\};$/msu,
 								'',
@@ -309,13 +341,20 @@ const /** @type {esbuild.Plugin} */ plugin = {
 							.replaceAll(
 								/^[ \t]+(VERSION|typeCheck): \1,$/gmu,
 								'',
+								2,
 							);
 						break;
 					case 'linter':
-						contents = contents
+						contents
 							.replaceAll(
-								/^([ \t]+)(?:hasFlag\(|if \((?:firstCall|(?:options\.)?stats)\b).+?^\1\}$|^([ \t]+)flags\.forEach\(.+?^\2\}\);$/gmsu,
+								/^([ \t]+)if \((?:options\.)?stats\) \{$.+?^\1\}$/gmsu,
 								'',
+								11,
+							)
+							.replaceAll(
+								/^([ \t]+)(?:hasFlag\(|if \(firstCall\b).+?^\1\}$|^([ \t]+)flags\.forEach\(.+?^\2\}\);$/gmsu,
+								'',
+								3,
 							)
 							.replace(
 								'< MAX_AUTOFIX_PASSES',
@@ -323,58 +362,69 @@ const /** @type {esbuild.Plugin} */ plugin = {
 							);
 						break;
 					case 'no-empty-function':
-						contents = contents.replace(
+						contents.replace(
 							/^const ALLOW_OPTIONS = .+?^\]\);$/msu,
 							'',
 						);
 						break;
 					case 'object-schema':
-						contents = contents.replace(
+						contents.replace(
 							/(?<=^([ \t]+)validate\()object\).+?^\1\}$/msu,
 							') {}',
 						);
 						break;
 					case 'package':
-						contents = `exports.version = "${JSON.parse(contents).version}";`;
+						contents = new ReplacableString(
+							`exports.version = "${JSON.parse(contents.input).version}";`,
+						);
 						break;
 					case 'plugin-kit':
-						contents = contents.replace(
+						contents.replace(
 							/^exports\.TextSourceCodeBase = .+$/mu,
 							'',
 						);
 						break;
 					case 'posix':
-						contents = contents.replaceAll(
+						contents.replaceAll(
 							/^exports\.(?:(?:to|from)FileUrl|normalize(?:Glob)?|join(?:Globs)?|isGlob|globToRegExp|format|(?:base|ext)name|common|parse|SEPARATOR_PATTERN|DELIMITER) = .+$/gmu,
 							'',
+							15,
 						);
 						break;
 					case 'preserve-caught-error':
-						contents = contents.replace(
+						contents.replace(
 							/^([ \t]+)if \(errorType === "AggregateError"\) \{.+?^\1\}$/msu,
 							'',
 						);
 						break;
 					case 'regexpp':
-						contents = contents.replaceAll(
-							/^exports\.(?!RegExp(?:Parser|Validator)|visitRegExpAST)\w+ = .+$|^([ \t]+)(?:(?:parse|validate)Literal|eatRegExpBody)\([\s\S]+?^\1\}$/gmu,
-							'',
-						);
+						contents
+							.replaceAll(
+								/^([ \t]+)(?:(?:parse|validate)Literal|eatRegExpBody)\([\s\S]+?^\1\}$/gmu,
+								'',
+								3,
+							)
+							.replace(
+								/^exports\.(?!RegExp(?:Parser|Validator)|visitRegExpAST)\w+ = .+$/gmu,
+								'',
+								true,
+							);
 						break;
 					case 'rules':
-						contents = contents.replace(
+						contents.replace(
 							/"jsx-quotes": .+$/mu,
 							'',
 						);
 						break;
 					case 'token-store':
-						contents = contents.replaceAll(
+						contents.replaceAll(
 							/^([ \t]+)get(?:Token(?:ByRangeStart|sBefore)|(?:FirstTokens|LastTokens?)Between)\(.+?^\1\}$/gmsu,
 							'',
+							5,
 						);
 						break;
 					case 'unsupported-api':
-						contents = contents.replace(
+						contents.replace(
 							'require("./eslint/eslint")',
 							'{}',
 						);
@@ -388,10 +438,7 @@ const /** @type {esbuild.Plugin} */ plugin = {
 						path.resolve(loadPath, (/^index\.c?js$/u.test(basename) ? `${base}-` : '') + basename),
 					);
 				}
-				if (!isRule && contents === original) {
-					console.error(red(`No changes were made to ${p}`));
-				}
-				return {contents};
+				return {contents: contents.input};
 			},
 		);
 	},

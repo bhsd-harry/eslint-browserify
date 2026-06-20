@@ -48,6 +48,8 @@ ruleTester.run("no-constant-binary-expression", rule, {
 		"function Boolean(n) { return n; }; Boolean(x) ?? foo",
 		"function String(n) { return n; }; String(x) ?? foo",
 		"function Number(n) { return n; }; Number(x) ?? foo",
+		"function Symbol(n) { return n; }; Symbol(x) ?? foo",
+		"function BigInt(n) { return n; }; BigInt(x) ?? foo",
 		"function Boolean(n) { return Math.random(); }; Boolean(x) === 1",
 		"function Boolean(n) { return Math.random(); }; Boolean(1) == true",
 
@@ -67,6 +69,59 @@ ruleTester.run("no-constant-binary-expression", rule, {
 		"foo ?? null ?? bar",
 		"a ?? (doSomething(), undefined) ?? b",
 		"a ?? (something = null) ?? b",
+		"5 < 10",
+		"5 <= 10",
+		"10 > 5",
+		"10 >= 5",
+		"'a' < 'b'",
+		"undefined >= 5",
+		"`` < ``",
+		"1n < 2n",
+		"null >= 5",
+		{
+			code: "5 < 10",
+			options: [{ checkRelationalComparisons: false }],
+		},
+		{
+			code: "x < 5",
+			options: [{ checkRelationalComparisons: true }],
+		},
+		{
+			code: "5 < x",
+			options: [{ checkRelationalComparisons: true }],
+		},
+		{
+			code: "x > y",
+			options: [{ checkRelationalComparisons: true }],
+		},
+		{
+			code: "x >= undefined",
+			options: [{ checkRelationalComparisons: true }],
+		},
+		{
+			code: "`${x}` < 5",
+			options: [{ checkRelationalComparisons: true }],
+		},
+		{
+			code: "5 > `${x}`",
+			options: [{ checkRelationalComparisons: true }],
+		},
+		{
+			code: "~x < 10",
+			options: [{ checkRelationalComparisons: true }],
+		},
+		{
+			code: "-x >= 5",
+			options: [{ checkRelationalComparisons: true }],
+		},
+		{
+			code: "x < /a/",
+			options: [{ checkRelationalComparisons: true }],
+		},
+		{
+			code: "/a/ >= x",
+			options: [{ checkRelationalComparisons: true }],
+		},
 	],
 	invalid: [
 		// Error messages
@@ -834,6 +889,24 @@ ruleTester.run("no-constant-binary-expression", rule, {
 				},
 			],
 		},
+		{
+			code: "Symbol(x) ?? foo",
+			errors: [
+				{
+					messageId: "constantShortCircuit",
+					data: { property: "nullishness", operator: "??" },
+				},
+			],
+		},
+		{
+			code: "BigInt(x) ?? foo",
+			errors: [
+				{
+					messageId: "constantShortCircuit",
+					data: { property: "nullishness", operator: "??" },
+				},
+			],
+		},
 
 		// Binary expression with comparison to null
 		{
@@ -878,6 +951,42 @@ ruleTester.run("no-constant-binary-expression", rule, {
 				{
 					messageId: "constantBinaryOperand",
 					data: { otherSide: "left", operator: "==" },
+				},
+			],
+		},
+		{
+			code: "Symbol(x) != null",
+			errors: [
+				{
+					messageId: "constantBinaryOperand",
+					data: { otherSide: "right", operator: "!=" },
+				},
+			],
+		},
+		{
+			code: "Symbol(x) != undefined",
+			errors: [
+				{
+					messageId: "constantBinaryOperand",
+					data: { otherSide: "right", operator: "!=" },
+				},
+			],
+		},
+		{
+			code: "BigInt(x) != null",
+			errors: [
+				{
+					messageId: "constantBinaryOperand",
+					data: { otherSide: "right", operator: "!=" },
+				},
+			],
+		},
+		{
+			code: "BigInt(x) != undefined",
+			errors: [
+				{
+					messageId: "constantBinaryOperand",
+					data: { otherSide: "right", operator: "!=" },
 				},
 			],
 		},
@@ -1417,6 +1526,24 @@ ruleTester.run("no-constant-binary-expression", rule, {
 			],
 		},
 		{
+			code: "true === Symbol(x)",
+			errors: [
+				{
+					messageId: "constantBinaryOperand",
+					data: { otherSide: "left", operator: "===" },
+				},
+			],
+		},
+		{
+			code: "true === BigInt(x)",
+			errors: [
+				{
+					messageId: "constantBinaryOperand",
+					data: { otherSide: "left", operator: "===" },
+				},
+			],
+		},
+		{
 			code: "Boolean(0) == !({})",
 			errors: [
 				{
@@ -1661,6 +1788,24 @@ ruleTester.run("no-constant-binary-expression", rule, {
 				},
 			],
 		},
+		{
+			code: "Symbol(x) === null",
+			errors: [
+				{
+					messageId: "constantBinaryOperand",
+					data: { otherSide: "right", operator: "===" },
+				},
+			],
+		},
+		{
+			code: "BigInt(x) === null",
+			errors: [
+				{
+					messageId: "constantBinaryOperand",
+					data: { otherSide: "right", operator: "===" },
+				},
+			],
+		},
 
 		// Binary expression with strict comparison to undefined
 		{
@@ -1897,6 +2042,24 @@ ruleTester.run("no-constant-binary-expression", rule, {
 				},
 			],
 		},
+		{
+			code: "Symbol(x) === undefined",
+			errors: [
+				{
+					messageId: "constantBinaryOperand",
+					data: { otherSide: "right", operator: "===" },
+				},
+			],
+		},
+		{
+			code: "BigInt(x) === undefined",
+			errors: [
+				{
+					messageId: "constantBinaryOperand",
+					data: { otherSide: "right", operator: "===" },
+				},
+			],
+		},
 
 		/*
 		 * If both sides are newly constructed objects, we can tell they will
@@ -1943,6 +2106,196 @@ ruleTester.run("no-constant-binary-expression", rule, {
 		{
 			code: "window.abc ?? 'non-nullish' ?? anything",
 			errors: [{ messageId: "constantShortCircuit" }],
+		},
+		{
+			code: "5 < 10",
+			options: [{ checkRelationalComparisons: true }],
+			errors: [
+				{
+					messageId: "constantRelationalComparison",
+					data: { operator: "<" },
+				},
+			],
+		},
+		{
+			code: "5 <= 10",
+			options: [{ checkRelationalComparisons: true }],
+			errors: [
+				{
+					messageId: "constantRelationalComparison",
+					data: { operator: "<=" },
+				},
+			],
+		},
+		{
+			code: "10 > 5",
+			options: [{ checkRelationalComparisons: true }],
+			errors: [
+				{
+					messageId: "constantRelationalComparison",
+					data: { operator: ">" },
+				},
+			],
+		},
+		{
+			code: "10 >= 5",
+			options: [{ checkRelationalComparisons: true }],
+			errors: [
+				{
+					messageId: "constantRelationalComparison",
+					data: { operator: ">=" },
+				},
+			],
+		},
+		{
+			code: "'a' < 'b'",
+			options: [{ checkRelationalComparisons: true }],
+			errors: [
+				{
+					messageId: "constantRelationalComparison",
+					data: { operator: "<" },
+				},
+			],
+		},
+		{
+			code: "true >= false",
+			options: [{ checkRelationalComparisons: true }],
+			errors: [
+				{
+					messageId: "constantRelationalComparison",
+					data: { operator: ">=" },
+				},
+			],
+		},
+		{
+			code: "undefined < 5",
+			options: [{ checkRelationalComparisons: true }],
+			errors: [
+				{
+					messageId: "constantRelationalComparison",
+					data: { operator: "<" },
+				},
+			],
+		},
+		{
+			code: "5 > undefined",
+			options: [{ checkRelationalComparisons: true }],
+			errors: [
+				{
+					messageId: "constantRelationalComparison",
+					data: { operator: ">" },
+				},
+			],
+		},
+		{
+			code: "`` < ``",
+			options: [{ checkRelationalComparisons: true }],
+			errors: [
+				{
+					messageId: "constantRelationalComparison",
+					data: { operator: "<" },
+				},
+			],
+		},
+		{
+			code: "`` >= 5",
+			options: [{ checkRelationalComparisons: true }],
+			errors: [
+				{
+					messageId: "constantRelationalComparison",
+					data: { operator: ">=" },
+				},
+			],
+		},
+		{
+			code: "`foo` < `bar`",
+			options: [{ checkRelationalComparisons: true }],
+			errors: [
+				{
+					messageId: "constantRelationalComparison",
+					data: { operator: "<" },
+				},
+			],
+		},
+		{
+			code: "1n < 2n",
+			options: [{ checkRelationalComparisons: true }],
+			errors: [
+				{
+					messageId: "constantRelationalComparison",
+					data: { operator: "<" },
+				},
+			],
+		},
+		{
+			code: "null >= 5",
+			options: [{ checkRelationalComparisons: true }],
+			errors: [
+				{
+					messageId: "constantRelationalComparison",
+					data: { operator: ">=" },
+				},
+			],
+		},
+		{
+			code: "-5 < 10",
+			options: [{ checkRelationalComparisons: true }],
+			errors: [
+				{
+					messageId: "constantRelationalComparison",
+					data: { operator: "<" },
+				},
+			],
+		},
+		{
+			code: "10 >= +5",
+			options: [{ checkRelationalComparisons: true }],
+			errors: [
+				{
+					messageId: "constantRelationalComparison",
+					data: { operator: ">=" },
+				},
+			],
+		},
+		{
+			code: "~5 <= 10",
+			options: [{ checkRelationalComparisons: true }],
+			errors: [
+				{
+					messageId: "constantRelationalComparison",
+					data: { operator: "<=" },
+				},
+			],
+		},
+		{
+			code: "~1 > ~2",
+			options: [{ checkRelationalComparisons: true }],
+			errors: [
+				{
+					messageId: "constantRelationalComparison",
+					data: { operator: ">" },
+				},
+			],
+		},
+		{
+			code: "/a/ < /b/",
+			options: [{ checkRelationalComparisons: true }],
+			errors: [
+				{
+					messageId: "constantRelationalComparison",
+					data: { operator: "<" },
+				},
+			],
+		},
+		{
+			code: "/a/ >= /b/",
+			options: [{ checkRelationalComparisons: true }],
+			errors: [
+				{
+					messageId: "constantRelationalComparison",
+					data: { operator: ">=" },
+				},
+			],
 		},
 	],
 });
