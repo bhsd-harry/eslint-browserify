@@ -40,13 +40,8 @@ async function lintMessages(code: string) {
 
 describe('comment-directive', () => {
   before(async () => {
-    if (globalThis.eslint) {
-      pluginVue = eslint.plugins['vue'];
-    } else {
-      globalThis.eslint = (await import('../../../bundle/coverage.min.js')).eslint;
-      ({default: pluginVue} = await import('../../../bundle/coverage-vue.min.js'));
-      eslint.plugins['vue'] = pluginVue;
-    }
+    globalThis.eslint ||= (await import('../../../bundle/coverage.min.js')).eslint;
+    pluginVue = eslint.plugins['vue'] || (await import('../../../bundle/coverage-vue.min.js')).default;
 
     linter = new eslint.Linter();
     parserVue = pluginVue.configs!['base'][1].languageOptions.parser;

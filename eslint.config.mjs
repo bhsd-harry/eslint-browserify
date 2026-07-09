@@ -1,5 +1,4 @@
 import {node, extend, browser} from '@bhsd/code-standard';
-import globals from 'globals';
 
 export default extend(
 	...node,
@@ -22,8 +21,11 @@ export default extend(
 		],
 		languageOptions: {
 			globals: {
-				...globals.mocha,
+				before: 'readonly',
+				beforeEach: 'readonly',
+				describe: 'readonly',
 				eslint: 'readonly',
+				it: 'readonly',
 			},
 		},
 		rules: {

@@ -2,13 +2,14 @@
 
 const fs = require('fs'),
 	path = require('path'),
-	assert = require('assert');
+	assert = require('assert'),
+	{describe, it} = require('@bhsd/test-util/mocha');
 globalThis.eslint ??= require('../bundle/coverage.min.js').eslint;
 const {migrateConfig} = eslint;
 
 const tests = fs.readdirSync('test/migrate', {withFileTypes: true}).filter(dirent => dirent.isDirectory());
 
-describe.only('Migration tests', () => {
+describe('Migration tests', () => {
 	for (const dirent of tests) {
 		it(dirent.name, () => {
 			const dir = path.resolve(dirent.parentPath, dirent.name),
