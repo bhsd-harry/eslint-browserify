@@ -15,7 +15,7 @@ const assert = require("assert"),
 	esprima = require("esprima"),
 	testParsers = require("../fixtures/parsers/linter-test-parsers");
 
-globalThis.eslint ??= require('../bundle/coverage.min.js').eslint;
+globalThis.eslint ??= require('../build/eslint.js').eslint;
 const { Linter } = eslint;
 const { FlatConfigArray } = {};
 const { SourceCode } = {};

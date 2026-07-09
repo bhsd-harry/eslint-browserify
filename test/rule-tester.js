@@ -1,16 +1,18 @@
 'use strict';
 
-const assert = require('assert');
+const assert = require('assert'),
+	{prepare} = require('@bhsd/test-util/mocha');
 let vue;
 if (globalThis.eslint) {
 	vue = require('../bundle/eslint-plugin-vue.min.js').default;
 } else {
-	globalThis.eslint = require('../bundle/coverage.min.js').eslint;
-	vue = require('../bundle/coverage-vue.min.js').default;
+	globalThis.eslint = require('../build/eslint.js').eslint;
+	vue = require('../build/eslint-plugin-vue.js').default;
 }
 eslint.plugins.vue = vue;
 eslint.MAX_AUTOFIX_PASSES = 1;
 const linter = new eslint.Linter(),
+	isSkip = process.argv[2] === 'skip',
 	reduce = ({line, column, endLine, endColumn, message, messageId}) =>
 		// eslint-disable-next-line unicorn/prefer-structured-clone
 		JSON.parse(JSON.stringify({line, column, endLine, endColumn, message, messageId})),
@@ -91,21 +93,25 @@ class RuleTester {
 					}
 				});
 			}
-			for (let code of valid) {
-				let options = [],
-					languageOptions,
-					filename;
-				if (typeof code === 'object') {
-					({code, options = [], languageOptions, filename} = code);
+			if (isSkip) {
+				prepare(valid.length);
+			} else {
+				for (let code of valid) {
+					let options = [],
+						languageOptions,
+						filename;
+					if (typeof code === 'object') {
+						({code, options = [], languageOptions, filename} = code);
+					}
+					const [config, printConfig] = getConfig(this.config, languageOptions, options, rule);
+					if (filename && /\.d\.[cm]?ts$/u.test(filename) || shouldSkip(config, code)) {
+						it.skip(`valid: ${code}`);
+						continue;
+					}
+					it(`valid: ${code}`, () => {
+						assert.deepStrictEqual(linter.verify(code, config, filename), [], printConfig);
+					});
 				}
-				const [config, printConfig] = getConfig(this.config, languageOptions, options, rule);
-				if (filename && /\.d\.[cm]?ts$/u.test(filename) || shouldSkip(config, code)) {
-					it.skip(`valid: ${code}`);
-					continue;
-				}
-				it(`valid: ${code}`, () => {
-					assert.deepStrictEqual(linter.verify(code, config, filename), [], printConfig);
-				});
 			}
 		});
 	}
