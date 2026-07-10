@@ -177,6 +177,10 @@ const /** @type {esbuild.Plugin} */ plugin = {
 								/^([ \t]+)(?:async normalize|is(?:File)?Ignored|getConfigStatus)\(.+?^\1\}$/gmsu,
 								'',
 								4,
+							)
+							.replace(
+								/(?<=^function normalizeConfigPatterns\(config).+?^\}$/msu,
+								') { return config }',
 							);
 						break;
 					case 'eslint-scope':

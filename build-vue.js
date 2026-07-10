@@ -113,9 +113,9 @@ const /** @type {esbuild.Plugin} */ plugin = {
 					case 'dist':
 						contents
 							.replaceAll(
-								/^([ \t]*)(?:defineCustomBlocksVisitor\(.+?^\1\},|if \(generic\) \{$.+?^\1\})$/gmsu,
+								/^([ \t]*)(?:defineCustomBlocksVisitor\(.+?^\1\},|if \((?:generic|options\.eslintScopeManager)\) \{$.+?^\1\})$/gmsu,
 								'',
-								4,
+								5,
 							)
 							.replaceAll(
 								/(?<=^function (?:extractGeneric|parseGenericExpression)\().+?^\}$/gmsu,
