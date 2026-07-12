@@ -116,7 +116,7 @@ const /** @type {esbuild.Plugin} */ plugin = {
 					isRule = false;
 				}
 				const basename = path.basename(p);
-				let contents = new ReplacableString(original),
+				let contents = new ReplacableString(original, p),
 					base;
 				if (/^index\.c?js$/u.test(basename)) {
 					const i = p.lastIndexOf('/');
@@ -307,6 +307,7 @@ const /** @type {esbuild.Plugin} */ plugin = {
 								null,
 								'\t',
 							)}`,
+							p,
 						);
 						break;
 					}
@@ -380,6 +381,7 @@ const /** @type {esbuild.Plugin} */ plugin = {
 					case 'package':
 						contents = new ReplacableString(
 							`exports.version = "${JSON.parse(contents.input).version}";`,
+							p,
 						);
 						break;
 					case 'plugin-kit':
@@ -397,7 +399,7 @@ const /** @type {esbuild.Plugin} */ plugin = {
 						break;
 					case 'preserve-caught-error':
 						contents.replace(
-							/^([ \t]+)if \(errorType === "AggregateError"\) \{.+?^\1\}$/msu,
+							/^([ \t]+)if \(\n\1\tbuiltInGlobalError &&\n\1\terrorClassName === "AggregateError"\n\1\) \{.+?^\1\}$/msu,
 							'',
 						);
 						break;

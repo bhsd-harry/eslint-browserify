@@ -89,7 +89,7 @@ const /** @type {esbuild.Plugin} */ plugin = {
 						);
 					isRule = false;
 				}
-				const contents = new ReplacableString(original),
+				const contents = new ReplacableString(original, p),
 					basename = path.basename(p);
 				let base;
 				if (/^index\.c?js$/u.test(basename)) {

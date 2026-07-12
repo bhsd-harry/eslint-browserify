@@ -157,11 +157,11 @@ tester.run('block-order', rule, {
         <style></style>
       `,
       output:
-        '\n' +
-        '        <script></script>\n' +
-        '        <template></template>\n' +
-        '        <style></style>\n' +
-        '      ',
+        `\n` +
+        `        <script></script>\n` +
+        `        <template></template>\n` +
+        `        <style></style>\n${
+        ' '.repeat(6)}`,
       options: [{ order: ['script', 'template', 'style'] }],
       errors: [
         {
@@ -180,11 +180,11 @@ tester.run('block-order', rule, {
         <style></style>
       `,
       output:
-        '\n' +
-        '        <template></template>\n' +
-        '        <script></script>\n' +
-        '        <style></style>\n' +
-        '      ',
+        `\n` +
+        `        <template></template>\n` +
+        `        <script></script>\n` +
+        `        <style></style>\n${
+        ' '.repeat(6)}`,
       options: [{ order: ['template', 'script', 'style'] }],
       errors: [
         {
@@ -204,12 +204,12 @@ tester.run('block-order', rule, {
         <style></style>
       `,
       output:
-        '\n' +
-        '        <docs></docs>\n' +
-        '        <template></template>\n' +
-        '        <script></script>\n' +
-        '        <style></style>\n' +
-        '      ',
+        `\n` +
+        `        <docs></docs>\n` +
+        `        <template></template>\n` +
+        `        <script></script>\n` +
+        `        <style></style>\n${
+        ' '.repeat(6)}`,
       options: [{ order: ['docs', 'template', 'script', 'style'] }],
       errors: [
         {
@@ -229,12 +229,12 @@ tester.run('block-order', rule, {
         <style></style>
       `,
       output:
-        '\n' +
-        '        <script></script>\n' +
-        '        <template></template>\n' +
-        '        <docs></docs>\n' +
-        '        <style></style>\n' +
-        '      ',
+        `\n` +
+        `        <script></script>\n` +
+        `        <template></template>\n` +
+        `        <docs></docs>\n` +
+        `        <style></style>\n${
+        ' '.repeat(6)}`,
       options: [{ order: ['script', 'template', 'style'] }],
       errors: [
         {
@@ -255,13 +255,13 @@ tester.run('block-order', rule, {
         <style></style>
       `,
       output:
-        '\n' +
-        '        <script></script>\n' +
-        '        <template></template>\n' +
-        '        <docs>\n' +
-        '        </docs>\n' +
-        '        <style></style>\n' +
-        '      ',
+        `\n` +
+        `        <script></script>\n` +
+        `        <template></template>\n` +
+        `        <docs>\n` +
+        `        </docs>\n` +
+        `        <style></style>\n${
+        ' '.repeat(6)}`,
       options: [{ order: ['script', 'template', 'style'] }],
       errors: [
         {
@@ -298,11 +298,11 @@ tester.run('block-order', rule, {
         <script></script>
       `,
       output:
-        '\n' +
-        '        <template></template>\n' +
-        '        <style></style>\n' +
-        '        <script></script>\n' +
-        '      ',
+        `\n` +
+        `        <template></template>\n` +
+        `        <style></style>\n` +
+        `        <script></script>\n${
+        ' '.repeat(6)}`,
       errors: [
         {
           message: "'<template>' should be above '<style>' on line 2.",
@@ -328,12 +328,12 @@ tester.run('block-order', rule, {
         <script></script>
       `,
       output:
-        '\n' +
-        '        <template></template>\n' +
-        '        <style></style>\n' +
-        '        <docs></docs>\n' +
-        '        <script></script>\n' +
-        '      ',
+        `\n` +
+        `        <template></template>\n` +
+        `        <style></style>\n` +
+        `        <docs></docs>\n` +
+        `        <script></script>\n${
+        ' '.repeat(6)}`,
       errors: [
         {
           message: "'<template>' should be above '<style>' on line 2.",

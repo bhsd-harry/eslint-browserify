@@ -85,12 +85,16 @@ export default extend(
 				2,
 				{
 					allowModules: [
+						'@typescript-eslint/parser',
+						'eslint',
 						'semver',
+						'typescript',
 						'vue-eslint-parser',
 					],
 				},
 			],
 			'n/no-missing-import': 0,
+			'n/no-unpublished-import': 0,
 			'@typescript-eslint/await-thenable': 0,
 			'@typescript-eslint/explicit-function-return-type': 0,
 			'@typescript-eslint/no-shadow': 0,
