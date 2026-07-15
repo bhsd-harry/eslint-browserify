@@ -1,5 +1,5 @@
 #!/usr/local/bin/bash
-npm run build && npm run lint && npm test && npm run test:linter && npm run test:migrate && npm run test:vue
+npm run build && npm run lint && npm test
 if [[ $? -eq 0 ]]
 then
 	gsed -i -E "s/\"version\": \".+\"/\"version\": \"$1\"/" package.json

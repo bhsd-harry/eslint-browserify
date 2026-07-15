@@ -2,7 +2,7 @@
 var require = name => {
 	if (name === 'eslint') {
 		return eslint;
-	} else if (name in eslint.packages) {
+	} else if (Object.hasOwn(eslint.packages, name)) {
 		return eslint.packages[name];
 	}
 	throw new RangeError(`Module not bundled: ${name}`);

@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-require-imports */
+/* eslint-disable @typescript-eslint/no-require-imports, unicorn/no-top-level-side-effects */
 import {Linter, SourceCode} from 'eslint';
 import unsupported = require('eslint/use-at-your-own-risk');
 import utils = require('@eslint-community/eslint-utils');

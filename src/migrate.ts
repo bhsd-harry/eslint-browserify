@@ -141,7 +141,7 @@ const createLanguageOptions = (config: Linter.LegacyConfig): Linter.LanguageOpti
 			...otherParserOptions
 		} = config.parserOptions;
 		properties.ecmaVersion = ecmaVersion;
-		properties.sourceType = config.env?.['node'] && sourceType !== 'module' ? 'commonjs' : sourceType;
+		properties.sourceType = sourceType !== 'module' && config.env?.['node'] ? 'commonjs' : sourceType;
 		if (Object.keys(otherParserOptions).length > 0) {
 			properties.parserOptions = otherParserOptions;
 		}

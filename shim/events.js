@@ -1,6 +1,6 @@
 /* eslint no-underscore-dangle: [2, { "allow": ["_events"] }] */
 module.exports = class {
-	_events = Object.create(null);
+	_events = Object.create(null); // eslint-disable-line unicorn/prefer-private-class-fields
 
 	setMaxListeners() {
 		//
