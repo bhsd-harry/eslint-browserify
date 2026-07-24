@@ -154,7 +154,7 @@ const /** @type {esbuild.Plugin} */ plugin = {
 							)
 							.replaceAll(
 								new RegExp(
-									String.raw`(?<=^const .+ = )require\('\.\/rules\/(?:${rulesRe})\.js'\);$`,
+									String.raw`(?<=^const .+ = )require\("\.\/rules\/(?:${rulesRe})\.js"\);$`,
 									'gmu',
 								),
 								'{};',

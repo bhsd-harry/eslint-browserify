@@ -43,6 +43,7 @@ export default extend(
 			'prefer-destructuring': 0,
 			'prefer-object-spread': 0,
 			radix: 0,
+			'require-unicode-regexp': 0,
 			'@stylistic/array-bracket-newline': 0,
 			'@stylistic/function-paren-newline': 0,
 			'@stylistic/indent': 0,
@@ -63,14 +64,18 @@ export default extend(
 			'unicorn/new-for-builtins': 0,
 			'unicorn/no-array-callback-reference': 0,
 			'unicorn/no-array-fill-with-reference-type': 0,
-			'unicorn/no-for-each': 0,
 			'unicorn/no-array-reduce': 0,
+			'unicorn/no-for-each': 0,
+			'unicorn/no-incorrect-template-string-interpolation': 0,
+			'unicorn/no-unsafe-string-replacement': 0,
 			'unicorn/no-useless-template-literals': 0,
 			'unicorn/number-literal-case': 0,
 			'unicorn/prefer-spread': 0,
 			'unicorn/prefer-string-raw': 0,
 			'unicorn/prefer-string-replace-all': 0,
 			'regexp/no-super-linear-move': 0,
+			'regexp/no-unused-capturing-group': 0,
+			'regexp/prefer-regexp-exec': 0,
 		},
 		settings: {
 			node: {
@@ -81,8 +86,6 @@ export default extend(
 	{
 		files: ['test/vue/src/*.ts'],
 		rules: {
-			'require-unicode-regexp': 0,
-			'regexp/prefer-regexp-exec': 0,
 			'n/no-extraneous-import': [
 				2,
 				{
