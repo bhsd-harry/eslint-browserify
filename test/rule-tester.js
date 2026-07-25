@@ -38,17 +38,16 @@ const linter = new eslint.Linter(),
 			Object.assign(config.languageOptions, extraLanguageOptions);
 		}
 		config.languageOptions.sourceType ??= 'module';
-		const printConfig = {...config};
-		if (printConfig.plugins) {
-			printConfig.plugins = {...printConfig.plugins};
-			for (const key in printConfig.plugins) {
-				printConfig.plugins[key] = printConfig.plugins[key]?.meta?.name;
-			}
-		}
-		if (printConfig.languageOptions) {
-			printConfig.languageOptions = {...printConfig.languageOptions};
-			printConfig.languageOptions.parser &&= printConfig.languageOptions.parser.meta?.name;
-		}
+		const printConfig = {
+			...config,
+			languageOptions: config.languageOptions && {
+				...config.languageOptions,
+				parser: config.languageOptions.parser?.meta?.name,
+			},
+			plugins: config.plugins && Object.fromEntries(
+				Object.entries(config.plugins).map(([key, value]) => [key, value?.meta?.name]),
+			),
+		};
 		return [config, JSON.stringify(printConfig, null, 2)];
 	};
 
