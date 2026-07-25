@@ -20,7 +20,7 @@ const ruleTester = new RuleTester();
 ruleTester.run("no-tabs", rule, {
 	valid: [
 		"function test(){\n}",
-		"function test(){\n" + "  //   sdfdsf \n" + "}",
+		'function test(){\n  //   sdfdsf \n}',
 
 		{
 			code: "\tdoSomething();",
@@ -57,7 +57,7 @@ ruleTester.run("no-tabs", rule, {
 			],
 		},
 		{
-			code: "function test(){\n" + "  //\tsdfdsf \n" + "}",
+			code: 'function test(){\n  //\tsdfdsf \n}',
 			errors: [
 				{
 					messageId: "unexpectedTab",
@@ -69,7 +69,7 @@ ruleTester.run("no-tabs", rule, {
 			],
 		},
 		{
-			code: "function\ttest(){\n" + "  //sdfdsf \n" + "}",
+			code: 'function\ttest(){\n  //sdfdsf \n}',
 			errors: [
 				{
 					messageId: "unexpectedTab",
@@ -81,7 +81,7 @@ ruleTester.run("no-tabs", rule, {
 			],
 		},
 		{
-			code: "function test(){\n" + "  //\tsdfdsf \n" + "\t}",
+			code: 'function test(){\n  //\tsdfdsf \n\t}',
 			errors: [
 				{
 					messageId: "unexpectedTab",

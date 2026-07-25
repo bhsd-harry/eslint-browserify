@@ -144,8 +144,8 @@ ruleTester.run("dot-notation", rule, {
 			errors: [{ messageId: "useDot", data: { key: q("SHOUT_CASE") } }],
 		},
 		{
-			code: "a\n" + "  ['SHOUT_CASE'];",
-			output: "a\n" + "  .SHOUT_CASE;",
+			code: 'a\n  [\'SHOUT_CASE\'];',
+			output: 'a\n  .SHOUT_CASE;',
 			errors: [
 				{
 					messageId: "useDot",
@@ -184,8 +184,8 @@ ruleTester.run("dot-notation", rule, {
 			],
 		},
 		{
-			code: "foo\n" + "  .while;",
-			output: "foo\n" + '  ["while"];',
+			code: 'foo\n  .while;',
+			output: 'foo\n  ["while"];',
 			options: [{ allowKeywords: false }],
 			errors: [{ messageId: "useBrackets", data: { key: "while" } }],
 		},

@@ -802,7 +802,7 @@ ruleTester.run("lines-around-comment", rule, {
 
 		// check for object start comments
 		{
-			code: "var a,\n\n" + "// line\n" + "b;",
+			code: 'var a,\n\n// line\nb;',
 			options: [
 				{
 					beforeLineComment: true,
@@ -929,7 +929,7 @@ ruleTester.run("lines-around-comment", rule, {
 
 		// check for object end comments
 		{
-			code: "var a,\n" + "// line\n\n" + "b;",
+			code: 'var a,\n// line\n\nb;',
 			options: [
 				{
 					afterLineComment: true,
@@ -1015,7 +1015,7 @@ ruleTester.run("lines-around-comment", rule, {
 		},
 		{
 			code:
-				"const {\n" + "  g\n" + "  // line at object end\n" + "} = {};",
+				'const {\n  g\n  // line at object end\n} = {};',
 			options: [
 				{
 					afterLineComment: true,
@@ -1057,7 +1057,7 @@ ruleTester.run("lines-around-comment", rule, {
 
 		// check for array start comments
 		{
-			code: "var a,\n\n" + "// line\n" + "b;",
+			code: 'var a,\n\n// line\nb;',
 			options: [
 				{
 					beforeLineComment: true,
@@ -1067,7 +1067,7 @@ ruleTester.run("lines-around-comment", rule, {
 		},
 		{
 			code:
-				"var arr = [\n" + "  // line at array start\n" + "  1\n" + "];",
+				'var arr = [\n  // line at array start\n  1\n];',
 			options: [
 				{
 					beforeLineComment: true,
@@ -1119,7 +1119,7 @@ ruleTester.run("lines-around-comment", rule, {
 
 		// check for array end comments
 		{
-			code: "var a,\n" + "// line\n\n" + "b;",
+			code: 'var a,\n// line\n\nb;',
 			options: [
 				{
 					afterLineComment: true,
@@ -1128,7 +1128,7 @@ ruleTester.run("lines-around-comment", rule, {
 			],
 		},
 		{
-			code: "var arr = [\n" + "  1\n" + "  // line at array end\n" + "];",
+			code: 'var arr = [\n  1\n  // line at array end\n];',
 			options: [
 				{
 					afterLineComment: true,
@@ -1152,7 +1152,7 @@ ruleTester.run("lines-around-comment", rule, {
 		},
 		{
 			code:
-				"const [\n" + "  a\n" + "  // line at array end\n" + "] = [];",
+				'const [\n  a\n  // line at array end\n] = [];',
 			options: [
 				{
 					afterLineComment: true,
@@ -2356,7 +2356,7 @@ ruleTester.run("lines-around-comment", rule, {
 		},
 		{
 			code:
-				"const {\n" + "  g\n" + "  // line at object end\n" + "} = {};",
+				'const {\n  g\n  // line at object end\n} = {};',
 			output:
 				"const {\n" +
 				"  g\n" +
@@ -2434,7 +2434,7 @@ ruleTester.run("lines-around-comment", rule, {
 		// array start comments
 		{
 			code:
-				"var arr = [\n" + "  // line at array start\n" + "  1\n" + "];",
+				'var arr = [\n  // line at array start\n  1\n];',
 			output:
 				"var arr = [\n" +
 				"\n" +
@@ -2530,7 +2530,7 @@ ruleTester.run("lines-around-comment", rule, {
 
 		// array end comments
 		{
-			code: "var arr = [\n" + "  1\n" + "  // line at array end\n" + "];",
+			code: 'var arr = [\n  1\n  // line at array end\n];',
 			output:
 				"var arr = [\n" +
 				"  1\n" +
@@ -2577,7 +2577,7 @@ ruleTester.run("lines-around-comment", rule, {
 		},
 		{
 			code:
-				"const [\n" + "  a\n" + "  // line at array end\n" + "] = [];",
+				'const [\n  a\n  // line at array end\n] = [];',
 			output:
 				"const [\n" +
 				"  a\n" +

@@ -284,8 +284,8 @@ ruleTester.run("no-multiple-empty-lines", rule, {
 			errors: [getExpectedErrorEOF(1)],
 		},
 		{
-			code: "'foo';\n" + "\n" + "\n" + "`bar`;\n" + "`baz`;",
-			output: "'foo';\n" + "\n" + "`bar`;\n" + "`baz`;",
+			code: '\'foo\';\n\n\n`bar`;\n`baz`;',
+			output: '\'foo\';\n\n`bar`;\n`baz`;',
 			options: [{ max: 1 }],
 			languageOptions: { ecmaVersion: 6 },
 			errors: [getExpectedError(1)],

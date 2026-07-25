@@ -171,7 +171,7 @@ ruleTester.run("max-len", rule, {
 		// check indented comment lines - https://github.com/eslint/eslint/issues/6322
 		{
 			code:
-				"function foo() {\n" + "//this line has 29 characters\n" + "}",
+				'function foo() {\n//this line has 29 characters\n}',
 			options: [40, 4, { comments: 29 }],
 		},
 		{
@@ -596,7 +596,7 @@ ruleTester.run("max-len", rule, {
 		// check indented comment lines - https://github.com/eslint/eslint/issues/6322
 		{
 			code:
-				"function foo() {\n" + "//this line has 29 characters\n" + "}",
+				'function foo() {\n//this line has 29 characters\n}',
 			options: [40, 4, { comments: 28 }],
 			errors: [
 				{
@@ -1221,7 +1221,7 @@ ruleTester.run("max-len", rule, {
 			],
 		},
 		{
-			code: "var jsx = (<>\n" + "12345678901234{/*\n" + "*/}\n" + "</>)",
+			code: 'var jsx = (<>\n12345678901234{/*\n*/}\n</>)',
 			options: [14, { ignoreTrailingComments: true }],
 			languageOptions: { parserOptions: { ecmaFeatures: { jsx: true } } },
 			errors: [

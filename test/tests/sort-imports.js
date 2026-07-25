@@ -29,11 +29,11 @@ ruleTester.run("sort-imports", rule, {
 		"import a from 'foo.js';\n" +
 			"import b from 'bar.js';\n" +
 			"import c from 'baz.js';\n",
-		"import * as B from 'foo.js';\n" + "import A from 'bar.js';",
-		"import * as B from 'foo.js';\n" + "import {a, b} from 'bar.js';",
-		"import {b, c} from 'bar.js';\n" + "import A from 'foo.js';",
+		'import * as B from \'foo.js\';\nimport A from \'bar.js\';',
+		'import * as B from \'foo.js\';\nimport {a, b} from \'bar.js\';',
+		'import {b, c} from \'bar.js\';\nimport A from \'foo.js\';',
 		{
-			code: "import A from 'bar.js';\n" + "import {b, c} from 'foo.js';",
+			code: 'import A from \'bar.js\';\nimport {b, c} from \'foo.js\';',
 			options: [
 				{
 					memberSyntaxSortOrder: [
@@ -45,19 +45,19 @@ ruleTester.run("sort-imports", rule, {
 				},
 			],
 		},
-		"import {a, b} from 'bar.js';\n" + "import {c, d} from 'foo.js';",
-		"import A from 'foo.js';\n" + "import B from 'bar.js';",
-		"import A from 'foo.js';\n" + "import a from 'bar.js';",
-		"import a, * as b from 'foo.js';\n" + "import c from 'bar.js';",
-		"import 'foo.js';\n" + " import a from 'bar.js';",
-		"import B from 'foo.js';\n" + "import a from 'bar.js';",
+		'import {a, b} from \'bar.js\';\nimport {c, d} from \'foo.js\';',
+		'import A from \'foo.js\';\nimport B from \'bar.js\';',
+		'import A from \'foo.js\';\nimport a from \'bar.js\';',
+		'import a, * as b from \'foo.js\';\nimport c from \'bar.js\';',
+		'import \'foo.js\';\n import a from \'bar.js\';',
+		'import B from \'foo.js\';\nimport a from \'bar.js\';',
 		{
-			code: "import a from 'foo.js';\n" + "import B from 'bar.js';",
+			code: 'import a from \'foo.js\';\nimport B from \'bar.js\';',
 			options: ignoreCaseArgs,
 		},
 		"import {a, b, c, d} from 'foo.js';",
 		{
-			code: "import a from 'foo.js';\n" + "import B from 'bar.js';",
+			code: 'import a from \'foo.js\';\nimport B from \'bar.js\';',
 			options: [
 				{
 					ignoreDeclarationSort: true,
@@ -85,12 +85,12 @@ ruleTester.run("sort-imports", rule, {
 			options: ignoreCaseArgs,
 		},
 		"import a, * as b from 'foo.js';",
-		"import * as a from 'foo.js';\n" + "\n" + "import b from 'bar.js';",
-		"import * as bar from 'bar.js';\n" + "import * as foo from 'foo.js';",
+		'import * as a from \'foo.js\';\n\nimport b from \'bar.js\';',
+		'import * as bar from \'bar.js\';\nimport * as foo from \'foo.js\';',
 
 		// https://github.com/eslint/eslint/issues/5130
 		{
-			code: "import 'foo';\n" + "import bar from 'bar';",
+			code: 'import \'foo\';\nimport bar from \'bar\';',
 			options: ignoreCaseArgs,
 		},
 
@@ -137,12 +137,12 @@ ruleTester.run("sort-imports", rule, {
 	],
 	invalid: [
 		{
-			code: "import a from 'foo.js';\n" + "import A from 'bar.js';",
+			code: 'import a from \'foo.js\';\nimport A from \'bar.js\';',
 			output: null,
 			errors: [expectedError],
 		},
 		{
-			code: "import b from 'foo.js';\n" + "import a from 'bar.js';",
+			code: 'import b from \'foo.js\';\nimport a from \'bar.js\';',
 			output: null,
 			errors: [expectedError],
 		},
@@ -161,7 +161,7 @@ ruleTester.run("sort-imports", rule, {
 			errors: [expectedError],
 		},
 		{
-			code: "import a from 'foo.js';\n" + "import {b, c} from 'bar.js';",
+			code: 'import a from \'foo.js\';\nimport {b, c} from \'bar.js\';',
 			output: null,
 			errors: [
 				{
@@ -174,7 +174,7 @@ ruleTester.run("sort-imports", rule, {
 			],
 		},
 		{
-			code: "import a from 'foo.js';\n" + "import * as b from 'bar.js';",
+			code: 'import a from \'foo.js\';\nimport * as b from \'bar.js\';',
 			output: null,
 			errors: [
 				{
@@ -187,7 +187,7 @@ ruleTester.run("sort-imports", rule, {
 			],
 		},
 		{
-			code: "import a from 'foo.js';\n" + "import 'bar.js';",
+			code: 'import a from \'foo.js\';\nimport \'bar.js\';',
 			output: null,
 			errors: [
 				{
@@ -200,7 +200,7 @@ ruleTester.run("sort-imports", rule, {
 			],
 		},
 		{
-			code: "import b from 'bar.js';\n" + "import * as a from 'foo.js';",
+			code: 'import b from \'bar.js\';\nimport * as a from \'foo.js\';',
 			output: null,
 			options: [
 				{

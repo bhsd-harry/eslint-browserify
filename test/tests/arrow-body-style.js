@@ -628,7 +628,7 @@ ruleTester.run("arrow-body-style", rule, {
 		},
 		{
 			// Not fixed; fixing would cause ASI issues.
-			code: "var foo = () => { return bar }\n" + "[1, 2, 3].map(foo)",
+			code: 'var foo = () => { return bar }\n[1, 2, 3].map(foo)',
 			output: null,
 			options: ["never"],
 			errors: [
@@ -641,7 +641,7 @@ ruleTester.run("arrow-body-style", rule, {
 		},
 		{
 			// Not fixed; fixing would cause ASI issues.
-			code: "var foo = () => { return bar }\n" + "(1).toString();",
+			code: 'var foo = () => { return bar }\n(1).toString();',
 			output: null,
 			options: ["never"],
 			errors: [
@@ -654,8 +654,8 @@ ruleTester.run("arrow-body-style", rule, {
 		},
 		{
 			// Fixing here is ok because the arrow function has a semicolon afterwards.
-			code: "var foo = () => { return bar };\n" + "[1, 2, 3].map(foo)",
-			output: "var foo = () => bar;\n" + "[1, 2, 3].map(foo)",
+			code: 'var foo = () => { return bar };\n[1, 2, 3].map(foo)',
+			output: 'var foo = () => bar;\n[1, 2, 3].map(foo)',
 			options: ["never"],
 			errors: [
 				{

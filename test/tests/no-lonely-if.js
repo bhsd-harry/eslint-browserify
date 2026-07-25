@@ -159,7 +159,7 @@ ruleTester.run("no-lonely-if", rule, {
 				"  if (bar) baz++;\n" +
 				"}\n" +
 				"foo;",
-			output: "if (foo) {\n" + "} else if (bar) baz++;\n" + "foo;",
+			output: 'if (foo) {\n} else if (bar) baz++;\nfoo;',
 			errors,
 		},
 		{
