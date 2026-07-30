@@ -6,8 +6,9 @@ declare interface Environment {
 	};
 }
 
-declare module '@eslint/eslintrc/universal' {
-	export const Legacy: {environments: Map<string, Environment>};
+declare module '../vendor/*' {
+	declare const environments: Map<string, Environment>;
+	export default environments;
 }
 
 declare module '../bundle/*' {

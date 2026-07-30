@@ -1,10 +1,10 @@
 import {builtinRules} from 'eslint/use-at-your-own-risk';
-import {Legacy} from '@eslint/eslintrc/universal';
+import environments from '../vendor/environments.mjs'; // eslint-disable-line n/no-missing-import
 import type {Linter, ESLint} from 'eslint';
 
 declare type Config = Linter.LegacyConfig | Linter.Config;
 
-export const {environments} = Legacy;
+export {environments};
 export const plugins: Record<string, ESLint.Plugin> = {};
 
 const vueConfigs = [
