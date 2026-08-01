@@ -55,7 +55,7 @@
 		"globals": "^17.8.0",
 		"markdownlint-cli2": "^0.23.2",
 		"sinon": "^22.1.0",
-		"typescript": "^6.0.3"
+		"typescript": "^7.0.2"
 	},
 	"engines": {
 		"node": "^26.0.0"
