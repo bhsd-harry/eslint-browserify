@@ -43,16 +43,16 @@
 		"clean:vue": "find test/vue/src/ -type f -name '*.ts' | xargs gsed -i \"s|../../eslint-compat|../../rule-tester.js| ; s|import rule from .*|const rule = 'eslint-plugin-vue'| ; s|../../test-utils/typescript|../../typescript.js| ; s|import { eslintStylisticVersion } from .*|const eslintStylisticVersion = undefined| ; s|parser: require.resolve('@typescript-eslint/parser'),\\{0,1\\}||g ; s|__dirname, '../../|process.cwd(), './|\"; eslint --fix --no-inline-config test/vue/src/*.ts"
 	},
 	"devDependencies": {
-		"@bhsd/code-standard": "^4.0.0",
+		"@bhsd/code-standard": "^4.1.0",
 		"@bhsd/nodejs": "^1.2.1",
-		"@bhsd/test-util": "^3.1.0",
+		"@bhsd/test-util": "^3.1.2",
 		"@typescript-eslint/parser": "^8.67.0",
 		"esbuild": "^0.28.2",
 		"escape-string-regexp": "^4.0.0",
 		"eslint": "^10.8.1",
 		"eslint-plugin-vue": "^10.10.0",
 		"esprima": "^4.0.1",
-		"globals": "^17.9.0",
+		"globals": "^17.11.0",
 		"markdownlint-cli2": "^0.23.2",
 		"sinon": "^22.1.0",
 		"typescript": "^6.0.3"
