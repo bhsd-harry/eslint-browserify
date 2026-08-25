@@ -1,6 +1,6 @@
 {
 	"name": "@bhsd/eslint-browserify",
-	"version": "10.9.0",
+	"version": "10.9.1",
 	"description": "ESLint in browser",
 	"keywords": [
 		"eslint",
@@ -49,7 +49,7 @@
 		"@typescript-eslint/parser": "^8.67.0",
 		"esbuild": "^0.28.2",
 		"escape-string-regexp": "^4.0.0",
-		"eslint": "^10.9.0",
+		"eslint": "^10.9.1",
 		"eslint-plugin-vue": "^10.10.0",
 		"esprima": "^4.0.1",
 		"globals": "^17.11.0",
