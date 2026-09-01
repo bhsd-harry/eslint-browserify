@@ -174,9 +174,13 @@ const /** @type {esbuild.Plugin} */ plugin = {
 								2,
 							)
 							.replaceAll(
-								/^([ \t]+)(?:async normalize|is(?:File)?Ignored|getConfigStatus)\(.+?^\1\}$/gmsu,
+								/^([ \t]+)(?:(?:async normalize|is(?:File)?Ignored|getConfigStatus)\(|if \(universalFiles\.length\) \{$).+?^\1\}$/gmsu,
 								'',
-								4,
+								5,
+							)
+							.replace(
+								/^([ \t]+)const universalFiles = .+?^\1\}\);$/msu,
+								'',
 							)
 							.replace(
 								/(?<=^function normalizeConfigPatterns\(config).+?^\}$/msu,
