@@ -14,14 +14,17 @@ const linter = new eslint.Linter();
 
 ## Linter
 
-The `Linter` instance does the actual evaluation of the JavaScript code. It parses and reports on the code.
+The `Linter` instance does the actual evaluation of the JavaScript code. It
+parses and reports on the code.
 
 ### Linter#verify
 
-The most important method on `Linter` is `verify()`, which initiates linting of the given text. This method accepts three arguments:
+The most important method on `Linter` is `verify()`, which initiates linting of
+the given text. This method accepts three arguments:
 
 - `code` - the source code to lint (a string).
-- `config` - a [configuration object](https://eslint.org/docs/latest/use/configure/configuration-files#configuration-objects) or an array of configuration objects.
+- `config` - a [configuration object](https://eslint.org/docs/latest/use/configure/configuration-files#configuration-objects)
+  or an array of configuration objects.
 
 You can call `verify()` like this:
 
@@ -38,7 +41,8 @@ const messages = linter.verify(
 );
 ```
 
-The `verify()` method returns an array of objects containing information about the linting warnings and errors. Here's an example:
+The `verify()` method returns an array of objects containing information about
+the linting warnings and errors. Here's an example:
 
 ```js
 [
@@ -60,20 +64,30 @@ The `verify()` method returns an array of objects containing information about t
 The information available for each linting message is:
 
 - `column` - the column on which the error occurred.
-- `fatal` - usually omitted, but will be set to true if there's a parsing error (not related to a rule).
+- `fatal` - usually omitted, but will be set to true if there's a parsing error
+  (not related to a rule).
 - `line` - the line on which the error occurred.
 - `message` - the message that should be output.
-- `messageId` - the ID of the message used to generate the message (this property is omitted if the rule does not use message IDs).
-- `ruleId` - the ID of the rule that triggered the messages (or null if `fatal` is true).
+- `messageId` - the ID of the message used to generate the message (this
+  property is omitted if the rule does not use message IDs).
+- `ruleId` - the ID of the rule that triggered the messages (or null if `fatal`
+  is true).
 - `severity` - either 1 or 2, depending on your configuration.
-- `endColumn` - the end column of the range on which the error occurred (this property is omitted if it's not range).
-- `endLine` - the end line of the range on which the error occurred (this property is omitted if it's not range).
-- `fix` - an object describing the fix for the problem (this property is omitted if no fix is available).
-- `suggestions` - an array of objects describing possible lint fixes for editors to programmatically enable.
+- `endColumn` - the end column of the range on which the error occurred (this
+  property is omitted if it's not range).
+- `endLine` - the end line of the range on which the error occurred (this
+  property is omitted if it's not range).
+- `fix` - an object describing the fix for the problem (this property is omitted
+  if no fix is available).
+- `suggestions` - an array of objects describing possible lint fixes for editors
+  to programmatically enable.
 
 ### Linter#verifyAndFix
 
-This method is similar to verify except that it also runs autofixing logic, similar to the `--fix` flag on the command line. The result object will contain the autofixed code, along with any remaining linting messages for the code that were not autofixed.
+This method is similar to verify except that it also runs autofixing logic,
+similar to the `--fix` flag on the command line. The result object will contain
+the autofixed code, along with any remaining linting messages for the code that
+were not autofixed.
 
 ```js
 const linter = new eslint.Linter();
@@ -99,4 +113,5 @@ The information available is:
 
 - `fixed` - true, if the code was fixed.
 - `output` - fixed code text (might be the same as input if no fixes were applied).
-- `messages` - collection of all messages for the given code (It has the same information as explained above under [`verify`](#linterverify) block).
+- `messages` - collection of all messages for the given code (It has the same
+  information as explained above under [`verify`](#linterverify) block).
