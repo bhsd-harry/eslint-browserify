@@ -74,6 +74,7 @@ const /** @type {esbuild.Plugin} */ plugin = {
 						'flat-config-schema',
 						'index-universal',
 						'keyword',
+						'lazy-loading-rule-map',
 						'linter',
 						'posix',
 						'unsupported-api',
@@ -143,16 +144,11 @@ const /** @type {esbuild.Plugin} */ plugin = {
 							);
 						break;
 					case 'code':
-						contents
-							.replace(
-								/^([ \t]+)NON_ASCII_WHITESPACES = [\s\S]+?\1\];$/mu,
-								'',
-							)
-							.replace(
-								/^([ \t]+)function is(?!Identifier)\w+\([\s\S]+?\1\}$|^[ \t]+(is(?!Identifier)\w+): \2,$/gmu,
-								'',
-								true,
-							);
+						contents.replaceAll(
+							/^([ \t]+)(?:NON_ASCII_WHITESPACES = [\s\S]+?\1\];|function is(?!Identifier)\w+\([\s\S]+?\1\})$|^[ \t]+(is(?!Identifier)\w+): \2,$/gmu,
+							'',
+							11,
+						);
 						break;
 					case 'config':
 						contents
@@ -174,31 +170,22 @@ const /** @type {esbuild.Plugin} */ plugin = {
 								2,
 							)
 							.replaceAll(
-								/^([ \t]+)(?:(?:async normalize|is(?:File)?Ignored|getConfigStatus)\(|if \(universalFiles\.length\) \{$).+?^\1\}$/gmsu,
+								/^([ \t]+)(?:(?:(?:async normalize|is(?:File)?Ignored|getConfigStatus)\(|if \(universalFiles\.length\) \{$).+?^\1\}|const universalFiles = .+?^\1\}\);)$/gmsu,
 								'',
-								5,
+								6,
 							)
-							.replace(
-								/^([ \t]+)const universalFiles = .+?^\1\}\);$/msu,
-								'',
-							)
-							.replace(
-								/(?<=^function normalizeConfigPatterns\(config).+?^\}$/msu,
-								') { return config }',
+							.replaceAll(
+								/(?<=^function (?:normalizeConfigPatterns|toRelativePath)\((\w+)(?=[,)])).+?^\}$/gmsu,
+								') { return $1 }',
+								2,
 							);
 						break;
 					case 'eslint-scope':
-						contents
-							.replaceAll(
-								/^([ \t]+)JSX\w+\([\s\S]+?^\1\}$/gmu,
-								'',
-								7,
-							)
-							.replace(
-								/^exports\.(?!(?:analyze|Reference|Variable) )\w+ = .+$/gmu,
-								'',
-								true,
-							);
+						contents.replaceAll(
+							/^([ \t]+)(?:JSX\w+|__isClosed|resolve|is(?:UsedName|Static|(?:This|Arguments)Materialized))\([\s\S]+?^\1\}$|^exports\.(?!(?:analyze|Reference|Variable) )\w+ = .+$/gmu,
+							'',
+							22,
+						);
 						break;
 					case 'eslint-utils':
 						contents
@@ -225,17 +212,11 @@ const /** @type {esbuild.Plugin} */ plugin = {
 						);
 						break;
 					case 'estraverse':
-						contents
-							.replaceAll(
-								/^(?:\(function clone\(exports\) \{|\}\(exports\)\);)$/gmu,
-								'',
-								2,
-							)
-							.replace(
-								/^([ \t]+)function \w+\([\s\S]+?^\1\}$|^([ \t]+)\w+\.prototype(?:\.\w+|\['\w+'\]) = [\s\S]+?^\2\};$|^[ \t]+exports\.(?!Syntax |VisitorKeys )\w+ = .+$/gmu,
-								'',
-								true,
-							);
+						contents.replaceAll(
+							/^(?:\(function clone\(exports\) \{|\}\(exports\)\);)$|^([ \t]+)function \w+\([\s\S]+?^\1\}$|^([ \t]+)\w+\.prototype(?:\.\w+|\['\w+'\]) = [\s\S]+?^\2\};$|^[ \t]+exports\.(?!Syntax |VisitorKeys )\w+ = .+$/gmu,
+							'',
+							23,
+						);
 						break;
 					case 'flat-config-array':
 						contents.replace(
@@ -296,42 +277,38 @@ const /** @type {esbuild.Plugin} */ plugin = {
 								/^const Legacy = \{.+?^\};$/msu,
 								'const Legacy = {environments};',
 							)
-							.replace(
+							.replaceAll(
 								/^import (?!environments ).+/gmu,
 								'',
-								true,
+								3,
 							);
 						break;
 					case 'keyword':
-						contents.replace(
+						contents.replaceAll(
 							/^[ \t]+(is(?!IdentifierES)\w+): \1,$/gmu,
 							'',
-							true,
+							7,
+						);
+						break;
+					case 'lazy-loading-rule-map':
+						contents.replace(
+							/(?<=^([ \t]+)super\()$.+?^\1\);$/msu,
+							'loaders);',
 						);
 						break;
 					case 'lib':
-						contents
-							.replace(
-								/^([ \t]+)typeCheck = .+?^\1\};$/msu,
-								'',
-							)
-							.replaceAll(
-								/^[ \t]+(VERSION|typeCheck): \1,$/gmu,
-								'',
-								2,
-							);
+						contents.replaceAll(
+							/^([ \t]+)(?:typeCheck = .+?^\1\};|(VERSION|typeCheck): \2,)$/gmsu,
+							'',
+							3,
+						);
 						break;
 					case 'linter':
 						contents
 							.replaceAll(
-								/^([ \t]+)if \((?:options\.)?stats\) \{$.+?^\1\}$/gmsu,
+								/^([ \t]+)(?:if \((?:options\.)?stats\) \{$.+?^\1\}|(?:hasFlag\(|if \(firstCall\b).+?^\1\}|flags\.forEach\(.+?^\1\}\);)$/gmsu,
 								'',
-								11,
-							)
-							.replaceAll(
-								/^([ \t]+)(?:hasFlag\(|if \(firstCall\b).+?^\1\}$|^([ \t]+)flags\.forEach\(.+?^\2\}\);$/gmsu,
-								'',
-								3,
+								14,
 							)
 							.replace(
 								'< MAX_AUTOFIX_PASSES',
@@ -341,6 +318,12 @@ const /** @type {esbuild.Plugin} */ plugin = {
 					case 'no-empty-function':
 						contents.replace(
 							/^const ALLOW_OPTIONS = .+?^\]\);$/msu,
+							'',
+						);
+						break;
+					case 'no-extra-parens':
+						contents.replace(
+							/^([ \t]+)if \(node\.type === "JSXElement" \|\| node\.type === "JSXFragment"\) \{.+?^\1\}$/msu,
 							'',
 						);
 						break;
@@ -364,9 +347,9 @@ const /** @type {esbuild.Plugin} */ plugin = {
 						break;
 					case 'posix':
 						contents.replaceAll(
-							/^exports\.(?:(?:to|from)FileUrl|normalize(?:Glob)?|join(?:Globs)?|isGlob|globToRegExp|format|(?:base|ext)name|common|parse|SEPARATOR_PATTERN|DELIMITER) = .+$/gmu,
+							/^exports\.(?:(?:to|from)FileUrl|normalize(?:Glob)?|join(?:Globs)?|is(?:Absolute|Glob)|globToRegExp|format|(?:base|ext)name|common|parse|relative|SEPARATOR_PATTERN|DELIMITER) = .+$/gmu,
 							'',
-							15,
+							17,
 						);
 						break;
 					case 'preserve-caught-error':
@@ -376,17 +359,11 @@ const /** @type {esbuild.Plugin} */ plugin = {
 						);
 						break;
 					case 'regexpp':
-						contents
-							.replaceAll(
-								/^([ \t]+)(?:(?:parse|validate)Literal|eatRegExpBody)\([\s\S]+?^\1\}$/gmu,
-								'',
-								3,
-							)
-							.replace(
-								/^exports\.(?!RegExp(?:Parser|Validator)|visitRegExpAST)\w+ = .+$/gmu,
-								'',
-								true,
-							);
+						contents.replaceAll(
+							/^([ \t]+)(?:(?:parse|validate)Literal|eatRegExpBody)\([\s\S]+?^\1\}$|^exports\.(?!RegExp(?:Parser|Validator)|visitRegExpAST)\w+ = .+$/gmu,
+							'',
+							7,
+						);
 						break;
 					case 'rules':
 						contents.replace(

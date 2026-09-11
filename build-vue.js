@@ -10,6 +10,7 @@ const shim = [
 		'configs/index',
 		'indent-ts',
 		'selector',
+		'ts-ast',
 		'ts-utils/index',
 	],
 	shimSet = new Set(shim),

@@ -1,5 +1,3 @@
 exports.statSync = () => ({
-	isDirectory() {
-		return false;
-	},
+	isDirectory: () => false,
 });

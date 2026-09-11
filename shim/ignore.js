@@ -1,4 +1,4 @@
-const escapeRegExp = require('escape-string-regexp'); // eslint-disable-line n/no-extraneous-require
+const escapeRegExp = require('escape-string-regexp');
 
 module.exports = options => ({
 	add(group) {
@@ -11,9 +11,7 @@ module.exports = options => ({
 			options?.ignorecase ? 'i' : '',
 		);
 		return {
-			ignores(name) {
-				return re.test(name);
-			},
+			ignores: name => re.test(name),
 		};
 	},
 });

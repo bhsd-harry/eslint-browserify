@@ -9,6 +9,7 @@ for (const file of ['eslint', 'eslint-plugin-vue']) {
 		'coverage/coverage.json',
 		path.join('coverage', `uncovered-lines${file === 'eslint' ? '' : '-vue'}.txt`),
 		path.join('build', `${file}.js`),
+		15,
 	);
 }
 updateBadge();

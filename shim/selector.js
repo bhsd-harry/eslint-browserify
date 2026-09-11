@@ -1,5 +1,3 @@
 exports.parseSelector = selector => ({
-	test(element) {
-		return element.rawName === selector;
-	},
+	test: element => element.rawName === selector,
 });

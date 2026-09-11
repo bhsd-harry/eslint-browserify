@@ -1,6 +1,6 @@
 {
 	"name": "@bhsd/eslint-browserify",
-	"version": "10.10.0",
+	"version": "10.11.0",
 	"description": "ESLint in browser",
 	"keywords": [
 		"eslint",
@@ -45,15 +45,15 @@
 	"devDependencies": {
 		"@bhsd/code-standard": "^4.2.0",
 		"@bhsd/nodejs": "^1.2.1",
-		"@bhsd/test-util": "^3.2.0",
-		"@typescript-eslint/parser": "^8.69.0",
+		"@bhsd/test-util": "^3.2.1",
+		"@typescript-eslint/parser": "^8.70.0",
 		"esbuild": "^0.28.2",
 		"escape-string-regexp": "^4.0.0",
-		"eslint": "^10.10.0",
-		"eslint-plugin-vue": "^10.10.0",
+		"eslint": "^10.11.0",
+		"eslint-plugin-vue": "^10.11.0",
 		"esprima": "^4.0.1",
 		"globals": "^17.12.0",
-		"markdownlint-cli2": "^0.23.2",
+		"markdownlint-cli2": "^0.23.3",
 		"sinon": "^22.1.0",
 		"typescript": "^6.0.3"
 	},
