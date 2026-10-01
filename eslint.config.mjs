@@ -66,6 +66,7 @@ export default extend(
 			'unicorn/no-array-fill-with-reference-type': 0,
 			'unicorn/no-array-reduce': 0,
 			'unicorn/no-for-each': 0,
+			'unicorn/no-immediate-mutation': 0,
 			'unicorn/no-incorrect-template-string-interpolation': 0,
 			'unicorn/no-unsafe-string-replacement': 0,
 			'unicorn/no-useless-template-literals': 0,

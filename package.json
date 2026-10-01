@@ -30,8 +30,8 @@
 	"scripts": {
 		"ls": "npm i --package-lock-only && npm ls --package-lock-only --all --omit=dev",
 		"lint:ts": "tsc --noEmit && eslint --cache --report-unused-disable-directives-severity 0 --ignore-pattern 'test/tests/*.js' --ignore-pattern 'test/vue/src/*.ts' . && eslint --no-ignore --no-inline-config --no-config-lookup -c eslint.build.mjs build/eslint.js build/eslint-plugin-vue.js",
-		"lint:bundle": "eslint --no-ignore --no-config-lookup --report-unused-disable-directives-severity 0 --no-inline-config --rule 'no-unused-vars: [2, {args: \"none\", caughtErrors: \"none\", ignoreRestSiblings: true}]' build/eslint.js build/eslint-plugin-vue.js",
 		"lint:md": "markdownlint-cli2 '**/*.md'",
+		"lint:bundle": "eslint --no-config-lookup --no-inline-config --rule 'no-unused-vars: [2, {args: none, caughtErrors: none, ignoreRestSiblings: true}]' build/eslint.js build/eslint-plugin-vue.js",
 		"lint": "npm run lint:ts && npm run lint:md",
 		"build": "npm run bundle && npm run minify && tsc && npm run build:test",
 		"build:test": "tsc -p test/vue/tsconfig.json",
@@ -50,7 +50,7 @@
 		"esbuild": "^0.28.2",
 		"escape-string-regexp": "^4.0.0",
 		"eslint": "^10.11.0",
-		"eslint-plugin-vue": "^10.11.0",
+		"eslint-plugin-vue": "^10.11.1",
 		"esprima": "^4.0.1",
 		"globals": "^17.12.0",
 		"markdownlint-cli2": "^0.23.3",

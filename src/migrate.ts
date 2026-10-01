@@ -87,35 +87,32 @@ const createExtends = (configExtends: Linter.LegacyConfig['extends']): Linter.Co
 	return createRuleConfig(rules);
 };
 
-const createLinterOptions = (config: Linter.LegacyConfig): Linter.LinterOptions | undefined => {
-	if (!config.noInlineConfig && !config.reportUnusedDisableDirectives) {
-		return undefined;
-	}
-	const linterOptions: Linter.LinterOptions = {};
-	if (config.noInlineConfig) {
-		linterOptions.noInlineConfig = true;
-	}
-	if (config.reportUnusedDisableDirectives) {
-		linterOptions.reportUnusedDisableDirectives = config.reportUnusedDisableDirectives;
-	}
-	return linterOptions;
-};
+const createLinterOptions = (config: Linter.LegacyConfig): Linter.LinterOptions | undefined =>
+	config.noInlineConfig || config.reportUnusedDisableDirectives
+		? {
+			...config.noInlineConfig && {noInlineConfig: true},
+			...config.reportUnusedDisableDirectives && {
+				reportUnusedDisableDirectives: config.reportUnusedDisableDirectives,
+			},
+		} satisfies Linter.LinterOptions
+		: undefined;
 
 const createGlobals = ({globals, env}: Linter.LegacyConfig): Linter.LanguageOptions => {
 	const properties: Linter.Globals = {},
 		options: Linter.LanguageOptions = {};
 	for (const e in env) {
 		const environment = environments.get(e);
-		if (environment) {
-			Object.assign(properties, environment.globals);
-			const {ecmaFeatures, ecmaVersion} = environment.parserOptions ?? {};
-			if (ecmaVersion) {
-				options.ecmaVersion = ecmaVersion as Linter.EcmaVersion;
-			}
-			if (ecmaFeatures) {
-				options.parserOptions ??= {ecmaFeatures: {}};
-				Object.assign(options.parserOptions.ecmaFeatures!, ecmaFeatures);
-			}
+		if (!environment) {
+			continue;
+		}
+		Object.assign(properties, environment.globals);
+		const {ecmaFeatures, ecmaVersion} = environment.parserOptions ?? {};
+		if (ecmaVersion) {
+			options.ecmaVersion = ecmaVersion as Linter.EcmaVersion;
+		}
+		if (ecmaFeatures) {
+			options.parserOptions ??= {ecmaFeatures: {}};
+			Object.assign(options.parserOptions.ecmaFeatures!, ecmaFeatures);
 		}
 	}
 	Object.assign(properties, globals);
@@ -126,14 +123,11 @@ const createGlobals = ({globals, env}: Linter.LegacyConfig): Linter.LanguageOpti
 };
 
 const createLanguageOptions = (config: Linter.LegacyConfig): Linter.LanguageOptions | undefined => {
-	const properties: Linter.LanguageOptions = {},
-		{globals, ecmaVersion: version, parserOptions} = createGlobals(config);
-	if (globals) {
-		properties.globals = globals;
-	}
-	if (version) {
-		properties.ecmaVersion = version;
-	}
+	const {globals, ecmaVersion: version, parserOptions} = createGlobals(config),
+		properties: Linter.LanguageOptions = {
+			...globals && {globals},
+			...version && {ecmaVersion: version},
+		};
 	if (config.parserOptions) {
 		const {
 			ecmaVersion = 5,
@@ -185,33 +179,19 @@ const migrateConfigObject = (config: Config, base?: boolean): Linter.Config[] =>
 		}
 		return [config];
 	}
-	const configArrayElements: Linter.Config[] = [];
-	if (base) {
-		configArrayElements.push({
-			linterOptions: {reportUnusedDisableDirectives: false},
-		});
-	}
-	if (config.extends) {
-		configArrayElements.push(...createExtends(config.extends));
-	}
-	const properties: Linter.Config = {};
-	const linterOptions = createLinterOptions(config);
-	if (linterOptions) {
-		properties.linterOptions = linterOptions;
-	}
-	const languageOptions = createLanguageOptions(config);
-	if (languageOptions) {
-		properties.languageOptions = languageOptions;
-	}
-	if (config.settings) {
-		properties.settings = config.settings;
-	}
-	if (config.rules) {
-		properties.rules = config.rules;
-	}
-	if (Object.keys(properties).length > 0) {
-		configArrayElements.push(properties);
-	}
+	const linterOptions = createLinterOptions(config),
+		languageOptions = createLanguageOptions(config),
+		properties: Linter.Config = {
+			...linterOptions && {linterOptions},
+			...languageOptions && {languageOptions},
+			...config.settings && {settings: config.settings},
+			...config.rules && {rules: config.rules},
+		},
+		configArrayElements: Linter.Config[] = [
+			...base ? [{linterOptions: {reportUnusedDisableDirectives: false}}] : [],
+			...config.extends ? createExtends(config.extends) : [],
+			...Object.keys(properties).length > 0 ? [properties] : [],
+		];
 	if (base && config.overrides) {
 		for (const override of config.overrides) {
 			configArrayElements.push(...migrateConfigObject(override));
@@ -224,11 +204,7 @@ export const migrateConfig = (config: Config | Config[] = []): Linter.Config[] =
 	? [
 		...(config[0] as Linter.Config | undefined)?.linterOptions?.reportUnusedDisableDirectives === undefined
 		&& (config[0] as Linter.LegacyConfig | undefined)?.reportUnusedDisableDirectives === undefined
-			? [
-				{
-					linterOptions: {reportUnusedDisableDirectives: false},
-				},
-			]
+			? [{linterOptions: {reportUnusedDisableDirectives: false}}]
 			: [],
 		...config.flatMap(c => migrateConfigObject(c)),
 	]
