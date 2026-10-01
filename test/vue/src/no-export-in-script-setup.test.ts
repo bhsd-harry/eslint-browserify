@@ -41,27 +41,18 @@ ruleTester.run('no-export-in-script-setup', rule, {
       </script>
       `,
     },
-    ...(semver.satisfies(typescriptPackageJson.version, '>=4.5.0-0')
-      ? [
-          {
+
+          ({
             filename: 'test.vue',
-            code: `
+            code: semver.satisfies(typescriptPackageJson.version, '>=4.5.0-0')
+? `
             <script setup lang="ts">
             export { type Foo } from "foo"
             export type Bar = {}
             export interface Bar {}
             </script>
-            `,
-            languageOptions: {
-              parser: vueEslintParser,
-              parserOptions: {},
-            },
-          },
-        ]
-      : [
-          {
-            filename: 'test.vue',
-            code: `
+            `
+: `
             <script setup lang="ts">
             export type Bar = {}
             export interface Bar {}
@@ -71,8 +62,7 @@ ruleTester.run('no-export-in-script-setup', rule, {
               parser: vueEslintParser,
               parserOptions: {},
             },
-          },
-        ]),
+          }),
   ],
 
   invalid: [

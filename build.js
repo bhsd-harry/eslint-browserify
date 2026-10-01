@@ -11,6 +11,7 @@ const shim = [
 		'ast',
 		'debug-helpers',
 		'flags',
+		'posix',
 		'stats',
 		'timing',
 		'warning-service',
@@ -76,7 +77,6 @@ const /** @type {esbuild.Plugin} */ plugin = {
 						'keyword',
 						'lazy-loading-rule-map',
 						'linter',
-						'posix',
 						'unsupported-api',
 					].join('|')}|(?:${[
 						'config-array/dist/cjs',
@@ -157,22 +157,26 @@ const /** @type {esbuild.Plugin} */ plugin = {
 								') {}',
 							)
 							.replaceAll(
-								/^([ \t]+)(?:toJSON|static getRuleOptionsSchema)\(.+?^\1\}$/gmsu,
+								/^(?:([ \t]+)(?:toJSON|static getRuleOptionsSchema)\(.+?^\1\}|const noOptionsSchema = .+?^\}\);)$/gmsu,
 								'',
-								2,
+								3,
 							);
 						break;
 					case 'config-array':
 						contents
+							.replace(
+								/(?<=^function getPathImpl\().+?^\}$/msu,
+								') { return require("node:path") }',
+							)
 							.replaceAll(
 								/(?<=^([ \t]+)isDirectoryIgnored\().+?^\1\}$|(?<=^function shouldIgnorePath\().+?^\}$/gmsu,
 								') { return false; }',
 								2,
 							)
 							.replaceAll(
-								/^([ \t]+)(?:(?:(?:async normalize|is(?:File)?Ignored|getConfigStatus)\(|if \(universalFiles\.length\) \{$).+?^\1\}|const universalFiles = .+?^\1\}\);)$/gmsu,
+								/^([ \t]+)(?:(?:(?:async normalize|is(?:File)?Ignored|getConfigStatus|get (?:files|ignores))\(|if \((?:universalFiles\.length|[ \t\n]+shouldIgnorePath\([\s\S]+?^\1)\) \{$)[\s\S]+?^\1\}|(?:const (?:universalPattern|nonUniversalFiles) = |\w+\.validate\().+;|(?:const universalFiles = |dataCache\.set\()[\s\S]+?^\1\}\);|validate\(\w+\) \{$[\s\S]+?^\1\},)$|^const (?:FILES_AND_IGNORES_SCHEMA = .+|filesAndIgnoresSchema = [\s\S]+?^\}\));$/gmu,
 								'',
-								6,
+								17,
 							)
 							.replaceAll(
 								/(?<=^function (?:normalizeConfigPatterns|toRelativePath)\((\w+)(?=[,)])).+?^\}$/gmsu,
@@ -213,9 +217,9 @@ const /** @type {esbuild.Plugin} */ plugin = {
 						break;
 					case 'estraverse':
 						contents.replaceAll(
-							/^(?:\(function clone\(exports\) \{|\}\(exports\)\);)$|^([ \t]+)function \w+\([\s\S]+?^\1\}$|^([ \t]+)\w+\.prototype(?:\.\w+|\['\w+'\]) = [\s\S]+?^\2\};$|^[ \t]+exports\.(?!Syntax |VisitorKeys )\w+ = .+$/gmu,
+							/^([ \t]+)(?:function \w+\([\s\S]+?^\1\}|(?:\w+\.prototype(?:\.\w+|\['\w+'\])|VisitorOption) = [\s\S]+?^\1\};)$|^(?:\(function clone\(exports\) \{|\}\(exports\)\);)$|^[ \t]+(?:exports\.(?!Syntax |VisitorKeys )\w+|BREAK|SKIP|REMOVE) = .+$/gmu,
 							'',
-							23,
+							27,
 						);
 						break;
 					case 'flat-config-array':
@@ -225,9 +229,10 @@ const /** @type {esbuild.Plugin} */ plugin = {
 						);
 						break;
 					case 'flat-config-schema':
-						contents.replace(
-							/^[ \t]+hasMethod,$/mu,
+						contents.replaceAll(
+							/^([ \t]+)(?:hasMethod,|validate\(\w*\) \{$.+?\1\},)$/gmsu,
 							'',
+							8,
 						);
 						break;
 					case 'globals': {
@@ -285,9 +290,9 @@ const /** @type {esbuild.Plugin} */ plugin = {
 						break;
 					case 'keyword':
 						contents.replaceAll(
-							/^[ \t]+(is(?!IdentifierES)\w+): \1,$/gmu,
+							/^([ \t]+)(?:(is(?!IdentifierES)\w+): \2,|function isRestrictedWord\(.+?^\1\})$/gmsu,
 							'',
-							7,
+							8,
 						);
 						break;
 					case 'lazy-loading-rule-map':
@@ -328,10 +333,17 @@ const /** @type {esbuild.Plugin} */ plugin = {
 						);
 						break;
 					case 'object-schema':
-						contents.replace(
-							/(?<=^([ \t]+)validate\()object\).+?^\1\}$/msu,
-							') {}',
-						);
+						contents
+							.replaceAll(
+								/^([ \t]+)if \(typeof definition\.validate === ".+?^\1\} else if \(.+?^\1\}$|(?<=^class ValidationStrategy \{$).+?(?=^\}$)/gmsu,
+								'',
+								2,
+							)
+							.replaceAll(
+								/(?<=^([ \t]+)validate\().+?^\1(?=\},?$)/gmsu,
+								') {',
+								2,
+							);
 						break;
 					case 'package':
 						contents = new ReplacableString(
@@ -343,13 +355,6 @@ const /** @type {esbuild.Plugin} */ plugin = {
 						contents.replace(
 							/^exports\.TextSourceCodeBase = .+$/mu,
 							'',
-						);
-						break;
-					case 'posix':
-						contents.replaceAll(
-							/^exports\.(?:(?:to|from)FileUrl|normalize(?:Glob)?|join(?:Globs)?|is(?:Absolute|Glob)|globToRegExp|format|(?:base|ext)name|common|parse|relative|SEPARATOR_PATTERN|DELIMITER) = .+$/gmu,
-							'',
-							17,
 						);
 						break;
 					case 'preserve-caught-error':

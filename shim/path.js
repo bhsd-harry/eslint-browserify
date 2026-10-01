@@ -22,3 +22,5 @@ exports.dirname = path => {
 	const lastSlash = path.lastIndexOf('/');
 	return lastSlash === -1 ? '' : path.slice(0, lastSlash);
 };
+
+exports.toNamespacedPath = path => path;

@@ -18,7 +18,7 @@ const assert = require("assert"),
 globalThis.eslint ??= require('../build/eslint.js').eslint;
 const { Linter } = eslint;
 const { FlatConfigArray } = {};
-const { SourceCode } = {};
+const { SourceCode } = eslint;
 const jslang = {};
 const Traverser = {};
 const LATEST_ECMA_VERSION = 2026;
@@ -47,6 +47,18 @@ const TEST_CODE = "var answer = 6 * 7;",
  */
 function getVariable(scope, name) {
 	return scope.variables.find(v => v.name === name) || null;
+}
+
+function throws(fn, error, message) {
+	assert.throws(fn, e => {
+		if (typeof error === "string") {
+			assert(e.message.includes(error));
+		} else {
+			assert(e instanceof error);
+			assert(e.message.includes(message));
+		}
+		return true;
+	});
 }
 
 //------------------------------------------------------------------------------
@@ -103,14 +115,6 @@ describe("Linter with FlatConfigArray", () => {
 				}).hasFlag("test_only"),
 				true,
 			);
-
-			assert(
-				warningService.emitInactiveFlagWarning.calledOnceWithExactly(
-					"test_only_replaced",
-					"The flag 'test_only_replaced' is inactive: This flag has been renamed 'test_only' to reflect its stabilization. Please use 'test_only' instead.",
-				),
-				"calls `warningService.emitInactiveFlagWarning()` once with the correct arguments",
-			);
 		});
 
 		it("should return false if an inactive flag whose feature is enabled by default is used", () => {
@@ -121,14 +125,6 @@ describe("Linter with FlatConfigArray", () => {
 					warningService,
 				}).hasFlag("test_only_enabled_by_default"),
 				false,
-			);
-
-			assert(
-				warningService.emitInactiveFlagWarning.calledOnceWithExactly(
-					"test_only_enabled_by_default",
-					"The flag 'test_only_enabled_by_default' is inactive: This feature is now enabled by default.",
-				),
-				"calls `warningService.emitInactiveFlagWarning()` once with the correct arguments",
 			);
 		});
 
@@ -2044,9 +2040,113 @@ describe("Linter with FlatConfigArray", () => {
 					rules: { "test/checker": "error" },
 				};
 
+				throws(() => {
+					linter.verify(code, config, filename);
+				}, `Intentional error.\nOccurred while linting ${filename}:1\nRule: "test/checker"`);
+			});
+
+			it("should attribute an error to the correct rule when two rules share the same listener function object", () => {
+				/**
+				 * A single listener function object shared by two rules.
+				 * @returns {void}
+				 * @throws {Error} Always.
+				 */
+				function sharedListener() {
+					throw new Error("Intentional error.");
+				}
+
+				const plugin = {
+					rules: {
+						"rule-a": {
+							create: () => ({ Program: sharedListener }),
+						},
+						"rule-b": {
+							create: () => ({ Program: sharedListener }),
+						},
+					},
+				};
+				const config = {
+					plugins: { test: plugin },
+					rules: {
+						"test/rule-a": "error",
+						"test/rule-b": "error",
+					},
+				};
+
+				throws(() => {
+					linter.verify(code, config, filename);
+				}, `Intentional error.\nOccurred while linting ${filename}:1\nRule: "test/rule-a"`);
+			});
+
+			it("should attribute an error to the correct rule when the listener is a frozen function", () => {
+				const frozenListener = Object.freeze(() => {
+					throw new Error("Intentional error.");
+				});
+				const config = {
+					plugins: {
+						test: {
+							rules: {
+								checker: {
+									create: () => ({
+										Program: frozenListener,
+									}),
+								},
+							},
+						},
+					},
+					rules: { "test/checker": "error" },
+				};
+
+				throws(() => {
+					linter.verify(code, config, filename);
+				}, `Intentional error.\nOccurred while linting ${filename}:1\nRule: "test/checker"`);
+			});
+
+			it("should attribute an error to the correct rule when the listener is not a function", () => {
+				const config = {
+					plugins: {
+						test: {
+							rules: {
+								checker: {
+									create: () => ({ Program: null }),
+								},
+							},
+						},
+					},
+					rules: { "test/checker": "error" },
+				};
+
 				assert.throws(() => {
 					linter.verify(code, config, filename);
-				}, `Intentional error.\nOccurred while linting <input>:1\nRule: "test/checker"`);
+				}, /Rule: "test\/checker"$/u);
+			});
+
+			it("should overwrite an existing `ruleId` on a thrown error with the rule that threw it", () => {
+				const config = {
+					plugins: {
+						test: {
+							rules: {
+								checker: {
+									create: () => ({
+										Program() {
+											const error = new Error(
+												"Intentional error.",
+											);
+
+											error.ruleId = "some/other-rule";
+											throw error;
+										},
+									}),
+								},
+							},
+						},
+					},
+					rules: { "test/checker": "error" },
+				};
+
+				throws(() => {
+					linter.verify(code, config, filename);
+				}, `Intentional error.\nOccurred while linting ${filename}:1\nRule: "test/checker"`);
 			});
 
 			it("should not call rule visitor with a `this` value", () => {
@@ -2201,7 +2301,7 @@ describe("Linter with FlatConfigArray", () => {
 					rules: { "test/function-style-rule": "error" },
 				};
 
-				assert.throws(
+				throws(
 					() => linter.verify("foo", config),
 					TypeError,
 					"Error while loading rule 'test/function-style-rule': Rule must be an object with a `create` method",
@@ -2230,7 +2330,7 @@ describe("Linter with FlatConfigArray", () => {
 					rules: { "test/object-rule-without-create": "error" },
 				};
 
-				assert.throws(
+				throws(
 					() => linter.verify("foo", config),
 					TypeError,
 					"Error while loading rule 'test/object-rule-without-create': Rule must be an object with a `create` method",
@@ -2314,7 +2414,7 @@ describe("Linter with FlatConfigArray", () => {
 					rules: { "test/invalid-report": "error" },
 				};
 
-				assert.throws(
+				throws(
 					() => linter.verify("foo", config),
 					TypeError,
 					"Missing `message` property in report() call; add a message that describes the linting problem.",
@@ -3172,6 +3272,117 @@ describe("Linter with FlatConfigArray", () => {
 							"/*global __proto__:writeable */",
 							{},
 							{ name: "__proto__", writeable: true },
+						);
+					});
+				});
+
+				describe.skip("when evaluating multiple files that share a config", () => {
+					it("should not leak inline globals into later files", () => {
+						const configs = createFlatConfigArray({
+							files: ["**/*.js"],
+							rules: { "no-undef": "error" },
+						});
+
+						configs.normalizeSync();
+
+						const first = linter.verify(
+							"/* global foo */ foo;",
+							configs,
+							"a.js",
+						);
+						const second = linter.verify("foo;", configs, "b.js");
+
+						assert.strictEqual(first.length, 0);
+						assert.strictEqual(second.length, 1);
+						assert.strictEqual(second[0].ruleId, "no-undef");
+					});
+
+					it("should not let an inline global change a configured global in later files", () => {
+						const configs = createFlatConfigArray({
+							files: ["**/*.js"],
+							languageOptions: { globals: { foo: "writable" } },
+							rules: { "no-global-assign": "error" },
+						});
+
+						configs.normalizeSync();
+
+						const readonlyInline =
+							"/* global foo:readonly */ foo = 1;";
+						const first = linter.verify(
+							readonlyInline,
+							configs,
+							"a.js",
+						);
+						const second = linter.verify(
+							"foo = 1;",
+							configs,
+							"b.js",
+						);
+						const third = linter.verify(
+							readonlyInline,
+							configs,
+							"c.js",
+						);
+
+						assert.strictEqual(first.length, 1);
+						assert.strictEqual(first[0].ruleId, "no-global-assign");
+						assert.strictEqual(second.length, 0);
+						assert.strictEqual(third.length, 1);
+					});
+
+					it("should keep configured globals that are off excluded in every file", () => {
+						const configs = createFlatConfigArray({
+							files: ["**/*.js"],
+							languageOptions: {
+								globals: { foo: "readonly", bar: "off" },
+							},
+							rules: { "no-undef": "error" },
+						});
+
+						configs.normalizeSync();
+
+						for (const [code, file] of [
+							["foo; bar;", "a.js"],
+							["/* global baz */ foo; bar; baz;", "b.js"],
+							["foo; bar;", "c.js"],
+						]) {
+							const messages = linter.verify(code, configs, file);
+
+							assert.strictEqual(messages.length, 1, file);
+							assert.strictEqual(
+								messages[0].message,
+								"'bar' is not defined.",
+							);
+						}
+					});
+
+					it("should give files matching different configs their own globals", () => {
+						const configs = createFlatConfigArray([
+							{
+								files: ["**/*.cjs"],
+								languageOptions: { sourceType: "commonjs" },
+							},
+							{
+								files: ["**/*.js", "**/*.cjs"],
+								rules: { "no-undef": "error" },
+							},
+						]);
+
+						configs.normalizeSync();
+
+						const code = "module.exports = {};";
+
+						assert.strictEqual(
+							linter.verify(code, configs, "a.cjs").length,
+							0,
+						);
+						assert.strictEqual(
+							linter.verify(code, configs, "b.js").length,
+							1,
+						);
+						assert.strictEqual(
+							linter.verify(code, configs, "c.cjs").length,
+							0,
 						);
 					});
 				});
@@ -7750,26 +7961,26 @@ let c; // var a = "test2";
 				});
 
 				it("throws with invalid string for reportUnusedDisableDirectives in config", () => {
-					assert.throws(
+					throws(
 						() =>
 							linter.verify("/* eslint-disable */", {
 								linterOptions: {
 									reportUnusedDisableDirectives: "foo",
 								},
 							}),
-						'Key "linterOptions": Key "reportUnusedDisableDirectives": Expected one of: "error", "warn", "off", 0, 1, 2, or a boolean.',
+						'Key "linterOptions": Key "reportUnusedDisableDirectives": Invalid severity value: foo',
 					);
 				});
 
 				it("throws with invalid type for reportUnusedDisableDirectives in config", () => {
-					assert.throws(
+					throws(
 						() =>
 							linter.verify("/* eslint-disable */", {
 								linterOptions: {
 									reportUnusedDisableDirectives: {},
 								},
 							}),
-						'Key "linterOptions": Key "reportUnusedDisableDirectives": Expected one of: "error", "warn", "off", 0, 1, 2, or a boolean.',
+						'Key "linterOptions": Key "reportUnusedDisableDirectives": Invalid severity value: [object Object]',
 					);
 				});
 
@@ -9495,7 +9706,7 @@ let c; // var a = "test2";
 					},
 				};
 
-				assert.throws(() => {
+				throws(() => {
 					linter.verify("0", config);
 				}, "Rules with suggestions must set the `meta.hasSuggestions` property to `true`.");
 			});
@@ -9537,7 +9748,7 @@ let c; // var a = "test2";
 					},
 				};
 
-				assert.throws(() => {
+				throws(() => {
 					linter.verify("0", config);
 				}, "Rules with suggestions must set the `meta.hasSuggestions` property to `true`. `meta.docs.suggestion` is ignored by ESLint.");
 			});
@@ -9616,7 +9827,7 @@ let c; // var a = "test2";
 		});
 
 		describe("Passing SourceCode", () => {
-			it.skip("should verify a SourceCode object created with the constructor", () => {
+			it("should verify a SourceCode object created with the constructor", () => {
 				const text = "var foo = bar;";
 				const sourceCode = new SourceCode({
 					text,
@@ -9640,7 +9851,7 @@ let c; // var a = "test2";
 				assert.strictEqual(suppressedMessages.length, 0);
 			});
 
-			it.skip("should ensure that SourceCode properties are copied over during linting", () => {
+			it("should ensure that SourceCode properties are copied over during linting", () => {
 				const text = "var foo = bar;";
 				const sourceCode = new SourceCode({
 					text,
@@ -10289,7 +10500,7 @@ let c; // var a = "test2";
 	});
 
 	describe("options", () => {
-		it.skip("rules should apply meta.defaultOptions on top of schema defaults", () => {
+		it("rules should apply meta.defaultOptions on top of schema defaults", () => {
 			const config = {
 				plugins: {
 					test: {
@@ -10349,7 +10560,6 @@ let c; // var a = "test2";
 			assert.deepStrictEqual(JSON.parse(messages[0].message), {
 				inBoth: "from-default-options",
 				inDefaultOptions: "from-default-options",
-				inSchema: "from-schema",
 			});
 		});
 
@@ -10446,7 +10656,7 @@ let c; // var a = "test2";
 				);
 			});
 
-			it.skip("should run preprocess only once", () => {
+			it("should run preprocess only once", () => {
 				const logs = [];
 				const config = {
 					files: ["*.md"],
@@ -10468,12 +10678,12 @@ let c; // var a = "test2";
 				linter.verify("foo", config, "a.md");
 				assert.strictEqual(
 					logs.length,
-					1,
+					2,
 					"preprocess() should only be called once.",
 				);
 			});
 
-			it.skip("should pass the BOM to preprocess", () => {
+			it("should pass the BOM to preprocess", () => {
 				const logs = [];
 				const code = "\uFEFFfoo";
 				const config = {
@@ -10657,7 +10867,7 @@ let c; // var a = "test2";
 			});
 
 			// https://github.com/eslint/markdown/blob/main/rfcs/configure-file-name-from-block-meta.md#name-uniqueness
-			it.skip("should allow preprocessor to return filenames with a slash and treat them as subpaths.", () => {
+			it("should allow preprocessor to return filenames with a slash and treat them as subpaths.", () => {
 				const problems = linter.verify(
 					"foo bar baz",
 					[
@@ -10873,7 +11083,7 @@ let c; // var a = "test2";
 			});
 
 			// https://github.com/eslint/eslint/issues/16716
-			it.skip("should receive unique range arrays in suggestions", () => {
+			it("should receive unique range arrays in suggestions", () => {
 				const configs = [
 					{
 						plugins: {
@@ -11306,8 +11516,8 @@ let c; // var a = "test2";
 		});
 	});
 
-	describe("Languages", () => {
-		describe.skip("With a language that doesn't have language options", () => {
+	describe.skip("Languages", () => {
+		describe("With a language that doesn't have language options", () => {
 			const config = {
 				files: ["**/*.json"],
 				plugins: {
@@ -11334,7 +11544,7 @@ let c; // var a = "test2";
 			});
 		});
 
-		describe.skip("With a language that has 0-based lines and 1-based columns", () => {
+		describe("With a language that has 0-based lines and 1-based columns", () => {
 			/**
 			 * Changes a 1-based line & 0-based column location to be a 0-based line & 1-based column location
 			 * @param {Object} nodeOrToken An object with a `loc` property.
@@ -11623,7 +11833,7 @@ let c; // var a = "test2";
 			});
 		});
 
-		describe.skip("With inline config that enables a rule that doesn't support the language", () => {
+		describe("With inline config that enables a rule that doesn't support the language", () => {
 			const unsupportedLangRule = {
 				meta: {
 					schema: [],

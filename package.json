@@ -1,6 +1,6 @@
 {
 	"name": "@bhsd/eslint-browserify",
-	"version": "10.11.0",
+	"version": "10.12.0",
 	"description": "ESLint in browser",
 	"keywords": [
 		"eslint",
@@ -43,13 +43,13 @@
 		"clean:vue": "find test/vue/src/ -type f -name '*.ts' | xargs gsed -i \"s|../../eslint-compat|../../rule-tester.js| ; s|import rule from .*|const rule = 'eslint-plugin-vue'| ; s|../../test-utils/typescript|../../typescript.js| ; s|import { eslintStylisticVersion } from .*|const eslintStylisticVersion = undefined| ; s|parser: require.resolve('@typescript-eslint/parser'),\\{0,1\\}||g ; s|__dirname, '../../|process.cwd(), './|\"; eslint --fix --no-inline-config test/vue/src/*.ts"
 	},
 	"devDependencies": {
-		"@bhsd/code-standard": "^4.2.0",
+		"@bhsd/code-standard": "^4.3.0",
 		"@bhsd/nodejs": "^1.2.1",
 		"@bhsd/test-util": "^3.2.1",
-		"@typescript-eslint/parser": "^8.70.0",
+		"@typescript-eslint/parser": "^8.71.0",
 		"esbuild": "^0.28.2",
 		"escape-string-regexp": "^4.0.0",
-		"eslint": "^10.11.0",
+		"eslint": "^10.12.0",
 		"eslint-plugin-vue": "^10.11.1",
 		"esprima": "^4.0.1",
 		"globals": "^17.12.0",
