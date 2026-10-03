@@ -1,6 +1,8 @@
 /**
  * @fileoverview Defines environment settings and globals.
  * @author Elan Shanker
+ * @license MIT
+ * @see https://github.com/eslint/eslintrc/blob/main/conf/environments.js
  */
 
 // ------------------------------------------------------------------------------
