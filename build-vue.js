@@ -2,7 +2,7 @@
 
 const path = require('path'),
 	fs = require('fs'),
-	{spawnSync} = require('child_process'),
+	{execFileSync} = require('child_process'),
 	esbuild = require('esbuild'),
 	{red, ReplacableString} = require('@bhsd/nodejs');
 
@@ -75,16 +75,15 @@ const /** @type {esbuild.Plugin} */ plugin = {
 						.replace(
 							/^([ \t]+)docs: (\{.+?^\1\}),?$/msu,
 							(_, __, docs) => {
-								const {stdout} = spawnSync(
-										process.execPath,
-										[
-											'--permission',
-											'-e',
-											`const obj = ${docs}; console.log(obj.categories ?? '');`,
-										],
-										{encoding: 'utf8'},
-									),
-									categories = stdout.trim();
+								const categories = execFileSync(
+									process.execPath,
+									[
+										'--permission',
+										'-e',
+										`const obj = ${docs}; console.log(obj.categories ?? '');`,
+									],
+									{encoding: 'utf8'},
+								).trim();
 								return categories ? `docs: {categories: ${categories}},` : '';
 							},
 						);

@@ -6,10 +6,50 @@
 
 ## API
 
-The `eslint` global variable has a `Linter` constructor.
+The `eslint` global variable has two constructors: [`Linter`](#linter) and
+[`LegacyLinter`](#legacylinter).
 
 ```js
-const linter = new eslint.Linter();
+const linter = new eslint.Linter(); // Use this for flat config
+const legacyLinter = new eslint.LegacyLinter(); // Use this for legacy eslintrc config
+```
+
+The `eslint` global variable also has an async `loadPlugin()` method that can be
+used to load plugins lazily. Currently, [eslint-plugin-vue](#vue-support) is supported.
+
+## Vue support
+
+For Vue code linting, [eslint-plugin-vue](https://eslint.vuejs.org/) can be lazy-loaded:
+
+```js
+await eslint.loadPlugin('vue');
+// or:
+await eslint.loadPlugin('eslint-plugin-vue');
+```
+
+After loading, you can use [Vue preset configurations](https://eslint.vuejs.org/user-guide/#bundle-configurations-eslint-config-js)
+via legacy eslintrc [`extends`](https://eslint.org/docs/v9.x/use/configure/configuration-files-deprecated#extending-configuration-files),
+and use [Vue rules](https://eslint.vuejs.org/rules/) directly.
+
+For [flat config](https://eslint.org/docs/latest/use/configure/configuration-files#configuration-objects),
+this bundle currently exposes only `*.configs.base`.
+
+```js
+// Legacy eslintrc preset configuration
+const eslintrc = {
+	extends: ['plugin:vue/essential'],
+};
+
+// Flat config (base + explicit rules)
+const {vue} = eslint.plugins;
+const flatConfig = [
+	...vue.configs.base,
+	{
+		rules: {
+			'vue/valid-v-if': 2,
+		},
+	},
+];
 ```
 
 ## Linter
@@ -20,13 +60,11 @@ parses and reports on the code.
 ### Linter#verify
 
 The most important method on `Linter` is `verify()`, which initiates linting of
-the given text. This method accepts three arguments:
+the given text. This method accepts two arguments:
 
 - `code` - the source code to lint (a string).
-- `config` - a [configuration object](https://eslint.org/docs/latest/use/configure/configuration-files#configuration-objects)
+- `config` - flat config: a [configuration object](https://eslint.org/docs/latest/use/configure/configuration-files#configuration-objects)
   or an array of configuration objects.
-
-You can call `verify()` like this:
 
 ```js
 const linter = new eslint.Linter();
@@ -84,10 +122,10 @@ The information available for each linting message is:
 
 ### Linter#verifyAndFix
 
-This method is similar to verify except that it also runs autofixing logic,
-similar to the `--fix` flag on the command line. The result object will contain
-the autofixed code, along with any remaining linting messages for the code that
-were not autofixed.
+This method is similar to [`verify`](#linterverify) except that it also runs
+autofixing logic, similar to the `--fix` flag on the command line. The result
+object will contain the autofixed code, along with any remaining linting
+messages for the code that were not autofixed.
 
 ```js
 const linter = new eslint.Linter();
@@ -115,3 +153,31 @@ The information available is:
 - `output` - fixed code text (might be the same as input if no fixes were applied).
 - `messages` - collection of all messages for the given code (It has the same
   information as explained above under [`verify`](#linterverify) block).
+
+## LegacyLinter
+
+Similar to [`Linter`](#linter), the `LegacyLinter` instance reports on the code
+with a `verify()` method and a `verifyAndFix()` method. The difference is that
+it uses the legacy [eslintrc](https://eslint.org/docs/v9.x/use/configure/configuration-files-deprecated)
+configuration format instead of the flat config format, and a preset
+configuration [`eslint:recommended`](https://eslint.org/docs/v9.x/use/configure/configuration-files-deprecated#using-eslintrecommended)
+can be used directly with [`extends`](https://eslint.org/docs/v9.x/use/configure/configuration-files-deprecated#extending-configuration-files).
+
+```js
+const linter = new eslint.LegacyLinter();
+
+const messages = linter.verify(
+	"var foo",
+	{
+		extends: ['eslint:recommended'],
+	},
+);
+
+await eslint.loadPlugin('vue');
+const vueMessages = linter.verify(
+	"<template><div v-if /></template>",
+	{
+		extends: ['plugin:vue/essential'],
+	},
+);
+```

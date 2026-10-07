@@ -2,7 +2,7 @@
 
 const path = require('path'),
 	fs = require('fs'),
-	{spawnSync} = require('child_process'),
+	{execFileSync} = require('child_process'),
 	esbuild = require('esbuild'),
 	{red, ReplacableString} = require('@bhsd/nodejs');
 
@@ -101,18 +101,17 @@ const /** @type {esbuild.Plugin} */ plugin = {
 						)
 						.replace(
 							/^([ \t]+)docs: (\{.+?^\1\}),?$/msu,
-							(_, __, docs) => {
-								const {stdout} = spawnSync(
-									process.execPath,
-									[
-										'--permission',
-										'-e',
-										`const obj = ${docs}; console.log(obj.recommended ? 1 : '');`,
-									],
-									{encoding: 'utf8'},
-								);
-								return stdout.trim() ? 'docs: {recommended: true},' : '';
-							},
+							(_, __, docs) => execFileSync(
+								process.execPath,
+								[
+									'--permission',
+									'-e',
+									`const obj = ${docs}; console.log(obj.recommended ? 1 : '');`,
+								],
+								{encoding: 'utf8'},
+							).trim()
+								? 'docs: {recommended: true},'
+								: '',
 						);
 					isRule = false;
 				}
