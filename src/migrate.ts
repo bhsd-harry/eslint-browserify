@@ -25,20 +25,6 @@ export const plugins: Record<string, ESLint.Plugin> = {
 	},
 };
 
-const vueConfigs = [
-	'base',
-	'essential',
-	'strongly-recommended',
-	'strongly-recommended-error',
-	'recommended',
-	'recommended-error',
-	'vue2-essential',
-	'vue2-strongly-recommended',
-	'vue2-strongly-recommended-error',
-	'vue2-recommended',
-	'vue2-recommended-error',
-].map(c => `plugin:vue/${c}`);
-
 const createRuleConfig = (rules: Linter.RulesRecord): Linter.Config[] =>
 	Object.keys(rules).length === 0 ? [] : [{rules}];
 
@@ -53,52 +39,20 @@ const createExtends = (configExtends: Linter.LegacyConfig['extends']): Linter.Co
 	} else if (configExtendsArray.includes('eslint:recommended')) {
 		Object.assign(ruleRecord, recommended);
 	}
-	if (plugins['vue']?.meta?.name === 'eslint-plugin-vue' && configExtendsArray.some(e => vueConfigs.includes(e))) {
-		const {configs, rules} = plugins['vue'],
-			base = configs!['flat/base'] as Linter.Config[],
-			vueExtends = configExtendsArray.filter(e => vueConfigs.includes(e)).map(e => e.slice(11)),
-			active = {
-				'vue3-essential': 0,
-				'vue3-strongly-recommended': 0,
-				'vue3-recommended': 0,
-				'vue2-essential': 0,
-				'vue2-strongly-recommended': 0,
-				'vue2-recommended': 0,
-			};
-		for (const e of vueExtends) {
-			switch (e) {
-				case 'recommended':
-				case 'recommended-error':
-					active['vue3-recommended'] = e === 'recommended' ? 1 : 2;
-					// falls through
-				case 'strongly-recommended':
-				case 'strongly-recommended-error':
-					active['vue3-strongly-recommended'] = e === 'strongly-recommended' ? 1 : 2;
-					// falls through
-				case 'essential':
-					active['vue3-essential'] = 2;
-					break;
-				case 'vue2-recommended':
-				case 'vue2-recommended-error':
-					active['vue2-recommended'] = e === 'vue2-recommended' ? 1 : 2;
-					// falls through
-				case 'vue2-strongly-recommended':
-				case 'vue2-strongly-recommended-error':
-					active['vue2-strongly-recommended'] = e === 'vue2-strongly-recommended' ? 1 : 2;
-					// falls through
-				case 'vue2-essential':
-					active['vue2-essential'] = 2;
-				// no default
+	if (plugins['vue']?.meta?.name === 'eslint-plugin-vue') {
+		const {configs} = plugins['vue'],
+			vueConfigs = Object.keys(configs!).map(c => `plugin:vue/${c.slice(5)}`),
+			vueExtends = configExtendsArray.filter(e => vueConfigs.includes(e))
+				.map(e => `flat/${e.slice(11)}` as keyof typeof configs);
+		if (vueExtends.length > 0) {
+			const base = configs!['flat/base'] as Linter.Config[];
+			for (const e of vueExtends) {
+				for (const {rules} of (configs![e] as Linter.Config[]).slice(1)) {
+					Object.assign(ruleRecord, rules);
+				}
 			}
+			return [...base, ...createRuleConfig(ruleRecord)];
 		}
-		for (const rule in rules) {
-			const category = (rules[rule]!.meta?.docs as {categories?: string[]} | undefined)?.categories
-				?.find(c => active[c as keyof typeof active]) as keyof typeof active | undefined;
-			if (category) {
-				ruleRecord[`vue/${rule}`] = active[category] as 1 | 2;
-			}
-		}
-		return [...base, ...createRuleConfig(ruleRecord)];
 	}
 	return createRuleConfig(ruleRecord);
 };
