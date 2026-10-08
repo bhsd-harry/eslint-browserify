@@ -44,7 +44,7 @@ describe('comment-directive', () => {
     pluginVue = eslint.plugins['vue'] ?? (await import('../../../build/eslint-plugin-vue.js')).default;
 
     linter = new eslint.Linter();
-    parserVue = pluginVue.configs!['base'][1].languageOptions.parser;
+    parserVue = pluginVue.configs!['flat/base'][1].languageOptions.parser;
     processor = pluginVue.processors['vue'];
 
     // Initialize linter.

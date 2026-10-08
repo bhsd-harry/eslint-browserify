@@ -1,11 +1,29 @@
 import {builtinRules} from 'eslint/use-at-your-own-risk';
 import environments from '../vendor/environments.mjs'; // eslint-disable-line n/no-missing-import
-import type {Linter, ESLint, Rule} from 'eslint';
+import type {Linter, ESLint} from 'eslint';
 
 declare type Config = Linter.LegacyConfig | Linter.Config;
 
 export {environments};
-export const plugins: Record<string, ESLint.Plugin> = {};
+
+const recommended: Linter.RulesRecord = {},
+	all: Linter.RulesRecord = {};
+for (const [rule, {meta}] of builtinRules) {
+	if (!meta?.deprecated) {
+		all[rule] = 2;
+	}
+	if (meta?.docs?.recommended) {
+		recommended[rule] = 2;
+	}
+}
+export const plugins: Record<string, ESLint.Plugin> = {
+	js: {
+		configs: {
+			recommended: Object.freeze({rules: Object.freeze(recommended)}),
+			all: Object.freeze({rules: Object.freeze(all)}),
+		},
+	},
+};
 
 const vueConfigs = [
 	'base',
@@ -29,20 +47,15 @@ const createExtends = (configExtends: Linter.LegacyConfig['extends']): Linter.Co
 		return [];
 	}
 	const configExtendsArray = Array.isArray(configExtends) ? configExtends : [configExtends],
-		rules: Linter.RulesRecord = {},
-		all = configExtendsArray.includes('eslint:all');
-	if (all || configExtendsArray.includes('eslint:recommended')) {
-		const filter = (meta: Rule.RuleMetaData | undefined): unknown =>
-			all ? !meta?.deprecated : meta?.docs?.recommended;
-		for (const [rule, {meta}] of builtinRules) {
-			if (filter(meta)) {
-				rules[rule] = 2;
-			}
-		}
+		ruleRecord: Linter.RulesRecord = {};
+	if (configExtendsArray.includes('eslint:all')) {
+		Object.assign(ruleRecord, all);
+	} else if (configExtendsArray.includes('eslint:recommended')) {
+		Object.assign(ruleRecord, recommended);
 	}
 	if (plugins['vue']?.meta?.name === 'eslint-plugin-vue' && configExtendsArray.some(e => vueConfigs.includes(e))) {
-		const plugin = plugins['vue'],
-			base = plugin.configs!['base'] as Linter.Config[],
+		const {configs, rules} = plugins['vue'],
+			base = configs!['flat/base'] as Linter.Config[],
 			vueExtends = configExtendsArray.filter(e => vueConfigs.includes(e)).map(e => e.slice(11)),
 			active = {
 				'vue3-essential': 0,
@@ -78,16 +91,16 @@ const createExtends = (configExtends: Linter.LegacyConfig['extends']): Linter.Co
 				// no default
 			}
 		}
-		for (const rule in plugin.rules) {
-			const category = (plugin.rules[rule]!.meta?.docs as {categories?: string[]} | undefined)?.categories
+		for (const rule in rules) {
+			const category = (rules[rule]!.meta?.docs as {categories?: string[]} | undefined)?.categories
 				?.find(c => active[c as keyof typeof active]) as keyof typeof active | undefined;
 			if (category) {
-				rules[`vue/${rule}`] = active[category] as 1 | 2;
+				ruleRecord[`vue/${rule}`] = active[category] as 1 | 2;
 			}
 		}
-		return [...base, ...createRuleConfig(rules)];
+		return [...base, ...createRuleConfig(ruleRecord)];
 	}
-	return createRuleConfig(rules);
+	return createRuleConfig(ruleRecord);
 };
 
 const createLinterOptions = (config: Linter.LegacyConfig): Linter.LinterOptions | undefined =>

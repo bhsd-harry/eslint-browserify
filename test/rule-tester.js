@@ -69,7 +69,7 @@ class RuleTester {
 			rule = `vue/${rule}`; // eslint-disable-line no-param-reassign
 		}
 		if (this.config.languageOptions?.parser?.meta?.name === 'vue-eslint-parser') {
-			this.config.languageOptions.parser = vue.configs.base[1].languageOptions.parser;
+			this.config.languageOptions.parser = vue.configs['flat/base'][1].languageOptions.parser;
 		}
 		describe(rule, () => {
 			assert.ok(isKnownParser(this.config));

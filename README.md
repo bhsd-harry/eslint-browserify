@@ -6,18 +6,34 @@
 
 ## API
 
-This package exposes an `eslint` global variable, which has two constructors:
-[`Linter`](#linter) and [`LegacyLinter`](#legacylinter).
+This package exposes an `eslint` global variable, which has two constructors,
+[`Linter`](#linter) and [`LegacyLinter`](#legacylinter), a [`plugins`](#plugins)
+object and an async [`loadPlugin`](#loadplugin) method.
+
+## loadPlugin
+
+The async `loadPlugin()` method can be used to load plugins lazily. Loaded
+plugins will be available in the [`plugins`](#plugins) object. Currently,
+[eslint-plugin-vue](#eslint-plugin-vue) is supported.
 
 ```js
-const linter = new eslint.Linter(); // Use this for flat config
-const legacyLinter = new eslint.LegacyLinter(); // Use this for legacy eslintrc config
+await eslint.loadPlugin('eslint-plugin-vue');
 ```
 
-The `eslint` global variable also has an async `loadPlugin()` method that can be
-used to load plugins lazily. Currently, [eslint-plugin-vue](#vue-support) is supported.
+## plugins
 
-## Vue support
+The `plugins` object contains preset configurations for the built-in ESLint
+rules and [lazy-loaded](#loadplugin) plugins, which can be used in the
+[flat config](https://eslint.org/docs/latest/use/configure/configuration-files#configuration-objects)
+for an [`Linter`](#linter) instance.
+
+```js
+const {js} = eslint.plugins;
+const configWithRecommendedRules = js.configs.recommended;
+const configWithAllRules = js.configs.all;
+```
+
+### eslint-plugin-vue
 
 For Vue code linting, [eslint-plugin-vue](https://eslint.vuejs.org/) can be lazy-loaded:
 
@@ -31,31 +47,26 @@ After loading, you can use [Vue preset configurations](https://eslint.vuejs.org/
 via legacy eslintrc [`extends`](https://eslint.org/docs/v9.x/use/configure/configuration-files-deprecated#extending-configuration-files),
 and use [Vue rules](https://eslint.vuejs.org/rules/) directly.
 
-For [flat config](https://eslint.org/docs/latest/use/configure/configuration-files#configuration-objects),
-this bundle currently exposes only `*.configs.base`.
-
 ```js
-// Legacy eslintrc preset configuration
 const eslintrc = {
 	extends: ['plugin:vue/essential'],
 };
+```
 
-// Flat config (base + explicit rules)
+For [flat config](https://eslint.org/docs/latest/use/configure/configuration-files#configuration-objects),
+Vue preset configurations can be accessed via [`eslint.plugins.vue`](#plugins).
+
+```js
 const {vue} = eslint.plugins;
 const flatConfig = [
-	...vue.configs.base,
-	{
-		rules: {
-			'vue/valid-v-if': 2,
-		},
-	},
+	...vue.configs['flat/essential'],
 ];
 ```
 
 ## Linter
 
 The `Linter` instance does the actual evaluation of the JavaScript code. It
-parses and reports on the code.
+parses and reports on the code. `Linter` uses the [flat config](https://eslint.org/docs/latest/use/configure/configuration-files#configuration-objects).
 
 ### verify
 
@@ -68,14 +79,11 @@ the given text. This method accepts two arguments:
 
 ```js
 const linter = new eslint.Linter();
+const {js} = eslint.plugins;
 
 const messages = linter.verify(
 	"var foo",
-	{
-		rules: {
-			semi: 2,
-		},
-	},
+	js.configs.recommended,
 );
 ```
 
@@ -85,32 +93,41 @@ the linting warnings and errors. Here's an example:
 ```js
 [
 	{
-		fatal: false,
-		ruleId: "semi",
+		ruleId: "no-unused-vars",
 		severity: 2,
+		message: "'foo' is defined but never used.",
 		line: 1,
-		column: 8,
-		message: "Missing semicolon.",
-		fix: {
-			range: [7, 7],
-			text: ";",
-		},
+		column: 5,
+		messageId: "unusedVar",
+		endLine: 1,
+		endColumn: 8,
+		suggestions: [
+			{
+				desc: "Remove unused variable 'foo'.",
+				messageId: 'removeVar',
+				data: {varName: 'foo'},
+				fix: {
+					range: [0, 7],
+					text: '',
+				},
+			},
+		],
 	},
 ];
 ```
 
 The information available for each linting message is:
 
-- `column` - the column on which the error occurred.
 - `fatal` - usually omitted, but will be set to true if there's a parsing error
   (not related to a rule).
-- `line` - the line on which the error occurred.
 - `message` - the message that should be output.
 - `messageId` - the ID of the message used to generate the message (this
   property is omitted if the rule does not use message IDs).
 - `ruleId` - the ID of the rule that triggered the messages (or null if `fatal`
   is true).
 - `severity` - either 1 or 2, depending on your configuration.
+- `column` - the column on which the error occurred.
+- `line` - the line on which the error occurred.
 - `endColumn` - the end column of the range on which the error occurred (this
   property is omitted if it's not range).
 - `endLine` - the end line of the range on which the error occurred (this
