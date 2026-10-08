@@ -1,6 +1,6 @@
 import {builtinRules} from 'eslint/use-at-your-own-risk';
 import environments from '../vendor/environments.mjs'; // eslint-disable-line n/no-missing-import
-import type {Linter, ESLint} from 'eslint';
+import type {Linter, ESLint, Rule} from 'eslint';
 
 declare type Config = Linter.LegacyConfig | Linter.Config;
 
@@ -29,10 +29,13 @@ const createExtends = (configExtends: Linter.LegacyConfig['extends']): Linter.Co
 		return [];
 	}
 	const configExtendsArray = Array.isArray(configExtends) ? configExtends : [configExtends],
-		rules: Linter.RulesRecord = {};
-	if (configExtendsArray.includes('eslint:recommended')) {
+		rules: Linter.RulesRecord = {},
+		all = configExtendsArray.includes('eslint:all');
+	if (all || configExtendsArray.includes('eslint:recommended')) {
+		const filter = (meta: Rule.RuleMetaData | undefined): unknown =>
+			all ? !meta?.deprecated : meta?.docs?.recommended;
 		for (const [rule, {meta}] of builtinRules) {
-			if (meta?.docs?.recommended) {
+			if (filter(meta)) {
 				rules[rule] = 2;
 			}
 		}

@@ -6,8 +6,8 @@
 
 ## API
 
-The `eslint` global variable has two constructors: [`Linter`](#linter) and
-[`LegacyLinter`](#legacylinter).
+This package exposes an `eslint` global variable, which has two constructors:
+[`Linter`](#linter) and [`LegacyLinter`](#legacylinter).
 
 ```js
 const linter = new eslint.Linter(); // Use this for flat config
@@ -57,7 +57,7 @@ const flatConfig = [
 The `Linter` instance does the actual evaluation of the JavaScript code. It
 parses and reports on the code.
 
-### Linter#verify
+### verify
 
 The most important method on `Linter` is `verify()`, which initiates linting of
 the given text. This method accepts two arguments:
@@ -120,9 +120,9 @@ The information available for each linting message is:
 - `suggestions` - an array of objects describing possible lint fixes for editors
   to programmatically enable.
 
-### Linter#verifyAndFix
+### verifyAndFix
 
-This method is similar to [`verify`](#linterverify) except that it also runs
+This method is similar to [`verify`](#verify) except that it also runs
 autofixing logic, similar to the `--fix` flag on the command line. The result
 object will contain the autofixed code, along with any remaining linting
 messages for the code that were not autofixed.
@@ -152,15 +152,16 @@ The information available is:
 - `fixed` - true, if the code was fixed.
 - `output` - fixed code text (might be the same as input if no fixes were applied).
 - `messages` - collection of all messages for the given code (It has the same
-  information as explained above under [`verify`](#linterverify) block).
+  information as explained above under [`verify`](#verify) block).
 
 ## LegacyLinter
 
 Similar to [`Linter`](#linter), the `LegacyLinter` instance reports on the code
-with a `verify()` method and a `verifyAndFix()` method. The difference is that
-it uses the legacy [eslintrc](https://eslint.org/docs/v9.x/use/configure/configuration-files-deprecated)
-configuration format instead of the flat config format, and a preset
-configuration [`eslint:recommended`](https://eslint.org/docs/v9.x/use/configure/configuration-files-deprecated#using-eslintrecommended)
+with a [`verify()`](#verify) method and a [`verifyAndFix()`](#verifyandfix)
+method. The difference is that it uses the legacy [eslintrc](https://eslint.org/docs/v9.x/use/configure/configuration-files-deprecated)
+configuration format instead of the flat config format, and preset
+configurations [`eslint:recommended`](https://eslint.org/docs/v9.x/use/configure/configuration-files-deprecated#using-eslintrecommended)
+and [`eslint:all`](https://eslint.org/docs/v9.x/use/configure/configuration-files-deprecated#using-eslintall)
 can be used directly with [`extends`](https://eslint.org/docs/v9.x/use/configure/configuration-files-deprecated#extending-configuration-files).
 
 ```js
