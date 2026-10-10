@@ -59,7 +59,7 @@ const newGlobals2025 = {
 // ------------------------------------------------------------------------------
 
 /** @type {Map<string, import("../lib/shared/types").Environment>} */
-export default new Map(Object.entries({
+const environments = new Map(Object.entries({
 
 	// Language
 	builtin: {
@@ -182,3 +182,5 @@ export default new Map(Object.entries({
 		globals: globals.jquery,
 	},
 }));
+
+export default environments;

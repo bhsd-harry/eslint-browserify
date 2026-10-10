@@ -1,16 +1,12 @@
-const curry$ = function(f, bound) {
-	let context;
+const curry$ = function(f) {
 	const curry = function(args) {
-		return f.length > 1
-			? function() {
-				const params = args ? [...args] : [];
-				context = bound ? context || this : this;
-				// eslint-disable-next-line prefer-spread, prefer-rest-params
-				return params.push.apply(params, arguments) < f.length && arguments.length > 0
-					? curry.call(context, params)
-					: f.apply(context, params);
-			}
-			: f;
+		return function() {
+			const params = args ? [...args] : [];
+			// eslint-disable-next-line prefer-spread, prefer-rest-params
+			return params.push.apply(params, arguments) < 2 && arguments.length > 0
+				? curry.call(this, params)
+				: f.apply(this, params);
+		};
 	};
 	return curry();
 };

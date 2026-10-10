@@ -1,6 +1,6 @@
 import {node, extend, browser} from '@bhsd/code-standard';
 
-export default extend(
+const config = extend(
 	...node,
 	{
 		ignores: [
@@ -133,3 +133,5 @@ export default extend(
 		},
 	},
 );
+
+export default config;
